@@ -145,7 +145,7 @@ export default function WaitlistPage() {
                 color: 'rgba(255,255,255,0.5)',
               }}
             >
-              Pulse / Orbit
+              Pulse
             </span>
           </div>
 
@@ -276,7 +276,7 @@ export default function WaitlistPage() {
                   src={`https://form.typeform.com/to/${TYPEFORM_FORM_ID}${email ? `#email=${encodeURIComponent(email)}` : ''}`}
                   style={{ width: '100%', height: '550px', border: 'none' }}
                   allow="camera; microphone"
-                  title="Pulse / Orbit"
+                  title="Pulse"
                 />
               )}
             </div>
