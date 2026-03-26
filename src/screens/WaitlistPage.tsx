@@ -155,10 +155,10 @@ export default function WaitlistPage() {
           <h1 className={`font-display text-[clamp(2.8rem,8vw,5.5rem)] leading-[0.95] text-white mb-6 transition-all duration-[1.6s] delay-300 ${
             loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
-            Chemistry
+            Five minutes
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-pulse via-pink-400 to-pulse-bright">
-              can't be swiped.
+              of real.
             </span>
           </h1>
 
