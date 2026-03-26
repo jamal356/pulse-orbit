@@ -108,7 +108,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
     setHeartbeatSpeed(1)
     setPulseCount(0)
     let speed = 1
-    const accelInterval = setInterval(() => { speed += 0.4; setHeartbeatSpeed(speed); setPulseCount(p => p + 1) }, 400)
+    const accelInterval = setInterval(() => { speed += 0.4; setHeartbeatSpeed(speed); setPulseCount(p => p + 1) }, 250)
     revealTimeoutRef.current = setTimeout(() => {
       clearInterval(accelInterval)
       setCardStates(prev => { const next = [...prev]; next[currentIndex] = 'revealed'; return next })
@@ -119,7 +119,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
         setShowConfetti(true)
         setTimeout(() => setShowConfetti(false), 4000)
       }
-    }, 3000)
+    }, 1500)
     return () => { clearInterval(accelInterval); if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current) }
   }, [currentIndex, ratings])
 
@@ -133,9 +133,9 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
     }
   }, [currentIndex])
 
-  useEffect(() => { if (phase === 'intro') { const t = setTimeout(startReveal, 2500); return () => clearTimeout(t) } }, [phase, startReveal])
-  useEffect(() => { if (cardStates[currentIndex] === 'yours') { const t = setTimeout(revealCurrent, 2000); return () => clearTimeout(t) } }, [cardStates, currentIndex, revealCurrent])
-  useEffect(() => { if (cardStates[currentIndex] === 'revealed') { const t = setTimeout(nextPerson, 3500); return () => clearTimeout(t) } }, [cardStates, currentIndex, nextPerson])
+  useEffect(() => { if (phase === 'intro') { const t = setTimeout(startReveal, 1500); return () => clearTimeout(t) } }, [phase, startReveal])
+  useEffect(() => { if (cardStates[currentIndex] === 'yours') { const t = setTimeout(revealCurrent, 800); return () => clearTimeout(t) } }, [cardStates, currentIndex, revealCurrent])
+  useEffect(() => { if (cardStates[currentIndex] === 'revealed') { const t = setTimeout(nextPerson, 1500); return () => clearTimeout(t) } }, [cardStates, currentIndex, nextPerson])
 
   return (
     <div className="fixed inset-0 bg-[#2A2A2E] overflow-hidden">
@@ -560,6 +560,23 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                     <p className="text-sm"><span className="font-semibold text-white">{item.metric}</span> <span className="text-[#98989D]">&mdash; {item.insight}</span></p>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Sponsor deal reminder */}
+            <div className="glass-tile rounded-2xl overflow-hidden mb-6" style={{ border: '1px solid rgba(201,149,107,0.20)' }}>
+              <div className="flex items-center gap-4 p-4">
+                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                  <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&q=80" alt="The Palm" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-[#C9956B] font-semibold uppercase tracking-wider">Your Exclusive Offer</p>
+                  <p className="text-sm text-white font-medium mt-0.5">The Palm Jumeirah — Sunset Dinner for Two</p>
+                  <p className="text-xs text-[#7A7A80] mt-0.5">Complimentary with your match tonight</p>
+                </div>
+                <button className="shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all hover:scale-105" style={{ background: 'rgba(201,149,107,0.15)', color: '#C9956B', border: '1px solid rgba(201,149,107,0.25)' }}>
+                  Claim
+                </button>
               </div>
             </div>
 
