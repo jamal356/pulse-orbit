@@ -20,16 +20,25 @@ interface Slide {
   accent?: string
 }
 
+/* Profile photos — mix of men and women */
+const profilePhotos = {
+  woman1: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80',
+  man1: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80',
+  woman2: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80',
+  man2: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80',
+  woman3: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80',
+}
+
 const slides: Slide[] = [
-  // Profile teasers use blurred candidate photos as cinematic backdrops
+  // Profile — woman
   {
     type: 'profile',
-    image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1920&q=80',
+    image: profilePhotos.woman1,
     title: '"I believe in love at first conversation."',
     subtitle: 'Dubai Marina · 26-30',
     tags: ['Creative', 'Foodie', 'Travel'],
   },
-  // Sponsor ad
+  // Sponsor
   {
     type: 'sponsor',
     image: sponsors[0].image,
@@ -38,14 +47,15 @@ const slides: Slide[] = [
     cta: sponsors[0].cta,
     accent: sponsors[0].accent,
   },
+  // Profile — man
   {
     type: 'profile',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1920&q=80',
+    image: profilePhotos.man1,
     title: '"Energy doesn\'t lie."',
-    subtitle: 'Downtown Dubai · 29-33',
-    tags: ['Wellness', 'Entrepreneur', 'Music'],
+    subtitle: 'Downtown Dubai · 28-32',
+    tags: ['Fitness', 'Entrepreneur', 'Music'],
   },
-  // Sponsor ad
+  // Sponsor
   {
     type: 'sponsor',
     image: sponsors[1].image,
@@ -54,14 +64,15 @@ const slides: Slide[] = [
     cta: sponsors[1].cta,
     accent: sponsors[1].accent,
   },
+  // Profile — woman
   {
     type: 'profile',
-    image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1920&q=80',
+    image: profilePhotos.woman2,
     title: '"Show me your playlist, I\'ll show you my soul."',
     subtitle: 'Abu Dhabi · 24-28',
     tags: ['Art', 'Dance', 'Coffee'],
   },
-  // Sponsor ad
+  // Sponsor
   {
     type: 'sponsor',
     image: sponsors[2].image,
@@ -70,14 +81,15 @@ const slides: Slide[] = [
     cta: sponsors[2].cta,
     accent: sponsors[2].accent,
   },
+  // Profile — man
   {
     type: 'profile',
-    image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=1920&q=80',
+    image: profilePhotos.man2,
     title: '"I can talk about anything for five minutes."',
     subtitle: 'Riyadh · 27-31',
     tags: ['Tech', 'Hiking', 'Podcasts'],
   },
-  // Sponsor ad
+  // Sponsor
   {
     type: 'sponsor',
     image: sponsors[3].image,
@@ -86,16 +98,17 @@ const slides: Slide[] = [
     cta: sponsors[3].cta,
     accent: sponsors[3].accent,
   },
+  // Profile — woman
   {
     type: 'profile',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1920&q=80',
+    image: profilePhotos.woman3,
     title: '"The eyes say everything."',
     subtitle: 'JBR, Dubai · 31-35',
     tags: ['Fashion', 'Photography', 'Travel'],
   },
 ]
 
-const SLIDE_DURATION = 4000 // 4 seconds per slide
+const SLIDE_DURATION = 7000 // 7 seconds per slide — luxury pace
 
 export default function SessionLobby({ onNavigate }: Props) {
   const [countdown, setCountdown] = useState(120)
@@ -144,23 +157,59 @@ export default function SessionLobby({ onNavigate }: Props) {
       {/* ═══ NETFLIX HERO — full bleed image ═══ */}
       <div className="relative flex-1 min-h-0">
 
-        {/* Background image — full bleed with Ken Burns */}
-        <div
-          className={`absolute inset-0 transition-opacity duration-500 ${transitioning ? 'opacity-0' : 'opacity-100'}`}
-        >
-          <img
-            src={slide.image}
-            alt=""
-            className="w-full h-full object-cover"
-            style={{
-              filter: slide.type === 'profile' ? 'brightness(0.35) blur(1px)' : 'brightness(0.45)',
-              animation: 'ken-burns 20s ease-in-out infinite alternate',
-            }}
-          />
-          {/* Gradient overlays */}
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #1a1a1e 0%, rgba(26,26,30,0.7) 30%, transparent 60%)' }} />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(26,26,30,0.6) 0%, transparent 50%)' }} />
-        </div>
+        {/* ─── SPONSOR SLIDES: full-bleed cinematic image ─── */}
+        {slide.type === 'sponsor' && (
+          <div className={`absolute inset-0 transition-opacity duration-[800ms] ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
+            <img src={slide.image} alt="" className="w-full h-full object-cover"
+              style={{ filter: 'brightness(0.45)', animation: 'ken-burns 25s ease-in-out infinite alternate' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #1a1a1e 0%, rgba(26,26,30,0.7) 30%, transparent 60%)' }} />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(26,26,30,0.5) 0%, transparent 50%)' }} />
+          </div>
+        )}
+
+        {/* ─── PROFILE SLIDES: ambient bg + contained card ─── */}
+        {slide.type === 'profile' && (
+          <div className={`absolute inset-0 transition-opacity duration-[800ms] flex items-center justify-center ${transitioning ? 'opacity-0' : 'opacity-100'}`}
+            style={{ background: 'linear-gradient(170deg, #1C1A22 0%, #16141C 40%, #12111A 100%)' }}>
+            {/* Ambient glow behind card */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+              style={{ width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(224,64,160,0.08) 0%, transparent 60%)' }} />
+
+            {/* Profile card */}
+            <div className="relative z-10 w-72 sm:w-80 rounded-2xl overflow-hidden"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}>
+              <div className="relative h-72 sm:h-80 overflow-hidden">
+                <img src={slide.image} alt="" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(20,18,26,0.95)] via-transparent to-transparent" />
+                <div className="absolute top-3 left-3">
+                  <span className="text-[0.55rem] tracking-[0.15em] uppercase px-2 py-1 rounded"
+                    style={{ background: 'rgba(224,64,160,0.15)', color: '#E040A0' }}>Tonight's lineup</span>
+                </div>
+                <div className="absolute bottom-3 left-4 right-4">
+                  <p className="text-sm mb-1" style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.45)' }}>
+                    {slide.subtitle}
+                  </p>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="text-lg mb-3 leading-snug"
+                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.85)' }}>
+                  {slide.title}
+                </p>
+                {slide.tags && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {slide.tags.map(tag => (
+                      <span key={tag} className="text-[0.65rem] px-2.5 py-1 rounded-full"
+                        style={{ background: 'rgba(224,64,160,0.08)', color: '#E040A0', border: '1px solid rgba(224,64,160,0.12)' }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ─── Top bar: Logo + Countdown ─── */}
         <header className="relative z-20 px-6 py-4 flex items-center justify-between">
@@ -176,58 +225,29 @@ export default function SessionLobby({ onNavigate }: Props) {
           </div>
         </header>
 
-        {/* ─── Bottom content overlay ─── */}
-        <div className={`absolute bottom-0 left-0 right-0 z-20 px-6 pb-6 transition-all duration-500 ${transitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+        {/* ─── Bottom overlay — sponsor info + progress bars ─── */}
+        <div className={`absolute bottom-0 left-0 right-0 z-20 px-6 pb-6 transition-all duration-[800ms] ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
 
+          {/* Sponsor overlay text — only for sponsor slides */}
           {slide.type === 'sponsor' && (
-            <div className="mb-3 flex items-center gap-2">
-              <span className="text-[0.6rem] tracking-[0.15em] uppercase px-2 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.40)' }}>Presented by</span>
-              <span className="text-[0.6rem] tracking-[0.15em] uppercase" style={{ color: slide.accent || 'rgba(255,255,255,0.40)' }}>{slides[currentSlide].tags?.[0] || 'Premium Partner'}</span>
+            <div className="mb-5">
+              <div className="mb-3 flex items-center gap-2">
+                <span className="text-[0.6rem] tracking-[0.15em] uppercase px-2 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.40)' }}>Presented by</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 max-w-xl leading-tight"
+                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, color: 'rgba(255,255,255,0.92)' }}>
+                {slide.title}
+              </h2>
+              <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: "'DM Sans', sans-serif" }}>
+                {slide.subtitle}
+              </p>
+              {slide.cta && (
+                <button className="mb-4 px-6 py-2.5 rounded text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95"
+                  style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)' }}>
+                  {slide.cta} <span className="ml-1">›</span>
+                </button>
+              )}
             </div>
-          )}
-
-          {slide.type === 'profile' && (
-            <div className="mb-3 flex items-center gap-2">
-              <span className="text-[0.6rem] tracking-[0.15em] uppercase px-2 py-0.5 rounded" style={{ background: 'rgba(224,64,160,0.12)', color: '#E040A0' }}>Tonight's lineup</span>
-            </div>
-          )}
-
-          {/* Title */}
-          <h2
-            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 max-w-xl leading-tight"
-            style={{
-              fontFamily: slide.type === 'profile' ? "'Cormorant Garamond', Georgia, serif" : "'Cormorant Garamond', Georgia, serif",
-              fontWeight: slide.type === 'profile' ? 300 : 400,
-              fontStyle: slide.type === 'profile' ? 'italic' : 'normal',
-              color: 'rgba(255,255,255,0.92)',
-            }}
-          >
-            {slide.title}
-          </h2>
-
-          {/* Subtitle */}
-          <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: "'DM Sans', sans-serif" }}>
-            {slide.subtitle}
-          </p>
-
-          {/* Tags for profiles */}
-          {slide.type === 'profile' && slide.tags && (
-            <div className="flex flex-wrap gap-2 mb-5">
-              {slide.tags.map(tag => (
-                <span key={tag} className="text-xs px-3 py-1.5 rounded-full" style={{ background: 'rgba(224,64,160,0.10)', color: '#E040A0', border: '1px solid rgba(224,64,160,0.15)' }}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* CTA for sponsors */}
-          {slide.type === 'sponsor' && slide.cta && (
-            <button className="mb-5 px-6 py-2.5 rounded text-sm font-semibold text-white transition-all hover:scale-105 active:scale-95"
-              style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.10)' }}
-            >
-              {slide.cta} <span className="ml-1">›</span>
-            </button>
           )}
 
           {/* Netflix-style progress bars */}
