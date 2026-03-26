@@ -6,8 +6,9 @@ import LiveSession from './screens/LiveSession'
 import TransitionScreen from './screens/TransitionScreen'
 import MatchSurvey from './screens/MatchSurvey'
 import MatchResults from './screens/MatchResults'
+import InvestorClose from './screens/InvestorClose'
 
-type Screen = 'waitlist' | 'marketing' | 'lobby' | 'session' | 'transition' | 'survey' | 'results'
+type Screen = 'waitlist' | 'marketing' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'close'
 
 /* ─── Route Logic ────────────────────────────────────────────
    Default landing:
@@ -58,6 +59,10 @@ export default function App() {
 
   const handleTransitionComplete = useCallback(() => {
     navigateTo('session')
+  }, [navigateTo])
+
+  const handleResultsContinue = useCallback(() => {
+    navigateTo('close')
   }, [navigateTo])
 
   const handleRestart = useCallback(() => {
@@ -111,6 +116,13 @@ export default function App() {
       )}
       {screen === 'results' && (
         <MatchResults
+          ratings={ratings}
+          onRestart={handleRestart}
+          onContinue={handleResultsContinue}
+        />
+      )}
+      {screen === 'close' && (
+        <InvestorClose
           ratings={ratings}
           onRestart={handleRestart}
         />

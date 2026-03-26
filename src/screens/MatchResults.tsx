@@ -5,6 +5,7 @@ import BackgroundOrbs from '../components/BackgroundOrbs'
 interface Props {
   ratings: Record<string, 'like' | 'pass'>
   onRestart: () => void
+  onContinue?: () => void
 }
 
 // Simulate their ratings
@@ -63,7 +64,7 @@ function makeConfetti(count: number): ConfettiPiece[] {
 type Phase = 'intro' | 'revealing' | 'summary'
 type CardState = 'locked' | 'yours' | 'heartbeat' | 'revealed'
 
-export default function MatchResults({ ratings, onRestart }: Props) {
+export default function MatchResults({ ratings, onRestart, onContinue }: Props) {
   const [phase, setPhase] = useState<Phase>('intro')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [cardStates, setCardStates] = useState<CardState[]>(candidates.map(() => 'locked'))
@@ -563,8 +564,12 @@ export default function MatchResults({ ratings, onRestart }: Props) {
             </div>
 
             <div className="space-y-3">
-              <button className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Book Next Session &mdash; AED 75</button>
-              <button onClick={onRestart} className="w-full py-3 rounded-full glass-button text-sm font-semibold text-[#98989D] hover:text-white transition-colors">&larr; Back to Pitch</button>
+              {onContinue ? (
+                <button onClick={onContinue} className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Continue →</button>
+              ) : (
+                <button className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Book Next Session &mdash; AED 75</button>
+              )}
+              <button onClick={onRestart} className="w-full py-3 rounded-full glass-button text-sm font-semibold text-[#98989D] hover:text-white transition-colors">&larr; Replay demo</button>
             </div>
           </div>
         </div>
