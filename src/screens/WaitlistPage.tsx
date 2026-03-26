@@ -47,20 +47,42 @@ function AnimatedCounter({ target }: { target: number }) {
 function PulseRings() {
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-      {[1, 2, 3, 4].map(i => (
+      {/* Outer slow-drifting orbs */}
+      <div
+        className="absolute w-[500px] h-[500px] rounded-full blur-[100px]"
+        style={{
+          background: 'radial-gradient(circle, rgba(224,64,160,0.12) 0%, transparent 70%)',
+          animation: 'orb-drift 12s ease-in-out infinite',
+        }}
+      />
+      <div
+        className="absolute w-[400px] h-[400px] rounded-full blur-[90px]"
+        style={{
+          background: 'radial-gradient(circle, rgba(140,40,200,0.10) 0%, transparent 70%)',
+          animation: 'orb-drift 15s ease-in-out infinite reverse',
+          top: '10%',
+          left: '15%',
+        }}
+      />
+
+      {/* Concentric rings */}
+      {[1, 2, 3, 4, 5].map(i => (
         <div
           key={i}
-          className="absolute rounded-full border border-pulse/[0.06]"
+          className="absolute rounded-full"
           style={{
-            width: `${i * 220}px`,
-            height: `${i * 220}px`,
+            width: `${i * 180}px`,
+            height: `${i * 180}px`,
+            border: `1px solid rgba(224, 64, 160, ${0.18 - i * 0.025})`,
             animation: `ring-pulse ${3 + i * 0.5}s ease-in-out infinite`,
             animationDelay: `${i * 0.4}s`,
           }}
         />
       ))}
-      {/* Central glow */}
-      <div className="absolute w-[300px] h-[300px] rounded-full bg-pulse/[0.04] blur-[80px]" />
+
+      {/* Central glow — brighter */}
+      <div className="absolute w-[250px] h-[250px] rounded-full bg-pulse/[0.15] blur-[80px]" />
+      <div className="absolute w-[120px] h-[120px] rounded-full bg-pulse/[0.08] blur-[40px]" />
     </div>
   )
 }
@@ -93,8 +115,9 @@ export default function WaitlistPage() {
     <div className="min-h-screen bg-[#0A0A0C] relative overflow-hidden">
       {/* ─── Ambient background ─── */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-pulse/[0.03] blur-[150px]" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-purple-900/[0.04] blur-[120px]" />
+        <div className="absolute top-[-15%] right-[-5%] w-[700px] h-[700px] rounded-full bg-pulse/[0.10] blur-[180px]" />
+        <div className="absolute bottom-[-15%] left-[-5%] w-[600px] h-[600px] rounded-full bg-purple-800/[0.12] blur-[150px]" />
+        <div className="absolute top-[40%] left-[50%] -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-pink-900/[0.06] blur-[120px]" />
       </div>
 
       {/* ─── Subtle grain texture ─── */}
@@ -246,8 +269,8 @@ export default function WaitlistPage() {
       {/* ─── Ring pulse animation ─── */}
       <style>{`
         @keyframes ring-pulse {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.04); }
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.05); }
         }
       `}</style>
     </div>
