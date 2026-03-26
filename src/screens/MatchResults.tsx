@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { candidates, conversationStarters, photos } from '../data/people'
+import { useState, useEffect, useCallback } from 'react'
+import { candidates, conversationStarters } from '../data/people'
 import BackgroundOrbs from '../components/BackgroundOrbs'
 
 interface Props {
@@ -61,31 +61,22 @@ function makeConfetti(count: number): ConfettiPiece[] {
   }))
 }
 
-type Phase = 'intro' | 'revealing' | 'summary'
-type CardState = 'locked' | 'yours' | 'heartbeat' | 'revealed'
+type Phase = 'intro' | 'cascade' | 'summary'
 
 export default function MatchResults({ ratings, onRestart, onContinue }: Props) {
   const [phase, setPhase] = useState<Phase>('intro')
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [cardStates, setCardStates] = useState<CardState[]>(candidates.map(() => 'locked'))
+  const [revealedCards, setRevealedCards] = useState<boolean[]>(candidates.map(() => false))
   const [showConfetti, setShowConfetti] = useState(false)
   const [confetti] = useState(() => makeConfetti(80))
-  const [heartbeatSpeed, setHeartbeatSpeed] = useState(1)
   const [replayOpen, setReplayOpen] = useState<string | null>(null)
-  const [pulseCount, setPulseCount] = useState(0)
   const [showSharecard, setShowSharecard] = useState(false)
-  const revealTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // Second Chance state
   const [secondChances, setSecondChances] = useState<Record<string, boolean>>({})
   const [secondChanceNotif, setSecondChanceNotif] = useState<string | null>(null)
 
   // Derived
-  const person = candidates[currentIndex]
   const getEffectiveRating = useCallback((name: string) => secondChances[name] ? 'like' as const : (ratings[name] || 'pass' as const), [secondChances, ratings])
-  const yourRating = getEffectiveRating(person?.name)
-  const theirRating = theirRatings[person?.name] || 'pass'
-  const isMutual = yourRating === 'like' && theirRating === 'like'
   const mutualMatches = candidates.filter(c => getEffectiveRating(c.name) === 'like' && theirRatings[c.name] === 'like')
 
   // Second Chance handler
@@ -95,47 +86,32 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
     setTimeout(() => setSecondChanceNotif(null), 3000)
   }, [])
 
-  // Reveal sequence
-  const startReveal = useCallback(() => {
-    setPhase('revealing')
-    setTimeout(() => {
-      setCardStates(prev => { const next = [...prev]; next[0] = 'yours'; return next })
-    }, 600)
-  }, [])
-
-  const revealCurrent = useCallback(() => {
-    setCardStates(prev => { const next = [...prev]; next[currentIndex] = 'heartbeat'; return next })
-    setHeartbeatSpeed(1)
-    setPulseCount(0)
-    let speed = 1
-    const accelInterval = setInterval(() => { speed += 0.4; setHeartbeatSpeed(speed); setPulseCount(p => p + 1) }, 250)
-    revealTimeoutRef.current = setTimeout(() => {
-      clearInterval(accelInterval)
-      setCardStates(prev => { const next = [...prev]; next[currentIndex] = 'revealed'; return next })
-      const p = candidates[currentIndex]
-      const yours = ratings[p?.name] || 'pass'
-      const theirs = theirRatings[p?.name] || 'pass'
-      if (yours === 'like' && theirs === 'like') {
-        setShowConfetti(true)
-        setTimeout(() => setShowConfetti(false), 4000)
-      }
-    }, 1500)
-    return () => { clearInterval(accelInterval); if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current) }
-  }, [currentIndex, ratings])
-
-  const nextPerson = useCallback(() => {
-    const next = currentIndex + 1
-    if (next >= candidates.length) {
-      setTimeout(() => setPhase('summary'), 800)
-    } else {
-      setCurrentIndex(next)
-      setTimeout(() => { setCardStates(prev => { const u = [...prev]; u[next] = 'yours'; return u }) }, 400)
+  /* ─── CASCADE REVEAL ───
+     Intro (1.5s) → all 5 cards flip rapid-fire (300ms apart = 1.5s) → celebrate (2.5s) → summary
+     Total: ~5.5 seconds. Fast, dramatic, no dead air.
+     ─────────────────────── */
+  useEffect(() => {
+    if (phase === 'intro') {
+      const t = setTimeout(() => setPhase('cascade'), 1500)
+      return () => clearTimeout(t)
     }
-  }, [currentIndex])
-
-  useEffect(() => { if (phase === 'intro') { const t = setTimeout(startReveal, 1500); return () => clearTimeout(t) } }, [phase, startReveal])
-  useEffect(() => { if (cardStates[currentIndex] === 'yours') { const t = setTimeout(revealCurrent, 800); return () => clearTimeout(t) } }, [cardStates, currentIndex, revealCurrent])
-  useEffect(() => { if (cardStates[currentIndex] === 'revealed') { const t = setTimeout(nextPerson, 1500); return () => clearTimeout(t) } }, [cardStates, currentIndex, nextPerson])
+    if (phase === 'cascade') {
+      let hasMatch = false
+      const timers = candidates.map((c, i) =>
+        setTimeout(() => {
+          setRevealedCards(prev => { const next = [...prev]; next[i] = true; return next })
+          const yours = secondChances[c.name] ? 'like' : (ratings[c.name] || 'pass')
+          const theirs = theirRatings[c.name] || 'pass'
+          if (yours === 'like' && theirs === 'like' && !hasMatch) {
+            hasMatch = true
+            setTimeout(() => { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 4000) }, 200)
+          }
+        }, 300 * i)
+      )
+      const summaryTimer = setTimeout(() => setPhase('summary'), 300 * candidates.length + 2500)
+      return () => { timers.forEach(clearTimeout); clearTimeout(summaryTimer) }
+    }
+  }, [phase, ratings, secondChances])
 
   return (
     <div className="fixed inset-0 bg-[#2A2A2E] overflow-hidden">
@@ -240,7 +216,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
         <h1 className="text-xl font-bold font-display text-[#E040A0]">Pulse</h1>
         <div className="text-xs text-[#7A7A80]">
           {phase === 'intro' && 'Session Complete'}
-          {phase === 'revealing' && `Reveal ${currentIndex + 1} of ${candidates.length}`}
+          {phase === 'cascade' && 'Revealing...'}
           {phase === 'summary' && 'Your Results'}
         </div>
       </header>
@@ -259,132 +235,95 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
         </div>
       )}
 
-      {/* ====== REVEALING ====== */}
-      {phase === 'revealing' && (
-        <div className="absolute inset-0 top-12 z-10 flex flex-col md:flex-row overflow-hidden">
-          {/* Left sidebar */}
-          <div className="w-full md:w-64 lg:w-72 shrink-0 p-3 md:p-4 md:border-r border-white/[0.05] overflow-x-auto md:overflow-x-visible md:overflow-y-auto">
-            <p className="text-[0.65rem] tracking-[0.2em] uppercase text-[#7A7A80] font-semibold mb-3 hidden md:block">Tonight's Dates</p>
-            <div className="flex md:flex-col gap-2 md:gap-2.5 min-w-max md:min-w-0">
+      {/* ====== CASCADE REVEAL — all cards flip rapid-fire ====== */}
+      {phase === 'cascade' && (
+        <div className="absolute inset-0 top-12 z-10 flex items-center justify-center px-4 overflow-hidden">
+          <div className="w-full max-w-4xl">
+            <div className="grid grid-cols-5 gap-3 md:gap-4">
               {candidates.map((c, i) => {
-                const state = cardStates[i]
-                const isActive = i === currentIndex
+                const revealed = revealedCards[i]
                 const effRating = getEffectiveRating(c.name)
-                const isMatch = state === 'revealed' && effRating === 'like' && theirRatings[c.name] === 'like'
+                const theirs = theirRatings[c.name] || 'pass'
+                const isMatch = effRating === 'like' && theirs === 'like'
                 return (
-                  <div key={c.name} className={`flex items-center gap-2.5 rounded-xl p-2.5 md:p-3 transition-all duration-500 shrink-0 ${isActive ? 'glass-tile ring-1 ring-[rgba(224,64,160,0.30)]' : 'glass-button'} ${isMatch ? 'ring-1 ring-[rgba(224,64,160,0.40)]' : ''}`} style={isActive ? { boxShadow: '0 4px 16px rgba(224,64,160,0.12)' } : {}}>
-                    <div className="relative shrink-0">
-                      <img src={c.photo} alt={c.name} className={`w-10 h-10 rounded-full object-cover transition-all duration-500 ${state === 'locked' ? 'opacity-30 grayscale' : ''}`} style={isMatch ? { border: '2px solid #E040A0', boxShadow: '0 0 10px rgba(224,64,160,0.3)' } : { border: '2px solid rgba(255,255,255,0.1)' }} />
-                      {state === 'revealed' && (
-                        <div className={`absolute -bottom-0.5 -right-0.5 rounded-full flex items-center justify-center text-[10px] ${isMatch ? 'bg-[#E040A0]' : 'bg-[#424245]'}`} style={{ width: 18, height: 18 }}>{isMatch ? '\u{1F4AB}' : '\u2014'}</div>
-                      )}
-                    </div>
-                    <div className="min-w-0 hidden md:block">
-                      <p className={`text-sm font-medium truncate ${isActive ? 'text-white' : state === 'locked' ? 'text-[#7A7A80]' : 'text-[#E0E0E5]'}`}>{c.name}</p>
-                      <p className="text-[0.65rem] text-[#7A7A80] truncate">
-                        {state === 'locked' && 'Waiting...'}
-                        {state === 'yours' && `You: ${effRating === 'like' ? '\u{1F525} Liked' : '\u2744\u{FE0F} Passed'}`}
-                        {state === 'heartbeat' && 'Revealing...'}
-                        {state === 'revealed' && (isMatch ? '\u{1F4AB} Match!' : 'No match')}
-                      </p>
+                  <div key={c.name} className="perspective-500">
+                    <div
+                      className="relative transition-all duration-700 ease-out"
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        transform: revealed ? 'rotateY(0deg)' : 'rotateY(180deg)',
+                      }}
+                    >
+                      {/* Front — revealed result */}
+                      <div
+                        className={`glass-tile rounded-2xl overflow-hidden transition-all duration-500 ${isMatch && revealed ? 'ring-2 ring-[#E040A0]' : ''}`}
+                        style={{
+                          backfaceVisibility: 'hidden',
+                          boxShadow: isMatch && revealed ? '0 0 30px rgba(224,64,160,0.25)' : '0 4px 16px rgba(0,0,0,0.2)',
+                        }}
+                      >
+                        <div className="relative aspect-[3/4] overflow-hidden">
+                          <img src={c.photo} alt={c.name} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#2A2A2E] via-transparent to-transparent" />
+                          <div className="absolute bottom-2 left-3 right-3">
+                            <p className="text-sm font-bold text-white font-display">{c.name}, {c.age}</p>
+                            <p className="text-[0.6rem] text-white/50">{c.location}</p>
+                          </div>
+                          {isMatch && revealed && (
+                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-[#E040A0] text-[0.55rem] font-bold text-white animate-scale-in">
+                              MATCH
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-2.5 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[0.55rem] text-[#7A7A80] uppercase">You</span>
+                            <span className="text-sm">{effRating === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
+                          </div>
+                          <div className="h-px" style={{ background: 'rgba(224,64,160,0.10)' }} />
+                          <div className="flex items-center justify-between">
+                            <span className="text-[0.55rem] text-[#7A7A80] uppercase">Them</span>
+                            <span className="text-sm">{theirs === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
+                          </div>
+                          {isMatch && (
+                            <p className="text-center text-[0.6rem] font-bold text-[#E040A0] pt-1 animate-pulse">{'\u{1F4AB}'} Chemistry confirmed</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Back — face down card */}
+                      <div
+                        className="absolute inset-0 glass-tile rounded-2xl flex flex-col items-center justify-center"
+                        style={{
+                          backfaceVisibility: 'hidden',
+                          transform: 'rotateY(180deg)',
+                          background: 'linear-gradient(135deg, rgba(224,64,160,0.08) 0%, rgba(224,64,160,0.02) 100%)',
+                          border: '1px solid rgba(224,64,160,0.15)',
+                        }}
+                      >
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
+                          style={{ background: 'rgba(224,64,160,0.10)' }}>
+                          <svg className="w-6 h-6 text-[#E040A0]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                        <p className="text-[0.65rem] text-[#E040A0]/50 font-medium">?</p>
+                      </div>
                     </div>
                   </div>
                 )
               })}
             </div>
-          </div>
 
-          {/* Center stage */}
-          <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-8 pb-4 relative overflow-hidden">
-            {cardStates[currentIndex] === 'heartbeat' && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                <div className="w-full max-w-lg opacity-20">
-                  <svg viewBox="0 0 400 100" className="w-full">
-                    <path d="M0 50 L100 50 L130 20 L145 80 L160 20 L175 50 L400 50" fill="none" stroke="#E040A0" strokeWidth="2" strokeLinecap="round" style={{ animation: `pulse-line ${1 / heartbeatSpeed}s ease-in-out infinite`, filter: 'drop-shadow(0 0 8px rgba(224,64,160,0.4))' }} />
-                  </svg>
-                </div>
-              </div>
+            {/* Countdown text */}
+            {!revealedCards[0] && (
+              <p className="text-center mt-6 text-sm text-[#E040A0] animate-pulse font-medium">Revealing results...</p>
             )}
-
-            {person && (
-              <div className={`relative z-10 w-full max-w-sm transition-all duration-700 ${cardStates[currentIndex] === 'heartbeat' ? 'scale-[1.02]' : ''}`} style={{ animation: cardStates[currentIndex] === 'heartbeat' ? `card-breathe ${1.2 / heartbeatSpeed}s ease-in-out infinite` : undefined }}>
-                <div className="glass-tile rounded-3xl overflow-hidden transition-all duration-500" style={{
-                  boxShadow: cardStates[currentIndex] === 'revealed' && isMutual ? '0 8px 40px rgba(224,64,160,0.30), 0 0 80px rgba(224,64,160,0.10)' : cardStates[currentIndex] === 'heartbeat' ? `0 4px 24px rgba(224,64,160,${0.05 + pulseCount * 0.03})` : '0 4px 16px rgba(0,0,0,0.2)',
-                }}>
-                  <div className="relative h-56 md:h-64 overflow-hidden">
-                    <img src={person.photo} alt={person.name} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#2A2A2E] via-transparent to-transparent" />
-                    <div className="absolute bottom-3 left-4">
-                      <p className="text-xl font-bold text-white font-display">{person.name}, {person.age}</p>
-                      <p className="text-xs text-white/60">{person.location}</p>
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <div className="glass-button rounded-full px-3 py-1 text-[0.7rem] font-medium text-white/70">Date {currentIndex + 1}</div>
-                    </div>
-                  </div>
-                  <div className="px-4 pt-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      {person.tags.map(tag => (<span key={tag} className="text-[0.7rem] px-2.5 py-1 rounded-full bg-[rgba(224,64,160,0.08)] text-[#E040A0] border border-[rgba(224,64,160,0.15)]">{tag}</span>))}
-                    </div>
-                  </div>
-                  <div className="px-4 py-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <img src={photos.user} alt="You" className="w-8 h-8 rounded-full object-cover ring-2 ring-white/10" />
-                      <div className="flex-1">
-                        <p className="text-[0.65rem] uppercase tracking-wider text-[#7A7A80] font-semibold">Your Decision</p>
-                        <p className={`text-sm font-semibold ${yourRating === 'like' ? 'text-[#E040A0]' : 'text-[#98989D]'}`}>
-                          {yourRating === 'like' ? '\u{1F525} You felt the chemistry' : '\u2744\u{FE0F} You passed'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="relative h-px mb-4" style={{ background: 'rgba(224,64,160,0.15)' }}>
-                      {cardStates[currentIndex] === 'heartbeat' && (
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#E040A0]" style={{ animation: `dot-pulse ${0.8 / heartbeatSpeed}s ease-in-out infinite`, boxShadow: '0 0 12px rgba(224,64,160,0.5)' }} />
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <img src={person.photo} alt={person.name} className="w-8 h-8 rounded-full object-cover ring-2 ring-white/10" />
-                      <div className="flex-1">
-                        <p className="text-[0.65rem] uppercase tracking-wider text-[#7A7A80] font-semibold">{person.name}'s Decision</p>
-                        {cardStates[currentIndex] === 'yours' && (
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <div className="w-4 h-4 rounded glass-button flex items-center justify-center">
-                              <svg className="w-2.5 h-2.5 text-[#7A7A80]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                            </div>
-                            <span className="text-sm text-[#7A7A80]">Hidden</span>
-                          </div>
-                        )}
-                        {cardStates[currentIndex] === 'heartbeat' && (
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <div className="w-4 h-4 rounded-full bg-[#E040A0]" style={{ animation: `dot-pulse ${0.6 / heartbeatSpeed}s ease-in-out infinite`, boxShadow: '0 0 8px rgba(224,64,160,0.4)' }} />
-                            <span className="text-sm text-[#E040A0] animate-pulse font-medium">Revealing...</span>
-                          </div>
-                        )}
-                        {cardStates[currentIndex] === 'revealed' && (
-                          <div className="animate-scale-in">
-                            {theirRating === 'like' ? <p className="text-sm font-semibold text-[#E040A0]">{'\u{1F525}'} They felt it too!</p> : <p className="text-sm font-semibold text-[#98989D]">{'\u2744\u{FE0F}'} They passed</p>}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {cardStates[currentIndex] === 'revealed' && (
-                    <div className={`px-4 py-4 text-center animate-slide-up ${isMutual ? 'bg-gradient-to-r from-[rgba(224,64,160,0.15)] to-[rgba(224,64,160,0.08)]' : 'bg-[rgba(255,255,255,0.02)]'}`} style={{ borderTop: `1px solid ${isMutual ? 'rgba(224,64,160,0.20)' : 'rgba(255,255,255,0.05)'}` }}>
-                      {isMutual ? (
-                        <><p className="text-2xl font-bold text-[#E040A0] font-display mb-1">{'\u{1F4AB}'} It's a Match!</p><p className="text-xs text-[#E0E0E5]">You both felt the chemistry. Contact details shared.</p></>
-                      ) : yourRating === 'like' ? (
-                        <p className="text-sm text-[#98989D]">Not this time &mdash; but chemistry is unpredictable.</p>
-                      ) : theirRating === 'like' ? (
-                        <p className="text-sm text-[#98989D]">They liked you &mdash; but you moved on.</p>
-                      ) : (
-                        <p className="text-sm text-[#7A7A80]">Neither felt the spark. No time wasted.</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
+            {revealedCards.every(Boolean) && mutualMatches.length > 0 && (
+              <p className="text-center mt-6 text-lg font-display text-[#E040A0] animate-scale-in" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontStyle: 'italic' }}>
+                {mutualMatches.length} mutual {mutualMatches.length === 1 ? 'match' : 'matches'} tonight
+              </p>
             )}
-            {cardStates[currentIndex] === 'yours' && (<p className="mt-4 text-xs text-[#7A7A80] animate-pulse">Revealing in a moment...</p>)}
           </div>
         </div>
       )}
@@ -593,6 +532,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
       )}
 
       <style>{`
+        .perspective-500 { perspective: 500px; }
         @keyframes dot-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.6; } }
         @keyframes card-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.015); } }
         @keyframes pulse-line { 0% { opacity: 0.3; transform: scaleX(0.95); } 50% { opacity: 1; transform: scaleX(1.05); } 100% { opacity: 0.3; transform: scaleX(0.95); } }
