@@ -1,15 +1,32 @@
 import { useState, useCallback, useEffect } from 'react'
 import MarketingPage from './screens/MarketingPage'
+import WaitlistPage from './screens/WaitlistPage'
 import SessionLobby from './screens/SessionLobby'
 import LiveSession from './screens/LiveSession'
 import TransitionScreen from './screens/TransitionScreen'
 import MatchSurvey from './screens/MatchSurvey'
 import MatchResults from './screens/MatchResults'
 
-type Screen = 'marketing' | 'lobby' | 'session' | 'transition' | 'survey' | 'results'
+type Screen = 'waitlist' | 'marketing' | 'lobby' | 'session' | 'transition' | 'survey' | 'results'
+
+/* ─── Route Logic ────────────────────────────────────────────
+   Default landing:
+   - yoursite.com           → Waitlist (consumer-facing)
+   - yoursite.com/#demo     → Investor demo (full platform walkthrough)
+   - yoursite.com/#waitlist → Waitlist (explicit)
+
+   When pitching VCs, share the #demo link.
+   When marketing to users, share the clean URL.
+   ──────────────────────────────────────────────────────────── */
+function getInitialScreen(): Screen {
+  const hash = window.location.hash.replace('#', '')
+  if (hash === 'demo' || hash === 'marketing') return 'marketing'
+  if (['lobby', 'session', 'survey', 'results'].includes(hash)) return hash as Screen
+  return 'waitlist'
+}
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('marketing')
+  const [screen, setScreen] = useState<Screen>(getInitialScreen)
   const [transitioning, setTransitioning] = useState(false)
   const [currentDateIndex, setCurrentDateIndex] = useState(0)
   const [ratings, setRatings] = useState<Record<string, 'like' | 'pass'>>({})
@@ -52,9 +69,11 @@ export default function App() {
   useEffect(() => {
     // Allow hash navigation for direct linking
     const onHash = () => {
-      const hash = window.location.hash.replace('#', '') as Screen
-      if (['marketing', 'lobby', 'session', 'survey', 'results'].includes(hash)) {
-        setScreen(hash)
+      const hash = window.location.hash.replace('#', '')
+      if (hash === 'demo' || hash === 'marketing') { setScreen('marketing'); return }
+      if (hash === 'waitlist') { setScreen('waitlist'); return }
+      if (['lobby', 'session', 'survey', 'results'].includes(hash)) {
+        setScreen(hash as Screen)
       }
     }
     window.addEventListener('hashchange', onHash)
@@ -63,6 +82,9 @@ export default function App() {
 
   return (
     <div className={`transition-opacity duration-400 ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
+      {screen === 'waitlist' && (
+        <WaitlistPage />
+      )}
       {screen === 'marketing' && (
         <MarketingPage onStartDemo={() => navigateTo('lobby')} />
       )}
