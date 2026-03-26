@@ -1,390 +1,534 @@
 import { useEffect, useState, useRef } from 'react'
-import BackgroundOrbs from '../components/BackgroundOrbs'
 
 interface Props {
   onStartDemo: () => void
 }
 
-/* --- Scroll reveal hook --- */
-function useReveal() {
+/* ─── Scroll reveal ──────────────────────────────────────────── */
+function useReveal(threshold = 0.2) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   useEffect(() => {
     const el = ref.current
     if (!el) return
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect() } },
-      { threshold: 0.15 }
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect() } },
+      { threshold }
     )
     obs.observe(el)
     return () => obs.disconnect()
-  }, [])
+  }, [threshold])
   return { ref, visible }
 }
 
-/* --- Pulse heartbeat SVG --- */
-const PulseLine = () => (
-  <svg width="120" height="24" viewBox="0 0 120 24" fill="none" className="opacity-60">
-    <path d="M0 12h30l5-10 5 20 5-20 5 10h70" stroke="#E040A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
+/* ─── Animated heartbeat ─────────────────────────────────────── */
+function HeartbeatLine({ visible }: { visible: boolean }) {
+  return (
+    <svg width="140" height="24" viewBox="0 0 140 24" fill="none"
+      className="transition-opacity duration-[2s]"
+      style={{ opacity: visible ? 0.45 : 0 }}
+    >
+      <path
+        d="M0 12h42l5-10 5 20 5-20 5 10h78"
+        stroke="#E040A0" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"
+        strokeDasharray="200" strokeDashoffset={visible ? '0' : '200'}
+        style={{ transition: 'stroke-dashoffset 2s ease-out' }}
+      />
+    </svg>
+  )
+}
 
-/* --- Pain points data --- */
-const painPoints = [
-  {
-    stat: '3 hrs',
-    label: 'Average time texting before a first date',
-    pain: 'That you could have spent actually meeting someone.',
-  },
-  {
-    stat: '53%',
-    label: 'of dating app users say profiles are misleading',
-    pain: 'Filters, old photos, borrowed bios.',
-  },
-  {
-    stat: '72%',
-    label: 'feel disappointed meeting someone in person',
-    pain: 'Zero chemistry. All that time — wasted.',
-  },
-]
+/* ─── Single stat — big number, small label ──────────────────── */
+function Stat({ value, label, delay, visible }: {
+  value: string; label: string; delay: number; visible: boolean
+}) {
+  return (
+    <div
+      className="text-center transition-all duration-[1.5s] ease-out"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(16px)',
+        transitionDelay: `${delay}ms`,
+      }}
+    >
+      <p
+        className="font-display"
+        style={{
+          fontFamily: "'Cormorant Garamond', Georgia, serif",
+          fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+          fontWeight: 600,
+          color: '#E040A0',
+          lineHeight: 1,
+        }}
+      >
+        {value}
+      </p>
+      <p className="mt-2 text-xs sm:text-sm tracking-wide" style={{ color: 'rgba(255,255,255,0.40)' }}>
+        {label}
+      </p>
+    </div>
+  )
+}
 
-const howItWorks = [
-  {
-    step: '01',
-    title: 'Book a Seat',
-    desc: 'Pick a live session. AED 75 reserves your spot. Everyone pays — everyone shows up.',
-    icon: '🎯',
-  },
-  {
-    step: '02',
-    title: '5 Dates. 5 Minutes Each.',
-    desc: 'Camera on. Real conversation. You see chemistry, body language, energy — in seconds.',
-    icon: '⚡',
-  },
-  {
-    step: '03',
-    title: 'Mutual Match? Connected.',
-    desc: 'Both like each other? Contact details shared instantly. No waiting. No games.',
-    icon: '💫',
-  },
-]
+/* ═══════════════════════════════════════════════════════════════
+   INVESTOR DEMO PAGE
 
-const marketStats = [
-  { value: '$9.6B', label: 'Global dating app market (2026)' },
-  { value: '42%', label: 'MENA users dissatisfied with current apps' },
-  { value: '68M', label: 'Singles in GCC countries' },
-  { value: '82%', label: 'Prefer video-first over text-first' },
-]
-
-const revenueStreams = [
-  { title: 'Session Fees', desc: 'AED 75 per session. Pay-to-play ensures quality and commitment.', pct: '60%' },
-  { title: 'Premium Membership', desc: 'Priority booking, session replays, extended profiles.', pct: '25%' },
-  { title: 'Sponsored Moments', desc: 'Premium brand placements during transition screens. Captive, engaged audience.', pct: '15%' },
-]
-
-const cities = [
-  { name: 'Dubai', flag: '🇦🇪', status: 'LAUNCH', active: true },
-  { name: 'Riyadh', flag: '🇸🇦', status: 'Q3 2026', active: false },
-  { name: 'Doha', flag: '🇶🇦', status: 'Q4 2026', active: false },
-  { name: 'Cairo', flag: '🇪🇬', status: '2027', active: false },
-  { name: 'London', flag: '🇬🇧', status: '2027', active: false },
-]
-
+   Structure (Jobs method):
+   1. The human truth → make them feel the problem
+   2. The shift → one line that changes everything
+   3. The demo CTA → let the product speak
+   4. The business → only after they've felt it
+   5. The close → clean ask
+   ═══════════════════════════════════════════════════════════════ */
 export default function MarketingPage({ onStartDemo }: Props) {
-  const [heroVisible, setHeroVisible] = useState(false)
-  const problem = useReveal()
-  const solution = useReveal()
-  const market = useReveal()
-  const revenue = useReveal()
-  const expansion = useReveal()
-  const cta = useReveal()
+  const [heroPhase, setHeroPhase] = useState(0)
+  const tension = useReveal(0.3)
+  const shift = useReveal(0.3)
+  const proof = useReveal(0.2)
+  const model = useReveal(0.2)
+  const close = useReveal(0.2)
 
   useEffect(() => {
-    setTimeout(() => setHeroVisible(true), 100)
+    const t1 = setTimeout(() => setHeroPhase(1), 300)
+    const t2 = setTimeout(() => setHeroPhase(2), 1200)
+    const t3 = setTimeout(() => setHeroPhase(3), 2400)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#2A2A2E] text-[#F5F5F7] relative overflow-x-hidden">
-      <BackgroundOrbs />
+    <div
+      className="min-h-screen relative overflow-x-hidden"
+      style={{ background: 'linear-gradient(170deg, #1C1A22 0%, #16141C 40%, #12111A 100%)' }}
+    >
+      {/* ─── Ambient ─── */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div
+          className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: '1000px', height: '700px',
+            background: 'radial-gradient(ellipse, rgba(224,64,160,0.05) 0%, rgba(160,50,180,0.02) 40%, transparent 70%)',
+          }}
+        />
+      </div>
 
-      {/* =================== HERO =================== */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center overflow-hidden">
-        <div className={`relative z-10 flex flex-col items-center max-w-3xl transition-all duration-1000 ease-out ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      {/* ═══ HERO ═══ */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center">
+        <div className="relative z-10 flex flex-col items-center max-w-3xl">
 
           {/* Logo */}
-          <div className="relative mb-12 md:mb-16">
-            <h1 className="text-6xl md:text-8xl font-semibold tracking-tight font-display">
+          <div
+            className="transition-all duration-[2s] ease-out"
+            style={{
+              opacity: heroPhase >= 1 ? 0.5 : 0,
+              transform: heroPhase >= 1 ? 'translateY(0)' : 'translateY(8px)',
+            }}
+          >
+            <span
+              className="text-[clamp(0.7rem,1.6vw,0.85rem)] font-normal tracking-[0.35em] uppercase"
+              style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.45)' }}
+            >
               Pulse
-            </h1>
-            <div className="mt-3 flex items-center justify-center gap-3">
-              <div className="h-px w-8 bg-[#7A7A80]/30" />
-              <PulseLine />
-              <div className="h-px w-8 bg-[#7A7A80]/30" />
-            </div>
+            </span>
           </div>
 
-          {/* The hook — problem-first */}
-          <h2
-            className="text-[2.5rem] md:text-[4.5rem] md:leading-[1.08] leading-tight mb-6 italic"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300 }}
+          <div className="my-5">
+            <HeartbeatLine visible={heroPhase >= 1} />
+          </div>
+
+          {/* The hook — make them feel it */}
+          <h1
+            className="transition-all duration-[2s] ease-out"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 'clamp(2.2rem, 7vw, 4.5rem)',
+              fontWeight: 300,
+              fontStyle: 'italic',
+              lineHeight: 1.1,
+              color: 'rgba(255,255,255,0.92)',
+              opacity: heroPhase >= 2 ? 1 : 0,
+              transform: heroPhase >= 2 ? 'translateY(0)' : 'translateY(16px)',
+            }}
           >
             You've texted for weeks.
             <br />
-            <span className="text-[#E040A0]">Met for five minutes.</span>
+            <span style={{ color: '#E040A0' }}>Met for five minutes.</span>
             <br />
             Felt nothing.
-          </h2>
+          </h1>
 
-          <p className="text-base md:text-lg text-[#98989D] mb-10 max-w-xl leading-relaxed">
-            Dating apps are designed to keep you swiping — not connecting.
-            Pulse puts you face-to-face in 5-minute live video dates.
-            You see chemistry instantly. No more wasted time.
-          </p>
+          <div className="h-10 sm:h-14" />
 
           {/* CTA */}
+          <div
+            className="transition-all duration-[2s] ease-out"
+            style={{
+              opacity: heroPhase >= 3 ? 1 : 0,
+              transform: heroPhase >= 3 ? 'translateY(0)' : 'translateY(10px)',
+            }}
+          >
+            <button
+              onClick={onStartDemo}
+              className="group px-10 py-4 rounded-full text-base font-semibold transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+              style={{
+                background: '#E040A0',
+                color: 'white',
+                boxShadow: '0 4px 30px rgba(224,64,160,0.30)',
+              }}
+            >
+              <span className="flex items-center gap-2.5">
+                Experience the demo
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+              </span>
+            </button>
+            <p className="mt-4 text-[11px] tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.20)' }}>
+              Interactive walkthrough · 2 minutes
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ THE TENSION — make the VC feel the problem ═══ */}
+      <section ref={tension.ref} className="relative px-6 py-32 sm:py-40">
+        <div className="max-w-2xl mx-auto">
+          {/* Three truths, one at a time */}
+          {[
+            { line: '3 hours of texting before a first date.', delay: 0 },
+            { line: '53% say the person looked nothing like their photos.', delay: 200 },
+            { line: '72% feel zero chemistry when they finally meet.', delay: 400 },
+          ].map((item, i) => (
+            <p
+              key={i}
+              className="mb-8 sm:mb-10 transition-all duration-[1.5s] ease-out"
+              style={{
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontSize: 'clamp(1.4rem, 4vw, 2.2rem)',
+                fontWeight: 300,
+                fontStyle: 'italic',
+                lineHeight: 1.35,
+                color: 'rgba(255,255,255,0.55)',
+                opacity: tension.visible ? 1 : 0,
+                transform: tension.visible ? 'translateY(0)' : 'translateY(12px)',
+                transitionDelay: `${item.delay}ms`,
+              }}
+            >
+              {item.line}
+            </p>
+          ))}
+
+          {/* The punchline */}
+          <p
+            className="transition-all duration-[1.8s] ease-out"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 'clamp(1.4rem, 4vw, 2.2rem)',
+              fontWeight: 400,
+              lineHeight: 1.35,
+              color: 'rgba(255,255,255,0.85)',
+              opacity: tension.visible ? 1 : 0,
+              transform: tension.visible ? 'translateY(0)' : 'translateY(12px)',
+              transitionDelay: '700ms',
+            }}
+          >
+            The current model profits from keeping people lonely.
+          </p>
+        </div>
+      </section>
+
+      {/* ═══ THE SHIFT — one line that reframes everything ═══ */}
+      <section ref={shift.ref} className="relative px-6 py-32 sm:py-40">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2
+            className="transition-all duration-[2s] ease-out"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 'clamp(2rem, 7vw, 4rem)',
+              fontWeight: 300,
+              fontStyle: 'italic',
+              lineHeight: 1.05,
+              color: 'rgba(255,255,255,0.92)',
+              opacity: shift.visible ? 1 : 0,
+              transform: shift.visible ? 'translateY(0)' : 'translateY(16px)',
+            }}
+          >
+            What if you knew
+            <br />
+            <span style={{ color: '#E040A0' }}>in five minutes?</span>
+          </h2>
+
+          <div className="h-10" />
+
+          <p
+            className="text-sm sm:text-base leading-relaxed max-w-lg mx-auto transition-all duration-[1.8s] ease-out"
+            style={{
+              color: 'rgba(255,255,255,0.40)',
+              opacity: shift.visible ? 1 : 0,
+              transitionDelay: '400ms',
+            }}
+          >
+            Pulse runs live video speed dating sessions. Five people. Five minutes each. Camera on.
+            Body language doesn't lie. You know in seconds what takes weeks to discover over text.
+          </p>
+
+          <div className="h-10" />
+
+          {/* How it works — three lines, not three cards */}
+          <div
+            className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 transition-all duration-[1.8s] ease-out"
+            style={{
+              opacity: shift.visible ? 1 : 0,
+              transitionDelay: '600ms',
+            }}
+          >
+            {[
+              { num: '01', text: 'Book a session' },
+              { num: '02', text: '5 live video dates' },
+              { num: '03', text: 'Mutual matches revealed' },
+            ].map((s, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <span className="text-[11px] tracking-wider font-medium" style={{ color: 'rgba(224,64,160,0.6)' }}>{s.num}</span>
+                <span className="text-sm tracking-wide" style={{ color: 'rgba(255,255,255,0.50)' }}>{s.text}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="h-14" />
+
+          {/* Second CTA */}
           <button
             onClick={onStartDemo}
-            className="group relative px-11 py-4 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 active:scale-95 bg-[#E040A0] text-white"
-            style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.38)' }}
+            className="px-8 py-3 rounded-full text-sm tracking-wide transition-all duration-500"
+            style={{
+              border: '1px solid rgba(255,255,255,0.18)',
+              color: 'rgba(255,255,255,0.60)',
+              opacity: shift.visible ? 1 : 0,
+              transitionDelay: '800ms',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+              e.currentTarget.style.color = 'rgba(255,255,255,0.9)'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'rgba(255,255,255,0.60)'
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'
+            }}
           >
-            <span className="flex items-center gap-2.5">
-              Experience the Demo
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </span>
+            Try it yourself →
           </button>
-
-          <p className="mt-4 text-xs text-[#7A7A80]">Interactive product walkthrough — 2 minutes</p>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce opacity-40">
-          <span className="text-[0.65rem] text-[#7A7A80] uppercase tracking-widest font-medium">Scroll for the pitch</span>
-          <svg className="w-5 h-5 text-[#7A7A80]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
         </div>
       </section>
 
-      {/* =================== THE PROBLEM =================== */}
-      <section ref={problem.ref} className={`py-20 md:py-32 px-6 transition-all duration-1000 ${problem.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+      {/* ═══ THE PROOF — market, after they've felt it ═══ */}
+      <section ref={proof.ref} className="relative px-6 py-32 sm:py-40">
         <div className="max-w-4xl mx-auto">
-          <h3 className="text-xs tracking-[0.3em] uppercase text-[#E040A0] font-semibold mb-6 text-center">The Problem</h3>
-          <h2
-            className="text-3xl md:text-[3rem] md:leading-[1.12] font-bold mb-6 text-center font-display"
+
+          {/* One line of context */}
+          <p
+            className="text-center mb-16 sm:mb-20 transition-all duration-[1.8s] ease-out"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 'clamp(1.3rem, 3.5vw, 1.8rem)',
+              fontWeight: 300,
+              fontStyle: 'italic',
+              color: 'rgba(255,255,255,0.45)',
+              opacity: proof.visible ? 1 : 0,
+            }}
           >
-            Dating apps are broken.
+            Western apps don't fit the culture. Arranged introductions don't fit the generation.
             <br />
-            <span className="text-[#98989D]">Everyone knows it.</span>
-          </h2>
-          <p className="text-center text-[#98989D] max-w-2xl mx-auto mb-14 leading-relaxed">
-            Swipe. Match. Text for days. Meet in person. Feel zero chemistry. Repeat.
-            The current model wastes your most valuable resource — time — and profits from keeping you stuck in the loop.
+            <span style={{ color: 'rgba(255,255,255,0.70)' }}>Pulse sits in the gap.</span>
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {painPoints.map((p, i) => (
-              <div
-                key={i}
-                className="glass-tile rounded-2xl p-7 text-center"
-                style={{ animationDelay: `${i * 0.15}s` }}
-              >
-                <p className="text-4xl md:text-5xl font-bold text-[#E040A0] mb-3 font-display">{p.stat}</p>
-                <p className="text-sm text-[#E0E0E5] mb-3 leading-relaxed">{p.label}</p>
-                <p className="text-xs text-[#7A7A80] italic">{p.pain}</p>
-              </div>
-            ))}
+          {/* Four numbers — clean, no cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-10 sm:gap-6">
+            <Stat value="$9.6B" label="Global dating market" delay={0} visible={proof.visible} />
+            <Stat value="68M" label="Singles in GCC" delay={150} visible={proof.visible} />
+            <Stat value="42%" label="Dissatisfied with current apps" delay={300} visible={proof.visible} />
+            <Stat value="82%" label="Prefer video-first" delay={450} visible={proof.visible} />
           </div>
         </div>
       </section>
 
-      {/* =================== THE SOLUTION =================== */}
-      <section ref={solution.ref} className={`py-20 md:py-32 px-6 transition-all duration-1000 ${solution.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-xs tracking-[0.3em] uppercase text-[#E040A0] font-semibold mb-6 text-center">The Solution</h3>
-          <h2 className="text-3xl md:text-[3rem] md:leading-[1.12] font-bold mb-6 text-center font-display">
-            Skip the texting.
-            <br />
-            <span className="text-[#E040A0]">See the chemistry.</span>
-          </h2>
-          <p className="text-center text-[#98989D] max-w-2xl mx-auto mb-14 leading-relaxed">
-            Pulse runs live speed dating sessions. Five people, five minutes each, face-to-face on video.
-            Body language doesn't lie. You know in 30 seconds what takes weeks to discover over text.
-          </p>
+      {/* ═══ THE MODEL — clean, confident, no glass tiles ═══ */}
+      <section ref={model.ref} className="relative px-6 py-32 sm:py-40">
+        <div className="max-w-2xl mx-auto">
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {howItWorks.map((step, i) => (
-              <div
-                key={i}
-                className="glass-tile rounded-2xl p-7 text-center group hover:scale-[1.03] transition-transform duration-300"
-              >
-                <div className="text-[#E040A0] font-display font-semibold text-lg mb-4">{step.step}</div>
-                <div className="text-3xl mb-4">{step.icon}</div>
-                <h4 className="font-bold text-lg text-white mb-2">{step.title}</h4>
-                <p className="text-sm text-[#E0E0E5] leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Key differentiators */}
-          <div className="mt-14 glass-tile rounded-2xl p-8 md:p-10">
-            <h4 className="text-xs tracking-[0.3em] uppercase text-[#7A7A80] font-semibold mb-6 text-center">Why This Works</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { title: 'Paid entry = serious people', desc: 'When you pay AED 75, you show up. No ghosts, no time-wasters, no fake profiles.' },
-                { title: 'Camera on = no catfishing', desc: 'What you see is what you get. No old photos, no filters, no carefully crafted persona.' },
-                { title: 'Time-boxed = real chemistry', desc: '5 minutes is enough to feel a spark. Not enough to overthink it.' },
-                { title: 'Mutual matching = no rejection loop', desc: 'You only find out if someone liked you when you liked them too. Clean, dignified.' },
-              ].map((d, i) => (
-                <div key={i} className="flex items-start gap-4">
-                  <div className="w-2 h-2 rounded-full bg-[#E040A0] mt-2 shrink-0" />
-                  <div>
-                    <p className="font-semibold text-white mb-1">{d.title}</p>
-                    <p className="text-sm text-[#98989D] leading-relaxed">{d.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =================== MARKET OPPORTUNITY =================== */}
-      <section ref={market.ref} className={`py-20 md:py-32 px-6 transition-all duration-1000 ${market.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-xs tracking-[0.3em] uppercase text-[#E040A0] font-semibold mb-6 text-center">Market Opportunity</h3>
-          <h2 className="text-3xl md:text-[3rem] md:leading-[1.12] font-bold mb-6 text-center font-display">
-            The MENA dating market is
-            <br />
-            <span className="text-[#E040A0]">massively underserved.</span>
-          </h2>
-          <p className="text-center text-[#98989D] max-w-2xl mx-auto mb-14 leading-relaxed">
-            Western dating apps don't fit the culture. Arranged introductions don't fit the generation.
-            Pulse sits in the gap — structured, respectful, but real.
-          </p>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {marketStats.map((s, i) => (
-              <div key={i} className="glass-tile rounded-2xl p-6 text-center">
-                <p className="text-3xl md:text-4xl font-bold text-[#E040A0] mb-2 font-display">{s.value}</p>
-                <p className="text-xs text-[#98989D] leading-relaxed">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =================== REVENUE MODEL =================== */}
-      <section ref={revenue.ref} className={`py-20 md:py-32 px-6 transition-all duration-1000 ${revenue.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-xs tracking-[0.3em] uppercase text-[#E040A0] font-semibold mb-6 text-center">Business Model</h3>
-          <h2 className="text-3xl md:text-[3rem] md:leading-[1.12] font-bold mb-14 text-center font-display">
+          <h3
+            className="text-center mb-16 transition-all duration-[1.8s] ease-out"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 'clamp(1.8rem, 5vw, 2.8rem)',
+              fontWeight: 300,
+              fontStyle: 'italic',
+              color: 'rgba(255,255,255,0.85)',
+              opacity: model.visible ? 1 : 0,
+            }}
+          >
             Three revenue streams.
             <br />
-            <span className="text-[#98989D]">Day one.</span>
-          </h2>
+            <span style={{ color: 'rgba(255,255,255,0.40)' }}>Day one.</span>
+          </h3>
 
-          <div className="space-y-4">
-            {revenueStreams.map((r, i) => (
-              <div key={i} className="glass-tile rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-8">
-                <div className="shrink-0">
-                  <div className="w-16 h-16 rounded-2xl bg-[rgba(224,64,160,0.10)] flex items-center justify-center">
-                    <span className="text-2xl font-bold text-[#E040A0] font-display">{r.pct}</span>
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-lg text-white mb-1">{r.title}</h4>
-                  <p className="text-sm text-[#98989D] leading-relaxed">{r.desc}</p>
-                </div>
+          {/* Revenue lines */}
+          {[
+            { pct: '60%', title: 'Session fees', desc: 'AED 75 per seat. Paid entry means serious people.' },
+            { pct: '25%', title: 'Premium membership', desc: 'Priority booking, extended profiles, session replays.' },
+            { pct: '15%', title: 'Sponsored moments', desc: 'Brand placements between dates. Captive, engaged audience.' },
+          ].map((r, i) => (
+            <div
+              key={i}
+              className="flex items-baseline gap-6 py-6 transition-all duration-[1.5s] ease-out"
+              style={{
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                opacity: model.visible ? 1 : 0,
+                transform: model.visible ? 'translateY(0)' : 'translateY(10px)',
+                transitionDelay: `${200 + i * 150}ms`,
+              }}
+            >
+              <span
+                className="text-2xl sm:text-3xl font-display shrink-0"
+                style={{
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
+                  fontWeight: 600,
+                  color: '#E040A0',
+                  width: '70px',
+                }}
+              >
+                {r.pct}
+              </span>
+              <div>
+                <p className="text-sm sm:text-base font-medium" style={{ color: 'rgba(255,255,255,0.80)' }}>{r.title}</p>
+                <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.30)' }}>{r.desc}</p>
               </div>
-            ))}
+            </div>
+          ))}
+
+          {/* Unit economics — one line */}
+          <div
+            className="mt-12 text-center transition-all duration-[1.5s] ease-out"
+            style={{
+              opacity: model.visible ? 1 : 0,
+              transitionDelay: '800ms',
+            }}
+          >
+            <div className="inline-flex items-center gap-8 sm:gap-12">
+              <div className="text-center">
+                <p className="text-2xl font-display" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, color: 'rgba(255,255,255,0.80)' }}>
+                  AED 750
+                </p>
+                <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Revenue / session</p>
+              </div>
+              <div style={{ color: 'rgba(255,255,255,0.15)' }}>→</div>
+              <div className="text-center">
+                <p className="text-2xl font-display" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, color: '#E040A0' }}>
+                  ~89%
+                </p>
+                <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Gross margin</p>
+              </div>
+            </div>
           </div>
 
-          {/* Unit economics */}
-          <div className="mt-10 glass-tile rounded-2xl p-8 text-center">
-            <h4 className="text-xs tracking-[0.3em] uppercase text-[#7A7A80] font-semibold mb-6">Unit Economics (Per Session)</h4>
-            <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+          {/* Expansion — one clean line */}
+          <div
+            className="mt-20 text-center transition-all duration-[1.5s] ease-out"
+            style={{
+              opacity: model.visible ? 1 : 0,
+              transitionDelay: '1000ms',
+            }}
+          >
+            <p className="text-[11px] tracking-[0.25em] uppercase mb-6" style={{ color: 'rgba(255,255,255,0.20)' }}>
+              Expansion
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
               {[
-                { label: 'Revenue / session', value: 'AED 750', sub: '10 participants × AED 75' },
-                { label: 'COGS', value: 'AED ~80', sub: 'Video infrastructure + hosting' },
-                { label: 'Gross margin', value: '~89%', sub: 'Software-like margins' },
-              ].map((e, i) => (
-                <div key={i} className="text-center">
-                  <p className="text-2xl md:text-3xl font-bold text-[#E040A0] font-display">{e.value}</p>
-                  <p className="text-sm text-[#E0E0E5] font-medium mt-1">{e.label}</p>
-                  <p className="text-xs text-[#7A7A80] mt-0.5">{e.sub}</p>
-                </div>
+                { city: 'Dubai', when: 'Launch', active: true },
+                { city: 'Riyadh', when: 'Q3 2026', active: false },
+                { city: 'Doha', when: 'Q4 2026', active: false },
+                { city: 'Cairo', when: '2027', active: false },
+                { city: 'London', when: '2027', active: false },
+              ].map((c, i) => (
+                <span
+                  key={i}
+                  className="text-sm tracking-wide"
+                  style={{
+                    color: c.active ? 'rgba(224,64,160,0.8)' : 'rgba(255,255,255,0.20)',
+                  }}
+                >
+                  {c.city} <span className="text-[10px] ml-1" style={{ opacity: 0.6 }}>{c.when}</span>
+                </span>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* =================== EXPANSION =================== */}
-      <section ref={expansion.ref} className={`py-20 md:py-28 px-6 transition-all duration-1000 ${expansion.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-        <div className="max-w-4xl mx-auto text-center">
-          <h3 className="text-xs tracking-[0.3em] uppercase text-[#E040A0] font-semibold mb-6">Expansion</h3>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 font-display">
-            Launch Dubai. Scale the region.
-          </h2>
-          <p className="text-[#98989D] text-sm mb-12 max-w-lg mx-auto">City-by-city rollout. Each city is a self-contained market with its own sessions.</p>
-
-          <div className="flex flex-wrap justify-center gap-4">
-            {cities.map((c, i) => (
-              <div
-                key={i}
-                className={`glass-tile rounded-2xl p-5 md:p-6 min-w-[130px] md:min-w-[150px] text-center transition-all duration-300 ${c.active ? '' : 'opacity-50'}`}
-                style={c.active ? { borderColor: '#E040A0', boxShadow: '0 8px 32px rgba(224,64,160,0.12)' } : {}}
-              >
-                <span className="text-3xl md:text-4xl block mb-2">{c.flag}</span>
-                <p className="font-bold text-white mb-1">{c.name}</p>
-                <span className={`text-[0.65rem] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                  c.active
-                    ? 'bg-[rgba(224,64,160,0.10)] text-[#E040A0] border border-[rgba(224,64,160,0.25)]'
-                    : 'bg-white/[0.03] text-[#B0B0B8] border border-white/[0.06]'
-                }`}>{c.status}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =================== FINAL CTA =================== */}
-      <section ref={cta.ref} className={`py-24 md:py-36 px-6 relative transition-all duration-1000 ${cta.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-        <div className="relative z-10 max-w-2xl mx-auto text-center">
+      {/* ═══ THE CLOSE ═══ */}
+      <section ref={close.ref} className="relative px-6 py-32 sm:py-40">
+        <div className="max-w-2xl mx-auto text-center">
           <h2
-            className="text-3xl md:text-[3.5rem] md:leading-[1.08] font-bold mb-6 font-display"
+            className="mb-6 transition-all duration-[2s] ease-out"
+            style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 'clamp(2rem, 6vw, 3.5rem)',
+              fontWeight: 300,
+              fontStyle: 'italic',
+              lineHeight: 1.05,
+              color: 'rgba(255,255,255,0.90)',
+              opacity: close.visible ? 1 : 0,
+              transform: close.visible ? 'translateY(0)' : 'translateY(12px)',
+            }}
           >
             See it in action.
           </h2>
-          <p className="text-base md:text-lg text-[#98989D] mb-10 max-w-lg mx-auto leading-relaxed">
-            Walk through a complete Pulse session — from lobby to match reveal.
-            Two minutes. No signup required.
+
+          <p
+            className="text-sm sm:text-base mb-10 transition-all duration-[1.8s] ease-out"
+            style={{
+              color: 'rgba(255,255,255,0.35)',
+              opacity: close.visible ? 1 : 0,
+              transitionDelay: '300ms',
+            }}
+          >
+            Walk through a complete Pulse session.
+            <br />
+            From lobby to match reveal. Two minutes.
           </p>
 
           <button
             onClick={onStartDemo}
-            className="group relative px-12 py-4 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 active:scale-95 bg-[#E040A0] text-white"
-            style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.38)' }}
+            className="group px-10 py-4 rounded-full text-base font-semibold transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+            style={{
+              background: '#E040A0',
+              color: 'white',
+              boxShadow: '0 4px 30px rgba(224,64,160,0.30)',
+              opacity: close.visible ? 1 : 0,
+              transitionDelay: '500ms',
+            }}
           >
             <span className="flex items-center gap-2.5">
-              Launch Product Demo
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+              Launch demo
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
             </span>
           </button>
         </div>
       </section>
 
-      {/* =================== FOOTER =================== */}
-      <footer className="border-t border-white/[0.06] py-10 px-6 bg-[#2A2A2E]">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col items-center md:items-start gap-1.5">
-            <span className="text-xl font-semibold font-display text-[#E040A0]">Pulse</span>
-            <span className="text-xs text-[#98989D]">Dubai, 2026</span>
-          </div>
-          <p className="text-xs text-[#98989D] italic">Skip the texting. See the chemistry.</p>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-[#7A7A80]">jamal@hakadian.com</span>
-          </div>
+      {/* ═══ FOOTER ═══ */}
+      <footer className="px-6 py-8" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="text-[11px] tracking-wider" style={{ color: 'rgba(255,255,255,0.15)' }}>
+            Pulse · Dubai 2026
+          </span>
+          <a
+            href="mailto:jamal@hakadian.com"
+            className="text-[11px] tracking-wider transition-colors duration-500"
+            style={{ color: 'rgba(255,255,255,0.15)' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.40)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.15)'}
+          >
+            jamal@hakadian.com
+          </a>
         </div>
       </footer>
     </div>
