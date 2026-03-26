@@ -2,10 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 
 /* ─── Configuration ─────────────────────────────────────────────
    Phase toggle:
-   - 'exclusive'  → "You'll know." (mystery + selectivity)
+   - 'exclusive'  → mystery + selectivity
    - 'fomo'       → counter-driven urgency
-
-   Change when you hit critical mass (~500+ signups)
    ──────────────────────────────────────────────────────────────── */
 const PHASE: 'exclusive' | 'fomo' = 'exclusive'
 
@@ -43,25 +41,49 @@ function AnimatedCounter({ target }: { target: number }) {
   return <span ref={ref}>{count.toLocaleString()}</span>
 }
 
+/* ─── Animated heartbeat SVG — draws itself ──────────────────── */
+function HeartbeatLine({ visible }: { visible: boolean }) {
+  return (
+    <svg
+      width="140"
+      height="24"
+      viewBox="0 0 140 24"
+      fill="none"
+      className="transition-opacity duration-[2s]"
+      style={{ opacity: visible ? 0.45 : 0 }}
+    >
+      <path
+        d="M0 12h42l5-10 5 20 5-20 5 10h78"
+        stroke="#E040A0"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray="200"
+        strokeDashoffset={visible ? '0' : '200'}
+        style={{ transition: 'stroke-dashoffset 2s ease-out' }}
+      />
+    </svg>
+  )
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MAIN COMPONENT
 
-   Design philosophy: the typography IS the design.
-   One statement. One action. Nothing competes.
-   The emptiness creates the gravity.
+   Logo → heartbeat → tagline = one unified composition.
+   Warm deep background. Typography is the design.
    ═══════════════════════════════════════════════════════════════ */
 export default function WaitlistPage() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [showForm, setShowForm] = useState(false)
-  const [phase, setPhase] = useState(0) // 0: nothing, 1: logo, 2: tagline, 3: cta
+  const [phase, setPhase] = useState(0)
   const formRef = useRef<HTMLDivElement>(null)
 
   /* Cinematic staggered reveal */
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 300)
-    const t2 = setTimeout(() => setPhase(2), 1200)
-    const t3 = setTimeout(() => setPhase(3), 2400)
+    const t1 = setTimeout(() => setPhase(1), 400)
+    const t2 = setTimeout(() => setPhase(2), 1400)
+    const t3 = setTimeout(() => setPhase(3), 2800)
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [])
 
@@ -76,84 +98,89 @@ export default function WaitlistPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060606] relative overflow-hidden cursor-default select-none">
-      {/* ─── Single ambient glow — just enough to feel warm ─── */}
+    <div
+      className="min-h-screen relative overflow-hidden cursor-default select-none"
+      style={{ background: 'linear-gradient(170deg, #1C1A22 0%, #16141C 40%, #12111A 100%)' }}
+    >
+      {/* ─── Warm ambient light — not a glow, a presence ─── */}
       <div className="fixed inset-0 pointer-events-none">
+        {/* Soft warm bloom behind the composition */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+          className="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
-            background: 'radial-gradient(circle, rgba(224,64,160,0.07) 0%, rgba(224,64,160,0.02) 40%, transparent 70%)',
+            width: '900px',
+            height: '600px',
+            background: 'radial-gradient(ellipse, rgba(224,64,160,0.06) 0%, rgba(160,50,180,0.03) 40%, transparent 70%)',
+          }}
+        />
+        {/* Subtle top-left warmth */}
+        <div
+          className="absolute top-[-10%] left-[-5%]"
+          style={{
+            width: '500px',
+            height: '500px',
+            background: 'radial-gradient(circle, rgba(80,50,120,0.08) 0%, transparent 60%)',
           }}
         />
       </div>
 
-      {/* ═══ THE PAGE — one screen, nothing else ═══ */}
+      {/* ═══ THE PAGE ═══ */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6">
 
+        {/* ── One unified composition: logo + line + tagline ── */}
         <div className="relative z-10 flex flex-col items-center text-center">
 
-          {/* ── Logo: appears first, then drifts up ── */}
+          {/* Logo — part of the sentence, not a header */}
           <div
             className="transition-all duration-[2s] ease-out"
             style={{
-              opacity: phase >= 1 ? 1 : 0,
-              transform: phase >= 2 ? 'translateY(-8px)' : 'translateY(0)',
+              opacity: phase >= 1 ? 0.55 : 0,
+              transform: phase >= 1 ? 'translateY(0)' : 'translateY(8px)',
             }}
           >
-            <h2
-              className="text-[clamp(1.6rem,4vw,2.4rem)] font-light tracking-[0.15em] uppercase text-white/70"
-              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+            <span
+              className="text-[clamp(0.75rem,1.8vw,0.9rem)] font-normal tracking-[0.35em] uppercase"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                color: 'rgba(255,255,255,0.5)',
+              }}
             >
-              Pulse
-            </h2>
+              Pulse / Orbit
+            </span>
           </div>
 
-          {/* ── The line: a single heartbeat ── */}
-          <div
-            className="my-8 transition-all duration-[1.5s] ease-out"
-            style={{
-              opacity: phase >= 2 ? 0.35 : 0,
-              transform: phase >= 2 ? 'scaleX(1)' : 'scaleX(0)',
-            }}
-          >
-            <svg width="120" height="20" viewBox="0 0 120 24" fill="none">
-              <path
-                d="M0 12h35l4-9 4 18 4-18 4 9h69"
-                stroke="#E040A0"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          {/* Heartbeat line — the connective tissue */}
+          <div className="my-5">
+            <HeartbeatLine visible={phase >= 1} />
           </div>
 
-          {/* ── Tagline: the only thing that matters ── */}
+          {/* Tagline — the gravitational center */}
           <h1
-            className="transition-all duration-[2s] ease-out"
+            className="transition-all duration-[2.2s] ease-out"
             style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: 'clamp(3.5rem, 12vw, 8rem)',
+              fontSize: 'clamp(3.2rem, 11vw, 7.5rem)',
               fontWeight: 300,
               fontStyle: 'italic',
               lineHeight: 0.95,
-              letterSpacing: '-0.02em',
-              color: '#FFFFFF',
+              letterSpacing: '-0.015em',
+              color: 'rgba(255,255,255,0.95)',
               opacity: phase >= 2 ? 1 : 0,
-              transform: phase >= 2 ? 'translateY(0)' : 'translateY(20px)',
+              transform: phase >= 2 ? 'translateY(0)' : 'translateY(16px)',
             }}
           >
             You'll know.
           </h1>
 
-          {/* ── Spacer ── */}
-          <div className="h-16 sm:h-20" />
+          {/* Breathing space */}
+          <div className="h-14 sm:h-16" />
 
-          {/* ── CTA: fades in last, minimal ── */}
+          {/* CTA — fades in last */}
           <div
             className="transition-all duration-[2s] ease-out"
             style={{
               opacity: phase >= 3 ? 1 : 0,
-              transform: phase >= 3 ? 'translateY(0)' : 'translateY(12px)',
+              transform: phase >= 3 ? 'translateY(0)' : 'translateY(10px)',
             }}
           >
             {!submitted ? (
@@ -165,16 +192,42 @@ export default function WaitlistPage() {
                     onChange={e => setEmail(e.target.value)}
                     placeholder="Your email"
                     required
-                    className="w-64 px-5 py-3 rounded-full bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-white/20 text-sm tracking-wide focus:outline-none focus:border-white/20 transition-all text-center sm:text-left"
+                    className="w-64 px-5 py-3 rounded-full text-white placeholder:text-white/25 text-sm tracking-wide focus:outline-none transition-all duration-500 text-center sm:text-left"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.10)',
+                    }}
+                    onFocus={e => {
+                      e.target.style.borderColor = 'rgba(224,64,160,0.3)'
+                      e.target.style.background = 'rgba(255,255,255,0.06)'
+                    }}
+                    onBlur={e => {
+                      e.target.style.borderColor = 'rgba(255,255,255,0.10)'
+                      e.target.style.background = 'rgba(255,255,255,0.04)'
+                    }}
                   />
                   <button
                     type="submit"
-                    className="px-6 py-3 rounded-full border border-white/20 text-white/70 text-sm tracking-wide hover:bg-white/[0.06] hover:text-white transition-all duration-500"
+                    className="px-6 py-3 rounded-full text-sm tracking-wide transition-all duration-500"
+                    style={{
+                      border: '1px solid rgba(255,255,255,0.18)',
+                      color: 'rgba(255,255,255,0.65)',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                      e.currentTarget.style.color = 'rgba(255,255,255,0.9)'
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'transparent'
+                      e.currentTarget.style.color = 'rgba(255,255,255,0.65)'
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'
+                    }}
                   >
                     {PHASE === 'exclusive' ? 'Request access' : 'Join waitlist'}
                   </button>
                 </div>
-                <p className="text-white/15 text-[11px] tracking-[0.2em] uppercase">
+                <p className="text-[11px] tracking-[0.2em] uppercase" style={{ color: 'rgba(255,255,255,0.18)' }}>
                   {PHASE === 'exclusive'
                     ? 'By invitation only'
                     : <><AnimatedCounter target={WAITLIST_COUNT} /> already in line</>
@@ -183,30 +236,39 @@ export default function WaitlistPage() {
               </form>
             ) : (
               <div className="flex flex-col items-center gap-3 animate-fade-in">
-                <p className="text-white/50 text-sm tracking-wide">
+                <p className="text-sm tracking-wide" style={{ color: 'rgba(255,255,255,0.5)' }}>
                   You're in.
                 </p>
-                <div className="w-8 h-px bg-white/10" />
+                <div className="w-8 h-px" style={{ background: 'rgba(255,255,255,0.10)' }} />
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* ═══ TYPEFORM (appears after email — only content below the fold) ═══ */}
+      {/* ═══ TYPEFORM ═══ */}
       {showForm && (
         <section ref={formRef} className="relative px-6 py-24 animate-fade-in">
           <div className="max-w-2xl mx-auto">
-            <p className="text-center text-white/20 text-[11px] tracking-[0.3em] uppercase mb-10">
+            <p
+              className="text-center text-[11px] tracking-[0.3em] uppercase mb-10"
+              style={{ color: 'rgba(255,255,255,0.20)' }}
+            >
               Complete your profile
             </p>
 
-            <div className="rounded-2xl overflow-hidden border border-white/[0.05] bg-white/[0.02]">
+            <div
+              className="rounded-2xl overflow-hidden"
+              style={{
+                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.02)',
+              }}
+            >
               {TYPEFORM_FORM_ID === 'YOUR_TYPEFORM_ID' ? (
                 <div className="p-20 text-center">
-                  <p className="text-white/30 text-sm mb-2">Typeform ready</p>
-                  <p className="text-white/15 text-xs">
-                    Replace <code className="text-pulse/40 bg-white/[0.04] px-2 py-0.5 rounded text-[11px]">YOUR_TYPEFORM_ID</code> in WaitlistPage.tsx
+                  <p style={{ color: 'rgba(255,255,255,0.30)' }} className="text-sm mb-2">Typeform ready</p>
+                  <p style={{ color: 'rgba(255,255,255,0.15)' }} className="text-xs">
+                    Replace <code className="text-pulse/40 px-2 py-0.5 rounded text-[11px]" style={{ background: 'rgba(255,255,255,0.04)' }}>YOUR_TYPEFORM_ID</code> in WaitlistPage.tsx
                   </p>
                 </div>
               ) : (
@@ -222,13 +284,18 @@ export default function WaitlistPage() {
         </section>
       )}
 
-      {/* ═══ FOOTER — ghost-level presence ═══ */}
+      {/* ═══ FOOTER ═══ */}
       <footer className="absolute bottom-0 left-0 right-0 px-6 py-6">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <span className="text-white/10 text-[11px] tracking-wider">Dubai 2026</span>
+          <span className="text-[11px] tracking-wider" style={{ color: 'rgba(255,255,255,0.12)' }}>
+            Dubai 2026
+          </span>
           <a
             href="mailto:jamal@hakadian.com"
-            className="text-white/10 text-[11px] tracking-wider hover:text-white/25 transition-colors duration-500"
+            className="text-[11px] tracking-wider transition-colors duration-500"
+            style={{ color: 'rgba(255,255,255,0.12)' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.30)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.12)'}
           >
             Contact
           </a>
