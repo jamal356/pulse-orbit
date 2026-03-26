@@ -174,39 +174,45 @@ export default function SessionLobby({ onNavigate }: Props) {
           </div>
         )}
 
-        {/* ─── PROFILE SLIDES: ambient bg + contained card ─── */}
+        {/* ─── PROFILE SLIDES: editorial split layout ─── */}
         {slide.type === 'profile' && (
-          <div className={`absolute inset-0 transition-opacity duration-[800ms] flex items-center justify-center ${transitioning ? 'opacity-0' : 'opacity-100'}`}
+          <div className={`absolute inset-0 transition-opacity duration-[800ms] ${transitioning ? 'opacity-0' : 'opacity-100'}`}
             style={{ background: 'linear-gradient(170deg, #1C1A22 0%, #16141C 40%, #12111A 100%)' }}>
-            {/* Ambient glow behind card */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{ width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(224,64,160,0.08) 0%, transparent 60%)' }} />
 
-            {/* Profile card */}
-            <div className="relative z-10 w-72 sm:w-80 rounded-2xl overflow-hidden"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}>
-              <div className="relative h-72 sm:h-80 overflow-hidden">
+            {/* Soft ambient glow — offset toward the photo side */}
+            <div className="absolute top-1/2 left-[35%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+              style={{ width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(224,64,160,0.06) 0%, transparent 65%)' }} />
+
+            {/* Split layout: photo left, info right */}
+            <div className="absolute inset-0 flex items-center justify-center px-8 sm:px-16 md:px-24 gap-8 md:gap-16">
+
+              {/* Photo — tall portrait crop, no card wrapper */}
+              <div className="relative flex-shrink-0 w-[220px] sm:w-[260px] md:w-[300px] h-[320px] sm:h-[380px] md:h-[440px] rounded-2xl overflow-hidden"
+                style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.5), 0 0 80px rgba(224,64,160,0.06)' }}>
                 <img src={slide.image} alt="" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[rgba(20,18,26,0.95)] via-transparent to-transparent" />
-                <div className="absolute top-3 left-3">
-                  <span className="text-[0.55rem] tracking-[0.15em] uppercase px-2 py-1 rounded"
-                    style={{ background: 'rgba(224,64,160,0.15)', color: '#E040A0' }}>Tonight's lineup</span>
-                </div>
-                <div className="absolute bottom-3 left-4 right-4">
-                  <p className="text-sm mb-1" style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.45)' }}>
-                    {slide.subtitle}
-                  </p>
-                </div>
+                {/* Subtle vignette */}
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(20,18,26,0.4) 0%, transparent 40%)' }} />
               </div>
-              <div className="p-4">
-                <p className="text-lg mb-3 leading-snug"
-                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.85)' }}>
+
+              {/* Info — clean editorial typography */}
+              <div className="flex flex-col justify-center max-w-xs">
+                <span className="text-[0.6rem] tracking-[0.2em] uppercase mb-4 block"
+                  style={{ color: '#E040A0', opacity: 0.7 }}>Tonight's lineup</span>
+
+                <p className="text-2xl sm:text-3xl md:text-[2.1rem] leading-snug mb-4"
+                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.88)' }}>
                   {slide.title}
                 </p>
+
+                <p className="text-sm mb-5"
+                  style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.35)', letterSpacing: '0.02em' }}>
+                  {slide.subtitle}
+                </p>
+
                 {slide.tags && (
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     {slide.tags.map(tag => (
-                      <span key={tag} className="text-[0.65rem] px-2.5 py-1 rounded-full"
+                      <span key={tag} className="text-[0.65rem] px-3 py-1 rounded-full"
                         style={{ background: 'rgba(224,64,160,0.08)', color: '#E040A0', border: '1px solid rgba(224,64,160,0.12)' }}>
                         {tag}
                       </span>
