@@ -69,7 +69,7 @@ interface FormData {
   ageRange: string
   gender: string
   lookingFor: string
-  brokenThing: string
+  photo: string // base64 data URL
 }
 
 const CITIES = ['Dubai', 'Abu Dhabi', 'Riyadh', 'Doha', 'Cairo', 'London', 'Other']
@@ -243,6 +243,133 @@ function FormInput({
   )
 }
 
+/* ─── Photo upload with circular preview ──────────────────────── */
+function PhotoUpload({
+  value,
+  onChange,
+  firstName,
+}: {
+  value: string
+  onChange: (v: string) => void
+  firstName: string
+}) {
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [dragging, setDragging] = useState(false)
+
+  const processFile = useCallback((file: File) => {
+    if (!file.type.startsWith('image/')) return
+
+    // Resize to max 800px for quality + performance
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const maxSize = 800
+        let { width, height } = img
+        if (width > height) {
+          if (width > maxSize) { height = (height * maxSize) / width; width = maxSize }
+        } else {
+          if (height > maxSize) { width = (width * maxSize) / height; height = maxSize }
+        }
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0, width, height)
+        onChange(canvas.toDataURL('image/jpeg', 0.9))
+      }
+      img.src = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }, [onChange])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (file) processFile(file)
+  }, [processFile])
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) processFile(file)
+  }, [processFile])
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      {/* Circular preview / upload zone */}
+      <div
+        className="relative cursor-pointer group"
+        onClick={() => fileRef.current?.click()}
+        onDragOver={e => { e.preventDefault(); setDragging(true) }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+      >
+        <div
+          className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden flex items-center justify-center transition-all duration-500"
+          style={{
+            border: value
+              ? '2px solid rgba(224,64,160,0.4)'
+              : dragging
+                ? '2px solid rgba(224,64,160,0.5)'
+                : '2px dashed rgba(255,255,255,0.12)',
+            background: value ? 'transparent' : 'rgba(255,255,255,0.02)',
+          }}
+        >
+          {value ? (
+            <img
+              src={value}
+              alt="Profile preview"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-3 px-6">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.25 }}>
+                <path d="M12 5v14m-7-7h14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              <span className="text-[11px] tracking-wide text-center" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                Tap to upload
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Subtle glow when photo is set */}
+        {value && (
+          <div
+            className="absolute inset-0 rounded-full pointer-events-none"
+            style={{
+              boxShadow: '0 0 40px rgba(224,64,160,0.12), 0 0 80px rgba(224,64,160,0.06)',
+            }}
+          />
+        )}
+
+        {/* Hover overlay to re-upload */}
+        {value && (
+          <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="text-white/70 text-xs tracking-wide">Change photo</span>
+          </div>
+        )}
+      </div>
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      {/* Guidance text */}
+      <p className="text-[11px] tracking-wide text-center leading-relaxed" style={{ color: 'rgba(255,255,255,0.20)' }}>
+        {value
+          ? `This is how ${firstName || 'you'}'ll appear when the room opens.`
+          : 'High quality · Face clearly visible · This is what they\'ll see.'}
+      </p>
+    </div>
+  )
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════════════════════════ */
@@ -261,7 +388,7 @@ export default function WaitlistPage() {
     ageRange: '',
     gender: '',
     lookingFor: '',
-    brokenThing: '',
+    photo: '',
   })
 
   const update = useCallback((field: keyof FormData, value: string) => {
@@ -538,27 +665,20 @@ export default function WaitlistPage() {
               />
             </FormStep>
 
-            {/* Step 5: The open question — investor gold */}
+            {/* Step 5: Profile photo — the final investment */}
             <FormStep
               active={step === 5}
               stepNumber={5}
               totalSteps={TOTAL_STEPS}
-              question="What's broken about dating right now?"
+              question="This is your first impression."
               onNext={nextStep}
-              canProceed={form.brokenThing.trim().length > 0}
+              canProceed={form.photo.length > 0}
               isLast
             >
-              <textarea
-                value={form.brokenThing}
-                onChange={e => update('brokenThing', e.target.value)}
-                placeholder="Be honest — we're building this for you."
-                autoFocus
-                rows={3}
-                className="w-full px-0 py-3 text-center text-white text-base tracking-wide bg-transparent border-0 border-b focus:outline-none transition-all duration-500 placeholder:text-white/20 resize-none"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  borderBottomColor: form.brokenThing ? 'rgba(224,64,160,0.3)' : 'rgba(255,255,255,0.10)',
-                }}
+              <PhotoUpload
+                value={form.photo}
+                onChange={v => update('photo', v)}
+                firstName={form.firstName}
               />
             </FormStep>
           </div>
@@ -570,7 +690,7 @@ export default function WaitlistPage() {
         <section className="relative min-h-screen flex items-center justify-center px-6">
           <div className="flex flex-col items-center text-center">
 
-            {/* Checkmark */}
+            {/* Their photo — the payoff of uploading it */}
             <div
               className="mb-8 transition-all duration-[1.5s] ease-out"
               style={{
@@ -578,17 +698,43 @@ export default function WaitlistPage() {
                 transform: completePhase >= 1 ? 'scale(1)' : 'scale(0.5)',
               }}
             >
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center"
-                style={{
-                  background: 'rgba(224,64,160,0.10)',
-                  border: '1px solid rgba(224,64,160,0.25)',
-                }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12l5 5L19 7" stroke="#E040A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
+              {form.photo ? (
+                <div className="relative">
+                  <div
+                    className="w-24 h-24 rounded-full overflow-hidden"
+                    style={{
+                      border: '2px solid rgba(224,64,160,0.35)',
+                      boxShadow: '0 0 40px rgba(224,64,160,0.15)',
+                    }}
+                  >
+                    <img src={form.photo} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  {/* Check badge */}
+                  <div
+                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{
+                      background: 'rgba(224,64,160,0.9)',
+                      boxShadow: '0 2px 8px rgba(224,64,160,0.3)',
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M5 12l5 5L19 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="w-20 h-20 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'rgba(224,64,160,0.10)',
+                    border: '1px solid rgba(224,64,160,0.25)',
+                  }}
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12l5 5L19 7" stroke="#E040A0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              )}
             </div>
 
             {/* Message */}
