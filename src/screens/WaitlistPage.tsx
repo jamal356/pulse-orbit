@@ -112,12 +112,19 @@ export default function WaitlistPage() {
         <div className={`relative z-10 max-w-xl text-center transition-all duration-[1.4s] ease-out ${
           loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
         }`}>
-          {/* Logo mark */}
-          <div className={`mx-auto mb-12 transition-all duration-[1.8s] delay-200 ${
+          {/* Logo — matches platform wordmark */}
+          <div className={`mx-auto mb-14 transition-all duration-[1.8s] delay-200 ${
             loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
           }`}>
-            <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-pulse/80 to-pulse-deep/80 flex items-center justify-center shadow-lg shadow-pulse/10">
-              <span className="text-white text-lg font-display font-bold tracking-tight">P</span>
+            <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight font-display text-white">
+              Pulse
+            </h2>
+            <div className="mt-2.5 flex items-center justify-center gap-3">
+              <div className="h-px w-6 bg-white/15" />
+              <svg width="80" height="18" viewBox="0 0 120 24" fill="none" className="opacity-50">
+                <path d="M0 12h30l5-10 5 20 5-20 5 10h70" stroke="#E040A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <div className="h-px w-6 bg-white/15" />
             </div>
           </div>
 
