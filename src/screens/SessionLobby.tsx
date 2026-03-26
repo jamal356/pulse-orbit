@@ -150,6 +150,41 @@ export default function SessionLobby({ onNavigate }: Props) {
             </div>
           </div>
 
+          {/* Pre-session silhouette preview — who's coming tonight */}
+          <div className="w-full max-w-md glass-tile rounded-2xl p-5 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[0.7rem] tracking-[0.2em] uppercase text-[#B0B0B8] font-semibold">Who's Coming Tonight</span>
+              <span className="text-[0.6rem] text-[#7A7A80] italic">Names hidden until session starts</span>
+            </div>
+            <div className="space-y-2.5">
+              {[
+                { tags: ['Creative', 'Foodie', 'Travel'], location: 'Dubai Marina', age: '26-30' },
+                { tags: ['Wellness', 'Entrepreneur'], location: 'Downtown Dubai', age: '29-33' },
+                { tags: ['Art', 'Dance', 'Coffee'], location: 'Abu Dhabi', age: '24-28' },
+                { tags: ['Tech', 'Hiking', 'Podcasts'], location: 'Riyadh', age: '27-31' },
+                { tags: ['Fashion', 'Photography'], location: 'JBR, Dubai', age: '31-35' },
+              ].map((person, i) => (
+                <div key={i} className="flex items-center gap-3 glass-button rounded-xl p-2.5" style={{ animationDelay: `${i * 0.1}s` }}>
+                  {/* Silhouette avatar */}
+                  <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(224,64,160,0.15) 0%, rgba(224,64,160,0.05) 100%)', border: '1.5px solid rgba(224,64,160,0.15)' }}>
+                    <svg className="w-5 h-5 text-[#E040A0]/40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" /></svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-[#E0E0E5]">{person.location}</span>
+                      <span className="text-[0.6rem] text-[#7A7A80]">· {person.age}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {person.tags.map(tag => (
+                        <span key={tag} className="text-[0.6rem] px-2 py-0.5 rounded-full bg-[rgba(224,64,160,0.06)] text-[#E040A0]/70 border border-[rgba(224,64,160,0.10)]">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Payment confirmation */}
           <div className="glass-button rounded-full px-6 py-3 mb-6 flex items-center gap-3">
             <div className="w-5 h-5 rounded-full bg-[#30D158]/15 flex items-center justify-center">

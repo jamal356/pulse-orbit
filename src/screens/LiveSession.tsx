@@ -7,7 +7,7 @@ interface Props {
   onNavigate: () => void
 }
 
-const reactionEmojis = ['😂', '🔥', '❤️', '😍', '👏', '😮']
+const reactionEmojis = ['\u{1F602}', '\u{1F525}', '\u{2764}\u{FE0F}', '\u{1F60D}', '\u{1F44F}', '\u{1F62E}']
 
 interface FloatingEmoji {
   id: number
@@ -23,6 +23,10 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([])
   const emojiIdRef = useRef(0)
+
+  // Emergency exit state
+  const [showEmergencyConfirm, setShowEmergencyConfirm] = useState(false)
+  const [emergencyTriggered, setEmergencyTriggered] = useState(false)
 
   // Compatibility animation
   const [compatScore, setCompatScore] = useState(0)
@@ -74,7 +78,6 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
 
   const handleReaction = useCallback((emoji: string) => {
     spawnEmoji(emoji)
-    // Simulate partner response
     setTimeout(() => {
       const response = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)]
       spawnEmoji(response)
@@ -97,9 +100,32 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
     }, 120)
   }, [isSpinning])
 
+  // Emergency exit handler
+  const handleEmergencyExit = useCallback(() => {
+    setEmergencyTriggered(true)
+    setShowEmergencyConfirm(false)
+    // Simulate immediate disconnect — black screen, then navigate
+    setTimeout(onNavigate, 1500)
+  }, [onNavigate])
+
   const minutes = Math.floor(timer / 60)
   const seconds = timer % 60
   const compatArc = (compatScore / 100) * 283
+
+  // Emergency triggered — immediate black screen
+  if (emergencyTriggered) {
+    return (
+      <div className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center animate-fade-in">
+        <div className="text-center px-6">
+          <div className="w-16 h-16 rounded-full bg-[#FF3B30]/15 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          </div>
+          <p className="text-white font-semibold mb-2">Session Ended</p>
+          <p className="text-sm text-white/50 max-w-xs">This date has been terminated. The interaction has been flagged for review by our safety team.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#2A2A2E' }}>
@@ -120,10 +146,46 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
         </div>
       ))}
 
+      {/* ====== EMERGENCY CONFIRMATION MODAL ====== */}
+      {showEmergencyConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in">
+          <div className="glass-tile rounded-3xl p-6 max-w-sm mx-4 w-full animate-scale-in" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+            <div className="text-center mb-5">
+              <div className="w-14 h-14 rounded-full bg-[#FF3B30]/15 flex items-center justify-center mx-auto mb-3">
+                <svg className="w-7 h-7 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-1">End this date immediately?</h3>
+              <p className="text-sm text-[#98989D] leading-relaxed">
+                This will disconnect the call instantly. The interaction will be flagged and reviewed by our safety team. This person will not be matched with you.
+              </p>
+            </div>
+
+            <div className="space-y-2.5">
+              <button
+                onClick={handleEmergencyExit}
+                className="w-full py-3.5 rounded-xl text-sm font-semibold bg-[#FF3B30] text-white active:scale-[0.98] transition-transform"
+              >
+                End Date Now
+              </button>
+              <button
+                onClick={() => setShowEmergencyConfirm(false)}
+                className="w-full py-3 rounded-xl text-sm font-semibold glass-button text-[#98989D] active:scale-[0.98] transition-transform"
+              >
+                Cancel — Continue Date
+              </button>
+            </div>
+
+            <p className="text-[0.65rem] text-[#7A7A80] text-center mt-4">
+              Your safety is our priority. All reports are confidential.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Main content */}
       <div className={`relative z-10 flex-1 flex flex-col transition-all duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}>
 
-        {/* Video panel — partner's face dominates the screen */}
+        {/* Video panel */}
         <div className="flex-1 relative overflow-hidden" style={{ border: '2px solid #E040A0', boxShadow: '0 0 0 1.5px #E040A0, 0 0 20px rgba(224, 64, 160, 0.30)' }}>
           <img
             src={person.photo}
@@ -132,16 +194,29 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-          {/* Date counter */}
-          <div className="absolute top-4 left-4 z-20">
+          {/* Top bar: date counter + emergency */}
+          <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
             <div className="glass-button rounded-full px-4 py-1.5 text-xs font-semibold text-[#E0E0E5]">
               Date {dateIndex + 1} of 5
             </div>
+
+            {/* EMERGENCY EXIT BUTTON */}
+            <button
+              onClick={() => setShowEmergencyConfirm(true)}
+              className="group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-200 hover:bg-[#FF3B30]/20 active:scale-95"
+              style={{ backgroundColor: 'rgba(255,59,48,0.08)', border: '1px solid rgba(255,59,48,0.20)' }}
+              title="Emergency exit — end this date immediately"
+            >
+              <svg className="w-3.5 h-3.5 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span className="text-[0.7rem] font-semibold text-[#FF3B30] hidden md:inline">Safety</span>
+            </button>
           </div>
 
           {/* Compatibility score */}
           {showCompat && (
-            <div className="absolute top-4 right-4 z-20 animate-scale-in">
+            <div className="absolute top-14 right-4 z-20 animate-scale-in">
               <div className="glass-tile rounded-xl p-2.5 flex items-center gap-2">
                 <div className="w-11 h-11 relative">
                   <svg className="w-11 h-11 -rotate-90" viewBox="0 0 100 100">
