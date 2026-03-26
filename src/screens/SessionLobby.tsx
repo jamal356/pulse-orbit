@@ -108,7 +108,12 @@ const slides: Slide[] = [
   },
 ]
 
-const SLIDE_DURATION = 7000 // 7 seconds per slide — luxury pace
+/* Profiles are quick teasers; sponsors get full luxury dwell time */
+const PROFILE_DURATION = 3500
+const SPONSOR_DURATION = 7000
+function getSlideDuration(idx: number) {
+  return slides[idx].type === 'sponsor' ? SPONSOR_DURATION : PROFILE_DURATION
+}
 
 export default function SessionLobby({ onNavigate }: Props) {
   const [countdown, setCountdown] = useState(120)
@@ -126,26 +131,28 @@ export default function SessionLobby({ onNavigate }: Props) {
     return () => { clearInterval(timer); clearInterval(joinTimer) }
   }, [])
 
-  // Auto-advancing carousel
+  // Auto-advancing carousel — duration depends on slide type
   useEffect(() => {
+    const duration = getSlideDuration(currentSlide)
+
     const progressInterval = setInterval(() => {
       setSlideProgress(p => {
         if (p >= 100) return 100
-        return p + (100 / (SLIDE_DURATION / 50))
+        return p + (100 / (duration / 50))
       })
     }, 50)
 
-    const slideInterval = setInterval(() => {
+    const slideTimeout = setTimeout(() => {
       setTransitioning(true)
       setTimeout(() => {
         setCurrentSlide(p => (p + 1) % slides.length)
         setSlideProgress(0)
         setTransitioning(false)
       }, 400)
-    }, SLIDE_DURATION)
+    }, duration)
 
-    return () => { clearInterval(progressInterval); clearInterval(slideInterval) }
-  }, [])
+    return () => { clearInterval(progressInterval); clearTimeout(slideTimeout) }
+  }, [currentSlide])
 
   const minutes = Math.floor(countdown / 60)
   const seconds = countdown % 60
