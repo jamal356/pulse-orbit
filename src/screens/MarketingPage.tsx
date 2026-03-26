@@ -88,11 +88,18 @@ export default function MarketingPage({ onStartDemo }: Props) {
   const model = useReveal(0.2)
   const close = useReveal(0.2)
 
+  /* Hero timing — mechanical loop words, then the turn, then life breaks through */
   useEffect(() => {
-    const t1 = setTimeout(() => setHeroPhase(1), 300)
-    const t2 = setTimeout(() => setHeroPhase(2), 1200)
-    const t3 = setTimeout(() => setHeroPhase(3), 2400)
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+    const timers = [
+      setTimeout(() => setHeroPhase(1), 400),   // "Swipe."
+      setTimeout(() => setHeroPhase(2), 900),    // "Match."
+      setTimeout(() => setHeroPhase(3), 1400),   // "Text."
+      setTimeout(() => setHeroPhase(4), 1900),   // "Ghost."
+      setTimeout(() => setHeroPhase(5), 2400),   // "Repeat."
+      setTimeout(() => setHeroPhase(6), 3600),   // "$9.6 billion. By design."
+      setTimeout(() => setHeroPhase(7), 5200),   // Heartbeat + PULSE + CTA
+    ]
+    return () => timers.forEach(clearTimeout)
   }, [])
 
   return (
@@ -111,78 +118,99 @@ export default function MarketingPage({ onStartDemo }: Props) {
         />
       </div>
 
-      {/* ═══ HERO ═══ */}
+      {/* ═══ HERO — The Loop, The Turn, The Pulse ═══ */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 text-center">
         <div className="relative z-10 flex flex-col items-center max-w-3xl">
 
-          {/* Logo */}
+          {/* THE LOOP — mechanical, staccato, one word at a time */}
+          <div className="flex flex-wrap justify-center gap-x-4 sm:gap-x-6">
+            {['Swipe.', 'Match.', 'Text.', 'Ghost.', 'Repeat.'].map((word, i) => (
+              <span
+                key={word}
+                className="transition-all duration-700 ease-out"
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 'clamp(1.1rem, 3vw, 1.6rem)',
+                  fontWeight: 400,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: heroPhase >= (i + 1)
+                    ? (word === 'Repeat.' ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.55)')
+                    : 'transparent',
+                  transform: heroPhase >= (i + 1) ? 'translateY(0)' : 'translateY(6px)',
+                }}
+              >
+                {word}
+              </span>
+            ))}
+          </div>
+
+          <div className="h-12 sm:h-16" />
+
+          {/* THE TURN — the insight that reframes everything */}
           <div
             className="transition-all duration-[2s] ease-out"
             style={{
-              opacity: heroPhase >= 1 ? 0.5 : 0,
-              transform: heroPhase >= 1 ? 'translateY(0)' : 'translateY(8px)',
+              opacity: heroPhase >= 6 ? 1 : 0,
+              transform: heroPhase >= 6 ? 'translateY(0)' : 'translateY(12px)',
             }}
           >
-            <span
-              className="text-[clamp(0.7rem,1.6vw,0.85rem)] font-normal tracking-[0.35em] uppercase"
-              style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.45)' }}
+            <h1
+              style={{
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontSize: 'clamp(2.4rem, 7vw, 4.8rem)',
+                fontWeight: 300,
+                fontStyle: 'italic',
+                lineHeight: 1.05,
+                color: 'rgba(255,255,255,0.92)',
+              }}
             >
-              Pulse
-            </span>
+              $9.6 billion.
+              <br />
+              <span style={{ color: '#E040A0' }}>By design.</span>
+            </h1>
           </div>
-
-          <div className="my-5">
-            <HeartbeatLine visible={heroPhase >= 1} />
-          </div>
-
-          {/* The hook — make them feel it */}
-          <h1
-            className="transition-all duration-[2s] ease-out"
-            style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: 'clamp(2.2rem, 7vw, 4.5rem)',
-              fontWeight: 300,
-              fontStyle: 'italic',
-              lineHeight: 1.1,
-              color: 'rgba(255,255,255,0.92)',
-              opacity: heroPhase >= 2 ? 1 : 0,
-              transform: heroPhase >= 2 ? 'translateY(0)' : 'translateY(16px)',
-            }}
-          >
-            You've texted for weeks.
-            <br />
-            <span style={{ color: '#E040A0' }}>Met for five minutes.</span>
-            <br />
-            Felt nothing.
-          </h1>
 
           <div className="h-10 sm:h-14" />
 
-          {/* CTA */}
+          {/* THE PULSE — life breaks the loop */}
           <div
-            className="transition-all duration-[2s] ease-out"
+            className="transition-all duration-[2s] ease-out flex flex-col items-center"
             style={{
-              opacity: heroPhase >= 3 ? 1 : 0,
-              transform: heroPhase >= 3 ? 'translateY(0)' : 'translateY(10px)',
+              opacity: heroPhase >= 7 ? 1 : 0,
+              transform: heroPhase >= 7 ? 'translateY(0)' : 'translateY(10px)',
             }}
           >
-            <button
-              onClick={onStartDemo}
-              className="group px-10 py-4 rounded-full text-base font-semibold transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
-              style={{
-                background: '#E040A0',
-                color: 'white',
-                boxShadow: '0 4px 30px rgba(224,64,160,0.30)',
-              }}
-            >
-              <span className="flex items-center gap-2.5">
-                Experience the demo
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+            <HeartbeatLine visible={heroPhase >= 7} />
+
+            <div className="mt-6">
+              <span
+                className="text-[clamp(0.75rem,1.8vw,0.95rem)] tracking-[0.35em] uppercase"
+                style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.50)' }}
+              >
+                Pulse
               </span>
-            </button>
-            <p className="mt-4 text-[11px] tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.20)' }}>
-              Interactive walkthrough · 2 minutes
-            </p>
+            </div>
+
+            <div className="mt-10">
+              <button
+                onClick={onStartDemo}
+                className="group px-10 py-4 rounded-full text-base font-semibold transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+                style={{
+                  background: '#E040A0',
+                  color: 'white',
+                  boxShadow: '0 4px 30px rgba(224,64,160,0.30)',
+                }}
+              >
+                <span className="flex items-center gap-2.5">
+                  Experience the demo
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                </span>
+              </button>
+              <p className="mt-4 text-[11px] tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.20)' }}>
+                Interactive walkthrough · 2 minutes
+              </p>
+            </div>
           </div>
         </div>
       </section>
