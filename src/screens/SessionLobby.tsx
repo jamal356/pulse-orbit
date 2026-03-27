@@ -113,6 +113,16 @@ const hypeQuotes = [
   "Be curious, not impressive",
   "Smile — it's contagious ✨",
   "This is your moment",
+  "Don't mention your ex 😬",
+  "Breathe. You've got this.",
+  "Plot twist: they're nervous too",
+  "Main character energy only 💅",
+  "No pickup lines. Be real.",
+  "Your vibe attracts your tribe",
+  "Relax — it's only 5 minutes",
+  "Be the date you'd want to have",
+  "Hot take > small talk 🎤",
+  "Chemistry can't be faked ✨",
 ]
 
 export default function SessionLobby({ onNavigate }: Props) {
@@ -271,11 +281,10 @@ export default function SessionLobby({ onNavigate }: Props) {
     return () => clearTimeout(t)
   }, [preCountdown, onNavigate])
 
-  // Rotate hype quotes every 2 seconds during countdown
+  // New random quote every second (synced with countdown tick)
   useEffect(() => {
     if (preCountdown === null) return
-    const t = setInterval(() => setHypeIdx(p => (p + 1) % hypeQuotes.length), 2000)
-    return () => clearInterval(t)
+    setHypeIdx(Math.floor(Math.random() * hypeQuotes.length))
   }, [preCountdown])
 
   const startPreCountdown = useCallback(() => {
