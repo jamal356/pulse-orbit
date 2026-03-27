@@ -123,8 +123,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
 
         {/* Countdown pill */}
         <div
-          className="flex items-center gap-2 rounded-full px-4 py-1.5"
-          style={{ backgroundColor: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)' }}
+          className="glass-button flex items-center gap-2 rounded-full px-4 py-1.5"
         >
           <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] animate-pulse" />
           <span className="text-xs font-mono text-white/70 tabular-nums">{count}s</span>
@@ -178,11 +177,8 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
         >
           {/* Sponsor CTA */}
           <button
-            className="group flex items-center gap-2.5 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+            className="glass-button backdrop-blur-xl group flex items-center gap-2.5 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
             style={{
-              backgroundColor: 'rgba(255,255,255,0.10)',
-              backdropFilter: 'blur(20px)',
-              border: '0.5px solid rgba(255,255,255,0.15)',
               color: 'white',
             }}
           >
@@ -218,8 +214,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
           }}
         >
           <div
-            className="rounded-2xl px-4 py-3 flex items-center gap-3"
-            style={{ backgroundColor: 'rgba(0,0,0,0.40)', backdropFilter: 'blur(30px)', border: '0.5px solid rgba(255,255,255,0.08)' }}
+            className="glass-tile backdrop-blur-xl rounded-2xl px-4 py-3 flex items-center gap-3"
           >
             {/* Next person preview â rich teaser */}
             <img
