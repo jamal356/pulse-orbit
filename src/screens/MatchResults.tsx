@@ -849,72 +849,111 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
 
           {/* ════════════════════════════════════════════════════════
               INVESTOR CLOSER — Full-width. Below everything.
-              This is the last thing they see. Make it count.
+              Steve Jobs pitching the board. No apologies.
               ════════════════════════════════════════════════════════ */}
-          <div className="relative mt-12 mb-24" style={{ borderTop: '1px solid rgba(224,64,160,0.15)' }}>
+          <div className="relative mt-16 mb-8" style={{ borderTop: '1px solid rgba(224,64,160,0.15)' }}>
             {/* Ambient glow */}
             <div className="absolute inset-0 pointer-events-none" style={{
-              background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(224,64,160,0.08) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(224,64,160,0.10) 0%, transparent 60%)',
             }} />
 
-            <div className="max-w-5xl mx-auto px-6 pt-16 pb-8 text-center relative z-10">
-              {/* The line */}
-              <p className="text-xs uppercase tracking-[0.35em] text-[#E040A0] font-semibold mb-6 animate-fade-in">For Investors</p>
+            <div className="max-w-5xl mx-auto px-6 pt-16 pb-8 relative z-10">
 
-              <h2 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
-                Dating apps are broken.<br />
-                <span style={{ color: '#E040A0' }}>We just proved it doesn&rsquo;t have to be.</span>
-              </h2>
+              {/* ── THE HOOK ── */}
+              <div className="text-center mb-16">
+                <p className="text-xs uppercase tracking-[0.4em] text-[#E040A0] font-semibold mb-8">Seed Round &middot; Open Now</p>
 
-              <p className="text-base md:text-lg text-[#98989D] max-w-2xl mx-auto mb-12 leading-relaxed">
-                You just experienced what 3 billion swipes never deliver &mdash; real chemistry, in real time.
-                Pulse replaces the entire swipe-match-text funnel with one 25-minute session. The unit economics speak for themselves.
-              </p>
+                <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
+                  You just used a product that<br />
+                  <span style={{ color: '#E040A0' }}>doesn&rsquo;t exist yet.</span>
+                </h2>
 
-              {/* The numbers that matter */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-3xl mx-auto mb-12">
+                <p className="text-lg md:text-xl text-[#B0B0B8] max-w-2xl mx-auto leading-relaxed">
+                  What you experienced in the last 3 minutes took Tinder 10 years and $3B in revenue to never figure out. We&rsquo;re raising to take this to market.
+                </p>
+              </div>
+
+              {/* ── THE OPPORTUNITY ── */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 max-w-4xl mx-auto mb-16">
                 {[
-                  { value: 'AED 75', label: 'Per session', sub: 'Per user revenue' },
-                  { value: '5 min', label: 'To a real match', sub: 'vs. weeks of texting' },
-                  { value: '34%', label: '2nd Chance rate', sub: 'Built-in re-engagement' },
-                  { value: '25 min', label: 'Total session', sub: '5 dates, zero waste' },
+                  { value: '$12B', label: 'Global dating market', sub: '2025, growing 8% YoY' },
+                  { value: '350M+', label: 'GCC population under 35', sub: 'Underserved, high-spend' },
+                  { value: 'AED 75', label: 'Revenue per user per session', sub: 'Day 1 monetization' },
+                  { value: '$0', label: 'CAC with viral loop', sub: 'Every match = content' },
                 ].map((s, i) => (
-                  <div key={i} className="glass-tile rounded-2xl p-5 text-center animate-slide-up" style={{ animationDelay: `${0.8 + i * 0.1}s`, animationFillMode: 'backwards' }}>
-                    <p className="text-2xl md:text-3xl font-bold font-display text-[#E040A0]">{s.value}</p>
-                    <p className="text-sm text-white font-medium mt-1">{s.label}</p>
-                    <p className="text-[0.65rem] text-[#7A7A80] mt-0.5">{s.sub}</p>
+                  <div key={i} className="glass-tile rounded-2xl p-5 text-center animate-slide-up" style={{ animationDelay: `${0.8 + i * 0.12}s`, animationFillMode: 'backwards' }}>
+                    <p className="text-2xl md:text-3xl font-bold font-display text-white">{s.value}</p>
+                    <p className="text-xs text-[#E040A0] font-semibold mt-2 uppercase tracking-wider">{s.label}</p>
+                    <p className="text-[0.65rem] text-[#7A7A80] mt-1">{s.sub}</p>
                   </div>
                 ))}
               </div>
 
-              {/* The moat */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto mb-14">
-                {[
-                  { icon: '🔁', title: 'Session model', desc: 'Recurring revenue per event, not per match. Every Thursday and Saturday night.' },
-                  { icon: '📈', title: 'Viral by design', desc: 'Every sharecard is a free ad. Every match is a story. Users market the product.' },
-                  { icon: '🌍', title: 'GCC first, global next', desc: 'Dubai launch. $12B dating market. Fastest-growing young population on earth.' },
-                ].map((item, i) => (
-                  <div key={i} className="glass-tile rounded-2xl p-5 text-left animate-slide-up" style={{ animationDelay: `${1.2 + i * 0.1}s`, animationFillMode: 'backwards' }}>
-                    <span className="text-2xl">{item.icon}</span>
-                    <p className="text-sm font-bold text-white mt-2 mb-1">{item.title}</p>
-                    <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
-                  </div>
-                ))}
+              {/* ── WHY THIS WINS ── */}
+              <div className="max-w-4xl mx-auto mb-16">
+                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Why This Wins</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { title: 'Event revenue, not ad revenue', desc: 'Tinder makes money when you don\u2019t find someone. We make money when you show up. Aligned incentives = retention.' },
+                    { title: 'Zero content moderation at scale', desc: 'Live video is self-moderating. No fake profiles, no catfishing, no bots. The camera is the trust layer.' },
+                    { title: 'Built-in virality', desc: 'Every session generates sharecards for Instagram, WhatsApp, X. Users market the product because the experience is the content.' },
+                    { title: 'GCC timing is now', desc: 'Young, affluent, mobile-first population. Dating culture is emerging but no dominant player owns the format. First-mover window.' },
+                  ].map((item, i) => (
+                    <div key={i} className="glass-tile rounded-2xl p-5 animate-slide-up" style={{ animationDelay: `${1.2 + i * 0.1}s`, animationFillMode: 'backwards' }}>
+                      <p className="text-sm font-bold text-white mb-2">{item.title}</p>
+                      <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* The ask */}
-              <div className="max-w-lg mx-auto">
-                <a href="mailto:jamal@hakadian.com?subject=Pulse%20Investment%20Inquiry" className="block w-full py-4 rounded-full text-base font-bold text-white text-center hover:scale-[1.03] active:scale-[0.98] transition-all mb-4"
+              {/* ── USE OF FUNDS ── */}
+              <div className="max-w-3xl mx-auto mb-16">
+                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Use of Funds</h3>
+                <div className="glass-tile rounded-2xl p-6">
+                  <div className="space-y-4">
+                    {[
+                      { pct: 40, label: 'Product & Engineering', detail: 'Real-time video infrastructure, matching algorithm, mobile apps' },
+                      { pct: 30, label: 'Growth & Launch', detail: 'Dubai pilot, influencer seeding, event partnerships, community' },
+                      { pct: 20, label: 'Operations', detail: 'Safety team, legal, MENA compliance, venue partnerships' },
+                      { pct: 10, label: 'Reserve', detail: '12-month runway buffer' },
+                    ].map((item, i) => (
+                      <div key={i}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-sm text-white font-medium">{item.label}</span>
+                          <span className="text-sm font-bold text-[#E040A0]">{item.pct}%</span>
+                        </div>
+                        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(224,64,160,0.08)' }}>
+                          <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${item.pct}%`, background: 'linear-gradient(90deg, #E040A0, #C030A0)', animationDelay: `${1.5 + i * 0.15}s` }} />
+                        </div>
+                        <p className="text-[0.65rem] text-[#7A7A80] mt-1">{item.detail}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* ── THE ASK ── */}
+              <div className="text-center max-w-2xl mx-auto mb-8">
+                <p className="text-2xl md:text-3xl font-bold text-white mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  Raising $1&ndash;5M to launch in Dubai Q3 2026.
+                </p>
+                <p className="text-sm text-[#98989D] mb-8">
+                  The product works. The market is ready. The only question is how fast we move.
+                </p>
+
+                <a href="mailto:jamal@hakadian.com?subject=Pulse%20%E2%80%94%20Investment%20Inquiry" className="inline-block px-12 py-4 rounded-full text-base font-bold text-white text-center hover:scale-[1.03] active:scale-[0.98] transition-all mb-3"
                   style={{
                     background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 50%, #E040A0 100%)',
                     backgroundSize: '200% 100%',
                     animation: 'shimmer-btn 3s ease-in-out infinite',
-                    boxShadow: '0 6px 30px rgba(224,64,160,0.4), 0 0 60px rgba(224,64,160,0.15)',
+                    boxShadow: '0 6px 30px rgba(224,64,160,0.4), 0 0 80px rgba(224,64,160,0.12)',
                   }}>
-                  Let&rsquo;s Talk &mdash; jamal@hakadian.com
+                  jamal@hakadian.com
                 </a>
-                <p className="text-sm text-[#7A7A80]">Dubai, UAE &middot; Seed round &middot; Raising now</p>
+                <p className="text-sm text-[#7A7A80]">Jamal Hakadian &middot; Founder &middot; Dubai, UAE</p>
               </div>
+
             </div>
           </div>
 
