@@ -320,7 +320,7 @@ export default function SessionLobby({ onNavigate }: Props) {
                 </div>
 
                 {/* Info */}
-                <div className="max-w-sm">
+                <div className="max-w-sm glass-tile p-6 rounded-xl">
                   <p className="text-xl sm:text-2xl md:text-3xl lg:text-[2.2rem] leading-snug mb-3"
                     style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.9)' }}>
                     {profiles[fg.profileIdx].quote}
@@ -366,10 +366,9 @@ export default function SessionLobby({ onNavigate }: Props) {
                 style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
                 {sponsors[fg.sponsorIdx].tagline}
               </p>
-              <button className="px-7 py-3 rounded text-sm font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95"
+              <button className="glass-button backdrop-blur-xl px-7 py-3 rounded text-sm font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95"
                 style={{
                   background: `linear-gradient(135deg, ${sponsors[fg.sponsorIdx].accent}33 0%, rgba(255,255,255,0.08) 100%)`,
-                  backdropFilter: 'blur(12px)',
                   border: `1px solid ${sponsors[fg.sponsorIdx].accent}30`,
                 }}>
                 {sponsors[fg.sponsorIdx].cta} <span className="ml-1.5 opacity-60">→</span>
@@ -395,11 +394,8 @@ export default function SessionLobby({ onNavigate }: Props) {
 
             {/* Card */}
             <div
-              className="rounded-xl overflow-hidden transition-all duration-300"
+              className="glass-tile rounded-xl overflow-hidden transition-all duration-300"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                backdropFilter: 'blur(20px)',
                 transform: totAnimating ? 'scale(0.97)' : 'scale(1)',
               }}
             >
@@ -423,9 +419,10 @@ export default function SessionLobby({ onNavigate }: Props) {
                   onClick={() => handleTotPick('a')}
                   disabled={totAnimating}
                   className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all duration-300 active:scale-95 ${
+                    !totPick ? 'glass-button' : ''
+                  } ${
                     totPick === 'a' ? 'bg-[#E040A0] text-white scale-105' : totPick === 'b' ? 'opacity-30 scale-95' : 'hover:scale-102'
                   }`}
-                  style={!totPick ? { background: 'rgba(224,64,160,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(224,64,160,0.15)' } : undefined}
                 >
                   {totQ.a}
                 </button>
@@ -433,9 +430,10 @@ export default function SessionLobby({ onNavigate }: Props) {
                   onClick={() => handleTotPick('b')}
                   disabled={totAnimating}
                   className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all duration-300 active:scale-95 ${
+                    !totPick ? 'glass-button' : ''
+                  } ${
                     totPick === 'b' ? 'bg-[#E040A0] text-white scale-105' : totPick === 'a' ? 'opacity-30 scale-95' : 'hover:scale-102'
                   }`}
-                  style={!totPick ? { background: 'rgba(224,64,160,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(224,64,160,0.15)' } : undefined}
                 >
                   {totQ.b}
                 </button>
@@ -474,8 +472,7 @@ export default function SessionLobby({ onNavigate }: Props) {
         </div>
 
         {/* ═══ BOTTOM BAR ═══ */}
-        <div className={`relative z-20 px-6 sm:px-10 py-4 flex items-center justify-between transition-all duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}
-          style={{ background: 'rgba(10,9,13,0.85)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div className={`glass-tile relative z-20 px-6 sm:px-10 py-4 flex items-center justify-between transition-all duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}>
 
           {/* Participant avatars */}
           <div className="flex items-center gap-2">
