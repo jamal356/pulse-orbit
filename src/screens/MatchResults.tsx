@@ -579,9 +579,13 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
       {/* ====== SUMMARY ====== */}
       {phase === 'summary' && (
         <div className="absolute inset-0 top-12 z-10 overflow-y-auto">
-          <div className="max-w-2xl mx-auto px-4 pb-24 pt-4 animate-fade-in">
+          {/* Split layout: results left, monetization right on desktop */}
+          <div className="max-w-7xl mx-auto px-4 pb-24 pt-4 animate-fade-in lg:flex lg:gap-8 lg:items-start">
 
-            <div className="text-center mb-8">
+            {/* ── LEFT COLUMN: Your dates ── */}
+            <div className="lg:flex-1 lg:max-w-2xl">
+
+            <div className="text-center lg:text-left mb-8">
               <h2 className="text-2xl md:text-3xl font-bold font-display mb-2">Tonight's Results</h2>
               <p className="text-sm text-[#98989D]">
                 {mutualMatches.length > 0 ? `${mutualMatches.length} mutual ${mutualMatches.length === 1 ? 'match' : 'matches'} \u2014 real chemistry, confirmed.` : 'No mutual matches tonight \u2014 every session is different.'}
@@ -751,50 +755,96 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
               })}
             </div>
 
-            {/* Investor insight */}
-            <div className="glass-tile rounded-2xl p-6 mb-6">
-              <h3 className="text-xs tracking-[0.2em] uppercase text-[#E040A0] font-semibold mb-4 text-center">What Just Happened</h3>
-              <div className="space-y-3">
-                {[
-                  { metric: '25 minutes total', insight: 'vs. 3+ hours of texting on traditional apps' },
-                  { metric: 'Zero catfishing', insight: 'Camera on = what you see is what you get' },
-                  { metric: 'Emergency exit', insight: 'Instant safety disconnect \u2014 trust enables openness' },
-                  { metric: 'Second Chance converts', insight: 'Users who rewatch upgrade 34% of passes to likes' },
-                  { metric: 'Social sharing loop', insight: 'Every sharecard is a free ad to your exact demographic' },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] mt-2 shrink-0" />
-                    <p className="text-sm"><span className="font-semibold text-white">{item.metric}</span> <span className="text-[#98989D]">&mdash; {item.insight}</span></p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </div>{/* end left column */}
 
-            {/* Sponsor deal reminder */}
-            <div className="glass-tile rounded-2xl overflow-hidden mb-6" style={{ border: '1px solid rgba(201,149,107,0.20)' }}>
-              <div className="flex items-center gap-4 p-4">
-                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
-                  <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&q=80" alt="The Palm" className="w-full h-full object-cover" />
+            {/* ── RIGHT COLUMN: Monetization + Next Session ── */}
+            <div className="lg:w-[380px] lg:shrink-0 lg:sticky lg:top-16 mt-8 lg:mt-0 space-y-5">
+
+              {/* 🔥 NEXT SESSION CTA — high urgency */}
+              <div className="glass-tile rounded-2xl p-6 text-center" style={{ border: '1px solid rgba(224,64,160,0.20)', boxShadow: '0 0 30px rgba(224,64,160,0.08)' }}>
+                <div className="w-14 h-14 rounded-full bg-[#E040A0]/15 flex items-center justify-center mx-auto mb-3">
+                  <span className="text-2xl">🔥</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[#C9956B] font-semibold uppercase tracking-wider">Your Exclusive Offer</p>
-                  <p className="text-sm text-white font-medium mt-0.5">The Palm Jumeirah — Sunset Dinner for Two</p>
-                  <p className="text-xs text-[#7A7A80] mt-0.5">Complimentary with your match tonight</p>
+                <h3 className="text-lg font-bold text-white mb-1 font-display">Ride the Momentum</h3>
+                <p className="text-sm text-[#98989D] mb-4">Next session starts in 15 minutes. 6 spots left.</p>
+                <div className="glass-tile rounded-xl p-3 mb-4">
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-[#E040A0] font-mono">14:52</p>
+                      <p className="text-[0.6rem] text-[#7A7A80] uppercase tracking-wider">Until next session</p>
+                    </div>
+                  </div>
                 </div>
-                <button className="shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all hover:scale-105" style={{ background: 'rgba(201,149,107,0.15)', color: '#C9956B', border: '1px solid rgba(201,149,107,0.25)' }}>
-                  Claim
+                <button className="w-full py-3.5 rounded-full bg-[#E040A0] text-white text-sm font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all mb-2" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>
+                  Jump In &mdash; AED 75
+                </button>
+                <p className="text-[0.65rem] text-[#7A7A80]">5 new people, fresh connections</p>
+              </div>
+
+              {/* Premium upsell */}
+              <div className="glass-tile rounded-2xl p-5" style={{ border: '1px solid rgba(201,149,107,0.25)', background: 'linear-gradient(135deg, rgba(201,149,107,0.06) 0%, rgba(255,255,255,0.04) 100%)' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-sm">👑</span>
+                  <p className="text-xs text-[#C9956B] font-bold uppercase tracking-wider">Pulse Premium</p>
+                </div>
+                <p className="text-sm text-white font-medium mb-2">Unlimited sessions. Priority matching.</p>
+                <div className="space-y-1.5 mb-4">
+                  {['Unlimited sessions per week', 'See who liked you first', 'Extended 10-min dates', 'Priority in matching queue'].map((perk, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <div className="w-1 h-1 rounded-full bg-[#C9956B]" />
+                      <p className="text-xs text-[#98989D]">{perk}</p>
+                    </div>
+                  ))}
+                </div>
+                <button className="w-full py-3 rounded-full text-sm font-semibold transition-all hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, rgba(201,149,107,0.2) 0%, rgba(201,149,107,0.08) 100%)', color: '#C9956B', border: '1px solid rgba(201,149,107,0.25)' }}>
+                  AED 199/month &mdash; Start Free Trial
                 </button>
               </div>
-            </div>
 
-            <div className="space-y-3">
-              {onContinue ? (
-                <button onClick={onContinue} className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Continue →</button>
-              ) : (
-                <button className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Book Next Session &mdash; AED 75</button>
-              )}
-              <button onClick={onRestart} className="w-full py-3 rounded-full glass-button text-sm font-semibold text-[#98989D] hover:text-white transition-colors">&larr; Replay demo</button>
-            </div>
+              {/* Sponsor deal */}
+              <div className="glass-tile rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(201,149,107,0.20)' }}>
+                <div className="flex items-center gap-4 p-4">
+                  <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                    <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&q=80" alt="The Palm" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-[#C9956B] font-semibold uppercase tracking-wider">Date Night Deal</p>
+                    <p className="text-sm text-white font-medium mt-0.5">The Palm &mdash; Dinner for Two</p>
+                    <p className="text-xs text-[#7A7A80] mt-0.5">Free with your match tonight</p>
+                  </div>
+                  <button className="shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all hover:scale-105" style={{ background: 'rgba(201,149,107,0.15)', color: '#C9956B', border: '1px solid rgba(201,149,107,0.25)' }}>
+                    Claim
+                  </button>
+                </div>
+              </div>
+
+              {/* Investor insight — collapsed into right column */}
+              <div className="glass-tile rounded-2xl p-5">
+                <h3 className="text-xs tracking-[0.2em] uppercase text-[#E040A0] font-semibold mb-3">What Just Happened</h3>
+                <div className="space-y-2">
+                  {[
+                    { metric: '25 minutes total', insight: 'vs. 3+ hours of texting' },
+                    { metric: 'Zero catfishing', insight: 'Camera on = what you get' },
+                    { metric: '2nd Chance converts', insight: '34% upgrade passes to likes' },
+                    { metric: 'Social loop', insight: 'Every sharecard = free ad' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] mt-1.5 shrink-0" />
+                      <p className="text-xs"><span className="font-semibold text-white">{item.metric}</span> <span className="text-[#7A7A80]">&mdash; {item.insight}</span></p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bottom actions */}
+              <div className="space-y-3">
+                {onContinue ? (
+                  <button onClick={onContinue} className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all lg:hidden" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Continue →</button>
+                ) : null}
+                <button onClick={onRestart} className="w-full py-3 rounded-full glass-button text-sm font-semibold text-[#98989D] hover:text-white transition-colors">&larr; Replay demo</button>
+              </div>
+            </div>{/* end right column */}
+
           </div>
         </div>
       )}

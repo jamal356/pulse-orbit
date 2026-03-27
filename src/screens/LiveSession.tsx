@@ -308,11 +308,11 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           className="flex-1 relative overflow-hidden transition-all duration-1000"
           style={{
             border: sparkRevealed
-              ? '2px solid #E040A0'
-              : '2px solid #E040A0',
+              ? '3px solid #E040A0'
+              : '3px solid #E040A0',
             boxShadow: sparkRevealed
               ? `0 0 0 1.5px #E040A0, 0 0 ${sparkGlow ? '60' : '25'}px rgba(224, 64, 160, ${sparkGlow ? '0.50' : '0.20'})`
-              : '0 0 0 1.5px #E040A0, 0 0 20px rgba(224, 64, 160, 0.30)',
+              : '0 0 0 1px #E040A0, 0 0 20px rgba(224, 64, 160, 0.30)',
           }}
         >
           <img
@@ -357,17 +357,17 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
                 </button>
               )}
 
-              {/* EMERGENCY EXIT */}
+              {/* EMERGENCY EXIT — always visible */}
               <button
                 onClick={() => setShowEmergencyConfirm(true)}
-                className="group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-200 hover:bg-[#FF3B30]/20 active:scale-95"
-                style={{ backgroundColor: 'rgba(255,59,48,0.08)', border: '1px solid rgba(255,59,48,0.20)' }}
+                className="group flex items-center gap-1.5 rounded-full px-3.5 py-2 transition-all duration-200 hover:scale-105 active:scale-95"
+                style={{ backgroundColor: 'rgba(255,59,48,0.12)', border: '1.5px solid rgba(255,59,48,0.35)', boxShadow: '0 0 12px rgba(255,59,48,0.15)' }}
                 title="Emergency exit — end this date immediately"
               >
-                <svg className="w-3.5 h-3.5 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4 h-4 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span className="text-[0.7rem] font-semibold text-[#FF3B30] hidden md:inline">Safety</span>
+                <span className="text-[0.7rem] font-semibold text-[#FF3B30]">Safety</span>
               </button>
             </div>
           </div>
@@ -431,7 +431,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           </div>
 
           {/* User PiP */}
-          <div className="absolute bottom-4 right-4 z-20 w-[110px] h-[150px] md:w-[140px] md:h-[190px] overflow-hidden shadow-2xl" style={{ borderRadius: '20px', border: `2px solid rgba(${USER_COLOR.rgb}, 0.4)` }}>
+          <div className="absolute bottom-4 right-4 z-20 w-[110px] h-[150px] md:w-[140px] md:h-[190px] overflow-hidden shadow-2xl" style={{ borderRadius: '20px', border: `3px solid rgba(${USER_COLOR.rgb}, 0.5)`, boxShadow: `0 0 15px rgba(${USER_COLOR.rgb}, 0.2), 0 8px 32px rgba(0,0,0,0.4)` }}>
             <img src={photos.user} alt="You" className="object-cover w-full h-full" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <div className="absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[11px] font-medium glass-button" style={{ color: USER_COLOR.primary }}>You</div>
