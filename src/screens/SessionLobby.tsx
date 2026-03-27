@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { candidates } from '../data/people'
+import { sponsors } from '../data/sponsors'
 
 interface Props {
   onNavigate: () => void
@@ -619,37 +620,75 @@ export default function SessionLobby({ onNavigate }: Props) {
           )}
 
           {/* SPONSOR BRANDING — slides in on left, same position */}
-          {fg.type === 'sponsor' && (
-            <div
-              className="transition-all ease-out max-w-xl"
-              style={{
-                transitionDuration: `${TRANSITION}ms`,
-                opacity: fgVisible ? 1 : 0,
-                transform: fgVisible ? 'translateY(0)' : 'translateY(20px)',
-              }}
-            >
-              <div className="mb-4">
-                <span className="text-[0.55rem] tracking-[0.25em] uppercase px-2.5 py-1 rounded"
-                  style={{ background: 'rgba(224,64,160,0.08)', color: '#E040A0' }}>
-                  Pulse
-                </span>
+          {fg.type === 'sponsor' && fg.sponsorIdx !== undefined && (() => {
+            const isAdSlot = fg.sponsorIdx % 2 === 0
+            const sponsor = sponsors[fg.sponsorIdx % sponsors.length]
+            return isAdSlot ? (
+              /* ── Cinematic sponsor takeover ── */
+              <div
+                className="transition-all ease-out max-w-xl"
+                style={{
+                  transitionDuration: `${TRANSITION}ms`,
+                  opacity: fgVisible ? 1 : 0,
+                  transform: fgVisible ? 'translateY(0)' : 'translateY(20px)',
+                }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[0.55rem] tracking-[0.18em] uppercase px-2.5 py-1 rounded"
+                    style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.35)', border: '0.5px solid rgba(255,255,255,0.10)' }}>
+                    Presented by
+                  </span>
+                  <span className="text-[0.55rem] tracking-[0.15em] uppercase text-white/25">{sponsor.category}</span>
+                </div>
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-3 leading-[1.05]"
+                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, color: 'rgba(255,255,255,0.92)' }}>
+                  {sponsor.brand}
+                </h2>
+                <p className="text-sm sm:text-base mb-6 max-w-md"
+                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 300, fontStyle: 'italic', color: 'rgba(255,255,255,0.40)', lineHeight: 1.6 }}>
+                  {sponsor.tagline}
+                </p>
+                <button className="glass-button backdrop-blur-xl px-7 py-3 rounded text-sm font-semibold text-white/80 transition-all duration-300 hover:scale-105 active:scale-95 hover:text-white"
+                  style={{
+                    background: `linear-gradient(135deg, ${sponsor.accent}22 0%, rgba(255,255,255,0.06) 100%)`,
+                    border: `1px solid ${sponsor.accent}25`,
+                  }}>
+                  {sponsor.cta} <span className="ml-1.5 opacity-50">&rarr;</span>
+                </button>
               </div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-3 leading-[1.1]"
-                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, color: 'rgba(255,255,255,0.90)' }}>
-                {[
-                  'Skip the texting.\nSee the chemistry.',
-                  'Five minutes.\nFive people.\nOne real connection.',
-                  'No swiping.\nNo small talk.\nJust presence.',
-                  'The future of\nmeeting someone.',
-                  'Real conversations.\nReal chemistry.\nReal time.',
-                ][fg.sponsorIdx !== undefined ? fg.sponsorIdx % 5 : 0]}
-              </h2>
-              <p className="text-sm sm:text-base mb-6 max-w-md"
-                style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
-                Your session is about to begin.
-              </p>
-            </div>
-          )}
+            ) : (
+              /* ── Pulse brand line ── */
+              <div
+                className="transition-all ease-out max-w-xl"
+                style={{
+                  transitionDuration: `${TRANSITION}ms`,
+                  opacity: fgVisible ? 1 : 0,
+                  transform: fgVisible ? 'translateY(0)' : 'translateY(20px)',
+                }}
+              >
+                <div className="mb-4">
+                  <span className="text-[0.55rem] tracking-[0.25em] uppercase px-2.5 py-1 rounded"
+                    style={{ background: 'rgba(224,64,160,0.08)', color: '#E040A0' }}>
+                    Pulse
+                  </span>
+                </div>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-3 leading-[1.1]"
+                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, color: 'rgba(255,255,255,0.90)' }}>
+                  {[
+                    'Skip the texting.\nSee the chemistry.',
+                    'Five minutes.\nFive people.\nOne real connection.',
+                    'No swiping.\nNo small talk.\nJust presence.',
+                    'The future of\nmeeting someone.',
+                    'Real conversations.\nReal chemistry.\nReal time.',
+                  ][fg.sponsorIdx % 5]}
+                </h2>
+                <p className="text-sm sm:text-base max-w-md"
+                  style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
+                  Your session is about to begin.
+                </p>
+              </div>
+            )
+          })()}
         </div>
 
         {/* ─── THIS OR THAT game — bottom right corner ─── */}
@@ -736,7 +775,7 @@ export default function SessionLobby({ onNavigate }: Props) {
                   style={{
                     width: idx < fgIdx ? '100%' : idx === fgIdx ? `${fgProgress}%` : '0%',
                     background: seg.type === 'sponsor'
-                      ? 'rgba(224,64,160,0.5)'
+                      ? (seg.sponsorIdx !== undefined && seg.sponsorIdx % 2 === 0 ? (sponsors[seg.sponsorIdx % sponsors.length]?.accent || 'rgba(255,255,255,0.4)') : 'rgba(224,64,160,0.5)')
                       : '#E040A0',
                     transitionDuration: idx === fgIdx ? '50ms' : '300ms',
                   }}

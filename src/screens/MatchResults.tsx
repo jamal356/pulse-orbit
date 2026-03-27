@@ -801,17 +801,31 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                 </button>
               </div>
 
-              {/* Cinematic brand moment */}
-              <div className="glass-tile rounded-2xl overflow-hidden relative" style={{ border: '1px solid rgba(224,64,160,0.12)' }}>
-                <div className="absolute inset-0 opacity-20">
-                  <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80" alt="" className="w-full h-full object-cover" />
+              {/* Cinematic sponsor moment */}
+              <div className="glass-tile rounded-2xl overflow-hidden relative" style={{ border: '1px solid rgba(201,149,107,0.20)' }}>
+                <div className="absolute inset-0 opacity-25">
+                  <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80" alt="" className="w-full h-full object-cover" />
                 </div>
-                <div className="relative z-10 p-5 text-center">
-                  <p className="text-lg md:text-xl font-medium text-white/90 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>
-                    &ldquo;The best connections happen when you stop scrolling and start showing up.&rdquo;
-                  </p>
-                  <p className="text-[0.65rem] text-[#E040A0] uppercase tracking-[0.25em] mt-3 font-semibold">Pulse</p>
+                <div className="relative z-10 p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[0.5rem] tracking-[0.15em] uppercase px-2 py-0.5 rounded-full" style={{ color: 'rgba(201,149,107,0.7)', border: '0.5px solid rgba(201,149,107,0.2)' }}>
+                      Presented by
+                    </span>
+                  </div>
+                  <p className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>The Palm Jumeirah</p>
+                  <p className="text-xs text-white/40 italic mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Where every sunset tells a story</p>
+                  <button className="w-full py-2.5 rounded-full text-xs font-semibold transition-all hover:scale-[1.02]" style={{ background: 'rgba(201,149,107,0.12)', color: '#C9956B', border: '1px solid rgba(201,149,107,0.20)' }}>
+                    Book a date night &rarr;
+                  </button>
                 </div>
+              </div>
+
+              {/* Pulse brand quote */}
+              <div className="glass-tile rounded-2xl p-4 text-center" style={{ border: '1px solid rgba(224,64,160,0.08)' }}>
+                <p className="text-sm text-white/70 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>
+                  &ldquo;The best connections happen when you stop scrolling and start showing up.&rdquo;
+                </p>
+                <p className="text-[0.6rem] text-[#E040A0] uppercase tracking-[0.25em] mt-2 font-semibold">Pulse</p>
               </div>
 
               {/* Investor insight — collapsed into right column */}

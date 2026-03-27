@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { candidates, conversationStarters } from '../data/people'
+import { sponsors } from '../data/sponsors'
 
 /*
   CINEMATIC TRANSITION — between dates
 
-  Full-bleed atmospheric photography with Pulse branding.
-  Elegant quote rotation, next-date teaser, minimal UI.
-  No ads, no sponsors. Pure mood.
+  Alternates between Pulse brand moments (cinematic quotes)
+  and premium sponsor takeovers (full-bleed, elegant).
+  Odd dates = Pulse quote, Even dates = Sponsor.
 */
 
 interface Props {
@@ -36,7 +37,9 @@ const cinematicLines = [
 
 export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
   const nextPerson = candidates[dateIndex] || candidates[0]
-  const backdrop = backdrops[(dateIndex - 1) % backdrops.length]
+  const isSponsorSlot = dateIndex % 2 === 0 // alternate: quote, sponsor, quote, sponsor
+  const sponsor = sponsors[(dateIndex - 1) % sponsors.length]
+  const backdrop = isSponsorSlot ? sponsor.image : backdrops[(dateIndex - 1) % backdrops.length]
   const cinematic = cinematicLines[(dateIndex - 1) % cinematicLines.length]
   const starterHint = conversationStarters[(dateIndex * 2 + 1) % conversationStarters.length]
 
@@ -126,9 +129,54 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
         </div>
       </div>
 
-      {/* ====== CENTER — Cinematic quote ====== */}
+      {/* ====== CENTER — Quote or Sponsor ====== */}
       <div className="absolute inset-0 z-10 flex items-center justify-center px-8">
-        <div className="text-center max-w-2xl">
+        {isSponsorSlot ? (
+          /* ── Sponsor takeover — cinematic, left-aligned ── */
+          <div className="max-w-2xl w-full text-left">
+            <div
+              className="flex items-center gap-2 mb-4"
+              style={{
+                opacity: showQuote ? 1 : 0,
+                transform: showQuote ? 'translateY(0)' : 'translateY(15px)',
+                transition: 'all 800ms ease-out',
+              }}
+            >
+              <span className="text-[0.6rem] tracking-[0.2em] uppercase font-medium px-2.5 py-1 rounded-full"
+                style={{ color: 'rgba(255,255,255,0.45)', border: '0.5px solid rgba(255,255,255,0.12)', backgroundColor: 'rgba(255,255,255,0.04)' }}>
+                Presented by
+              </span>
+              <span className="text-[0.6rem] tracking-[0.15em] uppercase text-white/25">{sponsor.category}</span>
+            </div>
+            <p
+              className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05] mb-3"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 500,
+                opacity: showQuote ? 1 : 0,
+                transform: showQuote ? 'translateY(0)' : 'translateY(25px)',
+                transition: 'all 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              }}
+            >
+              {sponsor.brand}
+            </p>
+            <p
+              className="text-base md:text-xl text-white/50 max-w-md"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontStyle: 'italic',
+                fontWeight: 300,
+                opacity: showSub ? 1 : 0,
+                transform: showSub ? 'translateY(0)' : 'translateY(15px)',
+                transition: 'all 800ms ease-out',
+              }}
+            >
+              {sponsor.tagline}
+            </p>
+          </div>
+        ) : (
+          /* ── Pulse cinematic quote ── */
+          <div className="text-center max-w-2xl">
           <p
             className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight"
             style={{
@@ -154,7 +202,8 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
           >
             {cinematic.sub}
           </p>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ====== BOTTOM — Next date preview + Skip ====== */}
