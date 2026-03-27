@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { candidates, conversationStarters, USER_COLOR, genderColors } from '../data/people'
+import { candidates, conversationStarters, USER_COLOR } from '../data/people'
 import BackgroundOrbs from '../components/BackgroundOrbs'
 import MatchCard from '../components/MatchCard'
 import type { Candidate } from '../data/people'
