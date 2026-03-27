@@ -324,22 +324,17 @@ export default function MarketingPage({ onStartDemo }: Props) {
           {/* Second CTA */}
           <button
             onClick={onStartDemo}
-            className="px-8 py-3 rounded-full text-sm tracking-wide transition-all duration-500"
+            className="px-8 py-3 rounded-full text-sm tracking-wide transition-all duration-500 glass-button"
             style={{
-              border: '1px solid rgba(255,255,255,0.18)',
               color: 'rgba(255,255,255,0.60)',
               opacity: shift.visible ? 1 : 0,
               transitionDelay: '800ms',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
               e.currentTarget.style.color = 'rgba(255,255,255,0.9)'
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.28)'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = 'transparent'
               e.currentTarget.style.color = 'rgba(255,255,255,0.60)'
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'
             }}
           >
             Try it yourself →
