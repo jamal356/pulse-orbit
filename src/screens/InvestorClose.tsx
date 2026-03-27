@@ -116,11 +116,8 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
       {/* ═══ USER DASHBOARD SHOWCASE ═══ */}
       <section className="relative px-4 sm:px-6 pb-24">
         <div
-          className="max-w-md mx-auto rounded-2xl overflow-hidden transition-all duration-[2s] ease-out"
+          className="max-w-md mx-auto rounded-2xl overflow-hidden transition-all duration-[2s] ease-out glass-tile"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            backdropFilter: 'blur(20px)',
             opacity: phase >= 3 ? 1 : 0,
             transform: phase >= 3 ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.97)',
           }}
