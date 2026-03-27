@@ -10,6 +10,12 @@ import InvestorClose from './screens/InvestorClose'
 
 type Screen = 'waitlist' | 'marketing' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'close'
 
+/* ─── Demo Nav ─────────────────────────────────────────────
+   Ordered screen sequence for quick forward/back during demos.
+   Skips transition & survey (they're mid-flow filler).
+   ──────────────────────────────────────────────────────────── */
+const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'lobby', 'session', 'survey', 'results', 'close']
+
 /* ─── Route Logic ────────────────────────────────────────────
    Default landing:
    - yoursite.com           → Waitlist (consumer-facing)
@@ -85,6 +91,21 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
+  // ── Demo nav helpers ──
+  const demoIdx = DEMO_SCREENS.indexOf(screen)
+  const canGoBack = demoIdx > 0
+  const canGoForward = demoIdx < DEMO_SCREENS.length - 1 && demoIdx >= 0
+
+  const demoPrev = useCallback(() => {
+    const idx = DEMO_SCREENS.indexOf(screen)
+    if (idx > 0) navigateTo(DEMO_SCREENS[idx - 1])
+  }, [screen, navigateTo])
+
+  const demoNext = useCallback(() => {
+    const idx = DEMO_SCREENS.indexOf(screen)
+    if (idx >= 0 && idx < DEMO_SCREENS.length - 1) navigateTo(DEMO_SCREENS[idx + 1])
+  }, [screen, navigateTo])
+
   return (
     <div className={`transition-opacity duration-400 ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
       {screen === 'waitlist' && (
@@ -127,6 +148,25 @@ export default function App() {
           onRestart={handleRestart}
         />
       )}
+
+      {/* ── Demo nav arrows — discreet, bottom-center ── */}
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-1 opacity-20 hover:opacity-80 transition-opacity duration-300">
+        <button
+          onClick={demoPrev}
+          disabled={!canGoBack}
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-white/70 transition-all ${canGoBack ? 'hover:bg-white/10 hover:text-white active:scale-90' : 'opacity-20 cursor-default'}`}
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        <span className="text-[0.55rem] text-white/40 font-mono min-w-[60px] text-center">{screen}</span>
+        <button
+          onClick={demoNext}
+          disabled={!canGoForward}
+          className={`w-8 h-8 rounded-full flex items-center justify-center text-white/70 transition-all ${canGoForward ? 'hover:bg-white/10 hover:text-white active:scale-90' : 'opacity-20 cursor-default'}`}
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
     </div>
   )
 }
