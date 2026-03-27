@@ -836,45 +836,6 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                 </div>
               </div>
 
-              {/* 🤝 PARTNER / INVEST CTA */}
-              <div className="glass-tile rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(224,64,160,0.20)', background: 'linear-gradient(160deg, rgba(224,64,160,0.06) 0%, rgba(45,212,191,0.04) 50%, rgba(0,0,0,0.1) 100%)' }}>
-                <div className="p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-base">🤝</span>
-                    <p className="text-xs text-[#E040A0] font-bold uppercase tracking-wider">Partner With Pulse</p>
-                  </div>
-                  <p className="text-sm text-white font-medium mb-1">The future of dating is live.</p>
-                  <p className="text-xs text-[#98989D] mb-4 leading-relaxed">
-                    Pulse is redefining how people connect &mdash; 5-minute live video dates, zero swiping, real chemistry. We&rsquo;re looking for visionary partners and investors to scale across the GCC and beyond.
-                  </p>
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    {[
-                      { v: 'AED 75', l: 'Per session' },
-                      { v: '5 min', l: 'To a match' },
-                      { v: '34%', l: '2nd chance rate' },
-                    ].map((s, i) => (
-                      <div key={i} className="rounded-lg py-2 text-center" style={{ background: 'rgba(224,64,160,0.06)' }}>
-                        <p className="text-sm font-bold text-[#E040A0] font-display">{s.v}</p>
-                        <p className="text-[0.5rem] uppercase text-[#7A7A80] tracking-wider">{s.l}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="space-y-2">
-                    <a href="mailto:jamal@hakadian.com" className="block w-full py-3 rounded-full text-sm font-semibold text-center text-white hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>
-                      Invest in Pulse
-                    </a>
-                    <a href="mailto:jamal@hakadian.com" className="block w-full py-2.5 rounded-full text-xs font-semibold text-center transition-all hover:scale-[1.02]" style={{ background: 'rgba(45,212,191,0.10)', color: '#2DD4BF', border: '1px solid rgba(45,212,191,0.25)' }}>
-                      Become a Venue Partner
-                    </a>
-                  </div>
-                </div>
-                <div className="px-5 py-3" style={{ borderTop: '1px solid rgba(224,64,160,0.10)', background: 'rgba(0,0,0,0.15)' }}>
-                  <p className="text-[0.6rem] text-[#7A7A80] text-center">
-                    jamal@hakadian.com &middot; Dubai, UAE &middot; Seed stage
-                  </p>
-                </div>
-              </div>
-
               {/* Bottom actions */}
               <div className="space-y-3">
                 {onContinue ? (
@@ -885,6 +846,78 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
             </div>{/* end right column */}
 
           </div>
+
+          {/* ════════════════════════════════════════════════════════
+              INVESTOR CLOSER — Full-width. Below everything.
+              This is the last thing they see. Make it count.
+              ════════════════════════════════════════════════════════ */}
+          <div className="relative mt-12 mb-24" style={{ borderTop: '1px solid rgba(224,64,160,0.15)' }}>
+            {/* Ambient glow */}
+            <div className="absolute inset-0 pointer-events-none" style={{
+              background: 'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(224,64,160,0.08) 0%, transparent 70%)',
+            }} />
+
+            <div className="max-w-5xl mx-auto px-6 pt-16 pb-8 text-center relative z-10">
+              {/* The line */}
+              <p className="text-xs uppercase tracking-[0.35em] text-[#E040A0] font-semibold mb-6 animate-fade-in">For Investors</p>
+
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
+                Dating apps are broken.<br />
+                <span style={{ color: '#E040A0' }}>We just proved it doesn&rsquo;t have to be.</span>
+              </h2>
+
+              <p className="text-base md:text-lg text-[#98989D] max-w-2xl mx-auto mb-12 leading-relaxed">
+                You just experienced what 3 billion swipes never deliver &mdash; real chemistry, in real time.
+                Pulse replaces the entire swipe-match-text funnel with one 25-minute session. The unit economics speak for themselves.
+              </p>
+
+              {/* The numbers that matter */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-3xl mx-auto mb-12">
+                {[
+                  { value: 'AED 75', label: 'Per session', sub: 'Per user revenue' },
+                  { value: '5 min', label: 'To a real match', sub: 'vs. weeks of texting' },
+                  { value: '34%', label: '2nd Chance rate', sub: 'Built-in re-engagement' },
+                  { value: '25 min', label: 'Total session', sub: '5 dates, zero waste' },
+                ].map((s, i) => (
+                  <div key={i} className="glass-tile rounded-2xl p-5 text-center animate-slide-up" style={{ animationDelay: `${0.8 + i * 0.1}s`, animationFillMode: 'backwards' }}>
+                    <p className="text-2xl md:text-3xl font-bold font-display text-[#E040A0]">{s.value}</p>
+                    <p className="text-sm text-white font-medium mt-1">{s.label}</p>
+                    <p className="text-[0.65rem] text-[#7A7A80] mt-0.5">{s.sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* The moat */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto mb-14">
+                {[
+                  { icon: '🔁', title: 'Session model', desc: 'Recurring revenue per event, not per match. Every Thursday and Saturday night.' },
+                  { icon: '📈', title: 'Viral by design', desc: 'Every sharecard is a free ad. Every match is a story. Users market the product.' },
+                  { icon: '🌍', title: 'GCC first, global next', desc: 'Dubai launch. $12B dating market. Fastest-growing young population on earth.' },
+                ].map((item, i) => (
+                  <div key={i} className="glass-tile rounded-2xl p-5 text-left animate-slide-up" style={{ animationDelay: `${1.2 + i * 0.1}s`, animationFillMode: 'backwards' }}>
+                    <span className="text-2xl">{item.icon}</span>
+                    <p className="text-sm font-bold text-white mt-2 mb-1">{item.title}</p>
+                    <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* The ask */}
+              <div className="max-w-lg mx-auto">
+                <a href="mailto:jamal@hakadian.com?subject=Pulse%20Investment%20Inquiry" className="block w-full py-4 rounded-full text-base font-bold text-white text-center hover:scale-[1.03] active:scale-[0.98] transition-all mb-4"
+                  style={{
+                    background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 50%, #E040A0 100%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'shimmer-btn 3s ease-in-out infinite',
+                    boxShadow: '0 6px 30px rgba(224,64,160,0.4), 0 0 60px rgba(224,64,160,0.15)',
+                  }}>
+                  Let&rsquo;s Talk &mdash; jamal@hakadian.com
+                </a>
+                <p className="text-sm text-[#7A7A80]">Dubai, UAE &middot; Seed round &middot; Raising now</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       )}
 
@@ -894,6 +927,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
         @keyframes card-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.015); } }
         @keyframes pulse-line { 0% { opacity: 0.3; transform: scaleX(0.95); } 50% { opacity: 1; transform: scaleX(1.05); } 100% { opacity: 0.3; transform: scaleX(0.95); } }
         @keyframes wave-bar { 0% { height: 8px; } 100% { height: 28px; } }
+        @keyframes shimmer-btn { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
       `}</style>
     </div>
   )

@@ -161,7 +161,7 @@ export default function SessionLobby({ onNavigate }: Props) {
     }, 800)
   }, [totAnimating])
 
-  // Ambient audio — warm lo-fi pad
+  // Ambient audio — lo-fi chill beat
   const audioRef = useRef<AudioContext | null>(null)
   const audioStarted = useRef(false)
 
@@ -171,45 +171,201 @@ export default function SessionLobby({ onNavigate }: Props) {
     try {
       const ctx = new AudioContext()
       audioRef.current = ctx
+      const now = ctx.currentTime
 
-      // Master gain for overall volume control
+      // Master gain
       const master = ctx.createGain()
-      master.gain.value = 0.8
+      master.gain.value = 0.55
       master.connect(ctx.destination)
 
-      // Create a warm ambient pad using oscillators
-      const createPad = (freq: number, vol: number, type: OscillatorType = 'sine') => {
+      // ── Lo-fi filter on master (tape warmth) ──
+      const lofi = ctx.createBiquadFilter()
+      lofi.type = 'lowpass'
+      lofi.frequency.value = 2800
+      lofi.Q.value = 0.7
+      lofi.connect(master)
+
+      // ── Warm pad — Fmaj9 chord, slow fade in ──
+      const padGain = ctx.createGain()
+      padGain.gain.setValueAtTime(0, now)
+      padGain.gain.linearRampToValueAtTime(0.10, now + 3)
+      padGain.connect(lofi)
+
+      const padFilter = ctx.createBiquadFilter()
+      padFilter.type = 'lowpass'
+      padFilter.frequency.value = 900
+      padFilter.Q.value = 0.3
+      padFilter.connect(padGain)
+
+      // Pad LFO for gentle movement
+      const padLfo = ctx.createOscillator()
+      const padLfoGain = ctx.createGain()
+      padLfo.frequency.value = 0.08
+      padLfoGain.gain.value = 150
+      padLfo.connect(padLfoGain).connect(padFilter.frequency)
+      padLfo.start()
+
+      ;[174.61, 220.00, 261.63, 329.63, 392.00].forEach(freq => {
         const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        const filter = ctx.createBiquadFilter()
-        osc.type = type
+        osc.type = 'sine'
         osc.frequency.value = freq
-        filter.type = 'lowpass'
-        filter.frequency.value = 1200
-        filter.Q.value = 0.5
-        gain.gain.value = 0
-        gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 2)
-        osc.connect(filter).connect(gain).connect(master)
+        // Slight detune for warmth
+        osc.detune.value = (Math.random() - 0.5) * 8
+        osc.connect(padFilter)
         osc.start()
-        return { osc, gain }
+      })
+
+      // ── Bass line — simple repeating pattern ──
+      const BPM = 75
+      const beat = 60 / BPM
+      const bar = beat * 4
+      const bassNotes = [87.31, 87.31, 110.00, 98.00] // F2, F2, A2, G2
+
+      const playBass = (startTime: number) => {
+        bassNotes.forEach((freq, i) => {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          const filter = ctx.createBiquadFilter()
+          osc.type = 'triangle'
+          osc.frequency.value = freq
+          filter.type = 'lowpass'
+          filter.frequency.value = 400
+          const t = startTime + i * beat
+          gain.gain.setValueAtTime(0, t)
+          gain.gain.linearRampToValueAtTime(0.15, t + 0.05)
+          gain.gain.exponentialRampToValueAtTime(0.001, t + beat * 0.9)
+          osc.connect(filter).connect(gain).connect(lofi)
+          osc.start(t)
+          osc.stop(t + beat)
+        })
       }
 
-      // Rich ambient chord: Cmaj7 — warm, anticipatory
-      createPad(130.81, 0.12, 'sine')     // C3 — foundation
-      createPad(164.81, 0.08, 'sine')     // E3
-      createPad(196.00, 0.07, 'sine')     // G3
-      createPad(246.94, 0.05, 'sine')     // B3
-      createPad(261.63, 0.04, 'triangle') // C4 — shimmer
-      createPad(329.63, 0.03, 'triangle') // E4 — high shimmer
+      // ── Kick drum — soft thump ──
+      const playKick = (time: number) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.type = 'sine'
+        osc.frequency.setValueAtTime(150, time)
+        osc.frequency.exponentialRampToValueAtTime(40, time + 0.12)
+        gain.gain.setValueAtTime(0.25, time)
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3)
+        osc.connect(gain).connect(lofi)
+        osc.start(time)
+        osc.stop(time + 0.35)
+      }
 
-      // Subtle LFO for movement (pulsing feel)
-      const lfo = ctx.createOscillator()
-      const lfoGain = ctx.createGain()
-      lfo.type = 'sine'
-      lfo.frequency.value = 0.15 // Very slow pulse
-      lfoGain.gain.value = 0.02
-      lfo.connect(lfoGain).connect(master.gain)
-      lfo.start()
+      // ── Hi-hat — filtered noise ──
+      const playHat = (time: number, vel: number) => {
+        const bufferSize = 1200
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate)
+        const data = buffer.getChannelData(0)
+        for (let j = 0; j < bufferSize; j++) data[j] = (Math.random() * 2 - 1)
+        const noise = ctx.createBufferSource()
+        noise.buffer = buffer
+        const gain = ctx.createGain()
+        const filter = ctx.createBiquadFilter()
+        filter.type = 'highpass'
+        filter.frequency.value = 7000
+        gain.gain.setValueAtTime(vel, time)
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.06)
+        noise.connect(filter).connect(gain).connect(lofi)
+        noise.start(time)
+        noise.stop(time + 0.08)
+      }
+
+      // ── Snare — on beat 3 (lo-fi snap) ──
+      const playSnare = (time: number) => {
+        // Noise body
+        const bufSize = 2400
+        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate)
+        const d = buf.getChannelData(0)
+        for (let j = 0; j < bufSize; j++) d[j] = (Math.random() * 2 - 1)
+        const noise = ctx.createBufferSource()
+        noise.buffer = buf
+        const nGain = ctx.createGain()
+        const nFilter = ctx.createBiquadFilter()
+        nFilter.type = 'bandpass'
+        nFilter.frequency.value = 3000
+        nFilter.Q.value = 1.5
+        nGain.gain.setValueAtTime(0.10, time)
+        nGain.gain.exponentialRampToValueAtTime(0.001, time + 0.15)
+        noise.connect(nFilter).connect(nGain).connect(lofi)
+        noise.start(time)
+        noise.stop(time + 0.18)
+        // Tonal snap
+        const osc = ctx.createOscillator()
+        const oGain = ctx.createGain()
+        osc.type = 'triangle'
+        osc.frequency.value = 180
+        oGain.gain.setValueAtTime(0.08, time)
+        oGain.gain.exponentialRampToValueAtTime(0.001, time + 0.08)
+        osc.connect(oGain).connect(lofi)
+        osc.start(time)
+        osc.stop(time + 0.1)
+      }
+
+      // ── Schedule 16 bars (loop-like), enough for the lobby ──
+      const totalBars = 16
+      for (let b = 0; b < totalBars; b++) {
+        const barStart = now + 2 + b * bar // 2s fade-in before beat drops
+
+        // Bass every bar
+        playBass(barStart)
+
+        // Drums per beat
+        for (let step = 0; step < 4; step++) {
+          const t = barStart + step * beat
+          // Kick on 1 and 3 (with ghost on 3.5)
+          if (step === 0 || step === 2) playKick(t)
+          if (step === 2) playKick(t + beat * 0.5) // ghost kick
+          // Snare on 2 and 4
+          if (step === 1 || step === 3) playSnare(t)
+          // Hi-hats: every 8th note with swing
+          playHat(t, 0.04)
+          playHat(t + beat * 0.55, 0.02) // slightly swung
+        }
+      }
+
+      // ── Melody — sparse Rhodes-like notes ──
+      const melodyNotes = [
+        { beat: 0, freq: 523.25, dur: 1.5 },   // C5
+        { beat: 2, freq: 587.33, dur: 1 },      // D5
+        { beat: 4, freq: 523.25, dur: 0.8 },    // C5
+        { beat: 6, freq: 440.00, dur: 2 },      // A4
+        { beat: 10, freq: 493.88, dur: 1.5 },   // B4
+        { beat: 12, freq: 523.25, dur: 2 },     // C5
+      ]
+
+      for (let b = 0; b < totalBars; b += 4) {
+        melodyNotes.forEach(n => {
+          const t = now + 2 + b * bar + n.beat * beat
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          const filter = ctx.createBiquadFilter()
+          osc.type = 'sine'
+          osc.frequency.value = n.freq
+          // Add second harmonic for Rhodes feel
+          const osc2 = ctx.createOscillator()
+          const gain2 = ctx.createGain()
+          osc2.type = 'sine'
+          osc2.frequency.value = n.freq * 2
+          gain2.gain.setValueAtTime(0.02, t)
+          gain2.gain.exponentialRampToValueAtTime(0.001, t + n.dur * beat * 0.7)
+          osc2.connect(gain2).connect(lofi)
+          osc2.start(t)
+          osc2.stop(t + n.dur * beat)
+
+          filter.type = 'lowpass'
+          filter.frequency.value = 1800
+          gain.gain.setValueAtTime(0, t)
+          gain.gain.linearRampToValueAtTime(0.06, t + 0.02)
+          gain.gain.exponentialRampToValueAtTime(0.001, t + n.dur * beat * 0.9)
+          osc.connect(filter).connect(gain).connect(lofi)
+          osc.start(t)
+          osc.stop(t + n.dur * beat)
+        })
+      }
+
     } catch {
       /* Audio not available */
     }
