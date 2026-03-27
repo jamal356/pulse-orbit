@@ -1,21 +1,12 @@
 import { useState, useEffect } from 'react'
 import { candidates, conversationStarters } from '../data/people'
-import { sponsors } from '../data/sponsors'
 
 /*
-  WETRANSFER-STYLE SPONSOR TAKEOVER
+  CINEMATIC TRANSITION — between dates
 
-  The ad IS the screen. Full-bleed premium imagery.
-  Pulse session info overlaid minimally â the user is
-  waiting anyway, so the brand gets undivided attention.
-
-  Rules:
-  - Image must be full bleed, high quality, atmospheric
-  - Brand info: logo-sized name + tagline + single CTA
-  - Pulse countdown: small, elegant, non-competing
-  - Skip appears after 5s â non-negotiable
-  - Different sponsor per transition (rotates)
-  - "Presented by" label â transparent, not deceptive
+  Full-bleed atmospheric photography with Pulse branding.
+  Elegant quote rotation, next-date teaser, minimal UI.
+  No ads, no sponsors. Pure mood.
 */
 
 interface Props {
@@ -23,20 +14,37 @@ interface Props {
   onNavigate: () => void
 }
 
-const TOTAL = 15
+const TOTAL = 12
+
+/* Cinematic backdrops — atmospheric, no faces, pure mood */
+const backdrops = [
+  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=85', // starry mountains
+  'https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=1920&q=85', // golden hour ocean
+  'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1920&q=85', // sunset field
+  'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1920&q=85', // night sky
+]
+
+/* Cinematic lines — not tips, not ads. Atmosphere. */
+const cinematicLines = [
+  { quote: 'Chemistry can\u2019t be manufactured.', sub: 'It can only be discovered.' },
+  { quote: 'The best conversations start with honesty.', sub: 'And end with \u201Ccan we keep going?\u201D' },
+  { quote: 'Five minutes is all it takes.', sub: 'To know if something is real.' },
+  { quote: 'You showed up. That\u2019s the hardest part.', sub: 'Everything else is momentum.' },
+  { quote: 'No algorithm can predict a spark.', sub: 'But a camera never lies.' },
+  { quote: 'This isn\u2019t dating. This is meeting.', sub: 'The way it was always meant to be.' },
+]
 
 export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
   const nextPerson = candidates[dateIndex] || candidates[0]
-  const sponsor = sponsors[(dateIndex - 1) % sponsors.length] || sponsors[0]
-  // Pick a conversation starter hint based on the person's tags
+  const backdrop = backdrops[(dateIndex - 1) % backdrops.length]
+  const cinematic = cinematicLines[(dateIndex - 1) % cinematicLines.length]
   const starterHint = conversationStarters[(dateIndex * 2 + 1) % conversationStarters.length]
 
   const [count, setCount] = useState(TOTAL)
   const [showSkip, setShowSkip] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
-  const [showContent, setShowContent] = useState(false)
-  const [showBrand, setShowBrand] = useState(false)
-  const [showCta, setShowCta] = useState(false)
+  const [showQuote, setShowQuote] = useState(false)
+  const [showSub, setShowSub] = useState(false)
   const [showPulseBar, setShowPulseBar] = useState(false)
   const [showIceBreaker, setShowIceBreaker] = useState(false)
 
@@ -52,13 +60,12 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
     }
   }, [])
 
-  // Staggered reveal â cinematic entry
+  // Staggered reveal
   useEffect(() => {
-    setTimeout(() => setShowContent(true), 400)
-    setTimeout(() => setShowBrand(true), 900)
-    setTimeout(() => setShowCta(true), 1400)
-    setTimeout(() => setShowPulseBar(true), 1800)
-    setTimeout(() => setShowIceBreaker(true), 3000)
+    setTimeout(() => setShowQuote(true), 600)
+    setTimeout(() => setShowSub(true), 1400)
+    setTimeout(() => setShowPulseBar(true), 2200)
+    setTimeout(() => setShowIceBreaker(true), 3500)
   }, [])
 
   // Countdown
@@ -76,9 +83,9 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
     return () => clearInterval(timer)
   }, [onNavigate])
 
-  // Skip after 5s
+  // Skip after 3s
   useEffect(() => {
-    const skipTimer = setTimeout(() => setShowSkip(true), 5000)
+    const skipTimer = setTimeout(() => setShowSkip(true), 3000)
     return () => clearTimeout(skipTimer)
   }, [])
 
@@ -87,108 +94,74 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ backgroundColor: '#0A0A0A' }}>
 
-      {/* ====== LAYER 1: FULL-BLEED SPONSOR IMAGE ====== */}
+      {/* ====== FULL-BLEED CINEMATIC BACKDROP ====== */}
       <img
-        src={sponsor.image}
-        alt={sponsor.brand}
+        src={backdrop}
+        alt=""
         className="absolute inset-0 w-full h-full object-cover"
         style={{
           opacity: imageLoaded ? 1 : 0,
-          transition: 'opacity 1.2s ease-out',
-          filter: 'brightness(0.55) saturate(0.85)',
+          transition: 'opacity 1.5s ease-out',
+          filter: 'brightness(0.40) saturate(0.75)',
+          animation: imageLoaded ? 'ken-burns 15s ease-in-out infinite alternate' : 'none',
         }}
         onLoad={() => setImageLoaded(true)}
       />
 
-      {/* Gradient overlays for text legibility */}
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.30) 100%)' }} />
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.50) 0%, transparent 50%)' }} />
+      {/* Gradient overlays */}
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.10) 40%, rgba(0,0,0,0.25) 100%)' }} />
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.3) 100%)' }} />
 
-      {/* ====== LAYER 2: TOP BAR â Pulse branding + countdown ====== */}
-      <div
-        className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5 md:px-8 py-4"
-        style={{
-          opacity: showContent ? 1 : 0,
-          transform: showContent ? 'translateY(0)' : 'translateY(-10px)',
-          transition: 'all 600ms ease-out',
-        }}
-      >
-        {/* Pulse logo â subtle, not competing */}
+      {/* ====== TOP BAR — Pulse + countdown ====== */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5 md:px-8 py-4 animate-fade-in">
         <div className="flex items-center gap-3">
-          <span className="text-base font-display font-semibold text-white/50">Pulse</span>
-          <svg width="40" height="10" viewBox="0 0 120 24" fill="none" className="opacity-25">
+          <span className="text-base font-display font-semibold text-white/40">Pulse</span>
+          <svg width="40" height="10" viewBox="0 0 120 24" fill="none" className="opacity-20">
             <path d="M0 12h30l5-10 5 20 5-20 5 10h70" stroke="#E040A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
-
-        {/* Countdown pill */}
-        <div
-          className="glass-button flex items-center gap-2 rounded-full px-4 py-1.5"
-        >
+        <div className="glass-button flex items-center gap-2 rounded-full px-4 py-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] animate-pulse" />
           <span className="text-xs font-mono text-white/70 tabular-nums">{count}s</span>
         </div>
       </div>
 
-      {/* ====== LAYER 3: BOTTOM CONTENT ZONE ====== */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 px-5 md:px-10 pb-6 md:pb-10">
-
-        {/* Sponsor brand info */}
-        <div
-          style={{
-            opacity: showBrand ? 1 : 0,
-            transform: showBrand ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'all 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-          }}
-        >
-          <div className="flex items-center gap-2 mb-3">
-            <span
-              className="text-[0.6rem] tracking-[0.2em] uppercase font-medium px-2.5 py-1 rounded-full"
-              style={{ color: 'rgba(255,255,255,0.45)', border: '0.5px solid rgba(255,255,255,0.12)', backgroundColor: 'rgba(255,255,255,0.04)' }}
-            >
-              Presented by
-            </span>
-            <span className="text-[0.6rem] tracking-[0.15em] uppercase text-white/25">{sponsor.category}</span>
-          </div>
-
-          <h2
-            className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-2 md:mb-3"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500, lineHeight: 1.1, letterSpacing: '-0.02em' }}
-          >
-            {sponsor.brand}
-          </h2>
-
+      {/* ====== CENTER — Cinematic quote ====== */}
+      <div className="absolute inset-0 z-10 flex items-center justify-center px-8">
+        <div className="text-center max-w-2xl">
           <p
-            className="text-base md:text-xl text-white/60 mb-6 md:mb-8 max-w-md"
-            style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontStyle: 'italic' }}
-          >
-            {sponsor.tagline}
-          </p>
-        </div>
-
-        {/* CTA + Skip row */}
-        <div
-          className="flex items-end justify-between gap-4"
-          style={{
-            opacity: showCta ? 1 : 0,
-            transform: showCta ? 'translateY(0)' : 'translateY(15px)',
-            transition: 'all 600ms ease-out',
-          }}
-        >
-          {/* Sponsor CTA */}
-          <button
-            className="glass-button backdrop-blur-xl group flex items-center gap-2.5 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+            className="text-2xl md:text-4xl lg:text-5xl font-bold text-white leading-tight"
             style={{
-              color: 'white',
+              fontFamily: "'Cormorant Garamond', serif",
+              fontWeight: 500,
+              opacity: showQuote ? 1 : 0,
+              transform: showQuote ? 'translateY(0)' : 'translateY(25px)',
+              transition: 'all 1000ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
             }}
           >
-            {sponsor.cta}
-            <svg className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+            {cinematic.quote}
+          </p>
+          <p
+            className="text-sm md:text-lg text-white/50 mt-4"
+            style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontStyle: 'italic',
+              fontWeight: 300,
+              opacity: showSub ? 1 : 0,
+              transform: showSub ? 'translateY(0)' : 'translateY(15px)',
+              transition: 'all 800ms ease-out',
+            }}
+          >
+            {cinematic.sub}
+          </p>
+        </div>
+      </div>
 
-          {/* Skip button */}
+      {/* ====== BOTTOM — Next date preview + Skip ====== */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 px-5 md:px-10 pb-6 md:pb-10">
+
+        {/* Skip */}
+        <div className="flex justify-end mb-4">
           <button
             onClick={onNavigate}
             className="transition-all duration-500 text-sm"
@@ -200,23 +173,19 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
             onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.8)')}
             onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
           >
-            Skip â
+            Skip &rarr;
           </button>
         </div>
 
-        {/* ====== PULSE SESSION BAR (overlaid at very bottom) ====== */}
+        {/* Next date bar */}
         <div
-          className="mt-5 md:mt-6"
           style={{
             opacity: showPulseBar ? 1 : 0,
             transform: showPulseBar ? 'translateY(0)' : 'translateY(10px)',
             transition: 'all 500ms ease-out',
           }}
         >
-          <div
-            className="glass-tile backdrop-blur-xl rounded-2xl px-4 py-3 flex items-center gap-3"
-          >
-            {/* Next person preview â rich teaser */}
+          <div className="glass-tile backdrop-blur-xl rounded-2xl px-4 py-3 flex items-center gap-3">
             <img
               src={nextPerson.photo}
               alt={nextPerson.name}
@@ -227,7 +196,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
               <p className="text-xs text-white/80 font-medium">
                 Up next: <span className="text-[#E040A0]">{nextPerson.name}</span>, {nextPerson.age}
               </p>
-              <p className="text-[0.65rem] text-white/35 mb-1">{nextPerson.location} Â· {nextPerson.bio}</p>
+              <p className="text-[0.65rem] text-white/35 mb-1">{nextPerson.location} &middot; {nextPerson.bio}</p>
               <div className="flex gap-1 flex-wrap">
                 {nextPerson.tags.slice(0, 3).map(tag => (
                   <span key={tag} className="text-[0.5rem] px-1.5 py-0.5 rounded-full"
@@ -236,7 +205,6 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
                   </span>
                 ))}
               </div>
-              {/* Ice breaker hint â fades in after 3s */}
               <div
                 className="mt-1.5 flex items-center gap-1"
                 style={{
@@ -248,7 +216,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
                 <svg className="w-2.5 h-2.5 text-[#FF9F0A]/50 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
-                <p className="text-[0.55rem] text-white/25 italic truncate">Try asking: "{starterHint.slice(0, 50)}..."</p>
+                <p className="text-[0.55rem] text-white/25 italic truncate">Try asking: &ldquo;{starterHint.slice(0, 50)}...&rdquo;</p>
               </div>
             </div>
 
@@ -288,6 +256,10 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
         @keyframes dot-pulse {
           0%, 100% { transform: scale(1); opacity: 1; }
           50% { transform: scale(1.3); opacity: 0.7; }
+        }
+        @keyframes ken-burns {
+          0% { transform: scale(1) translate(0, 0); }
+          100% { transform: scale(1.08) translate(-1%, -1%); }
         }
       `}</style>
     </div>

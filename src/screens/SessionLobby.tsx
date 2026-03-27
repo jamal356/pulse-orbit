@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { candidates } from '../data/people'
-import { sponsors } from '../data/sponsors'
 
 interface Props {
   onNavigate: () => void
@@ -82,8 +81,17 @@ const profiles: Profile[] = [
   },
 ]
 
+/* Cinematic backdrops — atmospheric, no branding */
+const cinematicBackdrops = [
+  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=85',
+  'https://images.unsplash.com/photo-1507400492013-162706c8c05e?w=1920&q=85',
+  'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1920&q=85',
+  'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1920&q=85',
+  'https://images.unsplash.com/photo-1506259091721-347e791bab0f?w=1920&q=85',
+]
+
 /* Timing */
-const BG_CYCLE = 8000       // background sponsor rotates every 8s
+const BG_CYCLE = 8000       // background rotates every 8s
 const PROFILE_SHOW = 3500   // profile card visible for 3.5s
 const SPONSOR_SHOW = 5000   // sponsor branding visible for 5s
 const TRANSITION = 600      // crossfade duration
@@ -99,7 +107,7 @@ interface FgSlide {
 const fgSequence: FgSlide[] = []
 for (let i = 0; i < profiles.length; i++) {
   fgSequence.push({ type: 'profile', profileIdx: i })
-  fgSequence.push({ type: 'sponsor', sponsorIdx: i % sponsors.length })
+  fgSequence.push({ type: 'sponsor', sponsorIdx: i % cinematicBackdrops.length })
 }
 
 const hypeQuotes = [
@@ -393,7 +401,7 @@ export default function SessionLobby({ onNavigate }: Props) {
     const cycle = setInterval(() => {
       setBgFading(true)
       setTimeout(() => {
-        setBgIdx(p => (p + 1) % sponsors.length)
+        setBgIdx(p => (p + 1) % cinematicBackdrops.length)
         setBgFading(false)
       }, TRANSITION)
     }, BG_CYCLE)
@@ -452,7 +460,7 @@ export default function SessionLobby({ onNavigate }: Props) {
 
   const minutes = Math.floor(countdown / 60)
   const seconds = countdown % 60
-  const bgSponsor = sponsors[bgIdx]
+  const bgImage = cinematicBackdrops[bgIdx % cinematicBackdrops.length]
 
   // ── PRE-SESSION COUNTDOWN OVERLAY ──
   if (preCountdown !== null && preCountdown > 0) {
@@ -527,7 +535,7 @@ export default function SessionLobby({ onNavigate }: Props) {
         <div className={`absolute inset-0 transition-opacity ease-in-out ${bgFading ? 'opacity-0' : 'opacity-100'}`}
           style={{ transitionDuration: `${TRANSITION}ms` }}>
           <img
-            src={bgSponsor.image}
+            src={bgImage}
             alt=""
             className="w-full h-full object-cover"
             style={{
@@ -611,7 +619,7 @@ export default function SessionLobby({ onNavigate }: Props) {
           )}
 
           {/* SPONSOR BRANDING — slides in on left, same position */}
-          {fg.type === 'sponsor' && fg.sponsorIdx !== undefined && (
+          {fg.type === 'sponsor' && (
             <div
               className="transition-all ease-out max-w-xl"
               style={{
@@ -620,27 +628,26 @@ export default function SessionLobby({ onNavigate }: Props) {
                 transform: fgVisible ? 'translateY(0)' : 'translateY(20px)',
               }}
             >
-              <div className="mb-3">
-                <span className="text-[0.55rem] tracking-[0.18em] uppercase px-2.5 py-1 rounded"
-                  style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.35)' }}>
-                  Presented by · {sponsors[fg.sponsorIdx].category}
+              <div className="mb-4">
+                <span className="text-[0.55rem] tracking-[0.25em] uppercase px-2.5 py-1 rounded"
+                  style={{ background: 'rgba(224,64,160,0.08)', color: '#E040A0' }}>
+                  Pulse
                 </span>
               </div>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-3 leading-[1.05]"
-                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, color: 'rgba(255,255,255,0.92)' }}>
-                {sponsors[fg.sponsorIdx].brand}
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-3 leading-[1.1]"
+                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 400, color: 'rgba(255,255,255,0.90)' }}>
+                {[
+                  'Skip the texting.\nSee the chemistry.',
+                  'Five minutes.\nFive people.\nOne real connection.',
+                  'No swiping.\nNo small talk.\nJust presence.',
+                  'The future of\nmeeting someone.',
+                  'Real conversations.\nReal chemistry.\nReal time.',
+                ][fg.sponsorIdx !== undefined ? fg.sponsorIdx % 5 : 0]}
               </h2>
               <p className="text-sm sm:text-base mb-6 max-w-md"
-                style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
-                {sponsors[fg.sponsorIdx].tagline}
+                style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
+                Your session is about to begin.
               </p>
-              <button className="glass-button backdrop-blur-xl px-7 py-3 rounded text-sm font-semibold text-white transition-all duration-300 hover:scale-105 active:scale-95"
-                style={{
-                  background: `linear-gradient(135deg, ${sponsors[fg.sponsorIdx].accent}33 0%, rgba(255,255,255,0.08) 100%)`,
-                  border: `1px solid ${sponsors[fg.sponsorIdx].accent}30`,
-                }}>
-                {sponsors[fg.sponsorIdx].cta} <span className="ml-1.5 opacity-60">→</span>
-              </button>
             </div>
           )}
         </div>

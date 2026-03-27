@@ -801,20 +801,16 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                 </button>
               </div>
 
-              {/* Sponsor deal */}
-              <div className="glass-tile rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(201,149,107,0.20)' }}>
-                <div className="flex items-center gap-4 p-4">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
-                    <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&q=80" alt="The Palm" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#C9956B] font-semibold uppercase tracking-wider">Date Night Deal</p>
-                    <p className="text-sm text-white font-medium mt-0.5">The Palm &mdash; Dinner for Two</p>
-                    <p className="text-xs text-[#7A7A80] mt-0.5">Free with your match tonight</p>
-                  </div>
-                  <button className="shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all hover:scale-105" style={{ background: 'rgba(201,149,107,0.15)', color: '#C9956B', border: '1px solid rgba(201,149,107,0.25)' }}>
-                    Claim
-                  </button>
+              {/* Cinematic brand moment */}
+              <div className="glass-tile rounded-2xl overflow-hidden relative" style={{ border: '1px solid rgba(224,64,160,0.12)' }}>
+                <div className="absolute inset-0 opacity-20">
+                  <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80" alt="" className="w-full h-full object-cover" />
+                </div>
+                <div className="relative z-10 p-5 text-center">
+                  <p className="text-lg md:text-xl font-medium text-white/90 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>
+                    &ldquo;The best connections happen when you stop scrolling and start showing up.&rdquo;
+                  </p>
+                  <p className="text-[0.65rem] text-[#E040A0] uppercase tracking-[0.25em] mt-3 font-semibold">Pulse</p>
                 </div>
               </div>
 
