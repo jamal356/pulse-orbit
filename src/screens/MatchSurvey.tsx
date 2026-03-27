@@ -10,11 +10,11 @@ interface Props {
 
 /* ─── Compatibility whispers ─── */
 const compatibilityWhispers: Record<string, string> = {
-  Sofia: "You both value experiences over things — that's rare chemistry.",
-  Layla: "Different energy, different wavelength — trust your gut.",
+  Sofia: "You both value experiences over things \u2014 that's rare chemistry.",
+  Layla: "Different energy, different wavelength \u2014 trust your gut.",
   Amira: "Shared creative passions can be a powerful foundation.",
-  Nour: "Two ambitious minds — could be fireworks or fuel.",
-  Yasmine: "Style meets substance — but did the conversation match?",
+  Nour: "Two ambitious minds \u2014 could be fireworks or fuel.",
+  Yasmine: "Style meets substance \u2014 but did the conversation match?",
 }
 
 /* ─── Vibe options ─── */
@@ -99,7 +99,28 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
   const progress = phase === 'done' ? 1 : phaseOrder.indexOf(phase) / 3
 
   return (
-    <div ref={containerRef} className="fixed inset-0 flex flex-col overflow-hidden bg-[#1A1A1E]">
+    <div ref={containerRef} className="fixed inset-0 flex flex-col overflow-hidden">
+      {/* ═══ Sponsor background image ═══ */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={sponsor.image}
+          alt=""
+          className="w-full h-full object-cover"
+          style={{
+            filter: 'brightness(0.25) saturate(0.6) blur(2px)',
+            transform: 'scale(1.05)',
+          }}
+        />
+        {/* Netflix-style gradient darken from left */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.55) 100%)',
+        }} />
+        {/* Bottom gradient for sponsor card legibility */}
+        <div className="absolute bottom-0 left-0 right-0 h-48" style={{
+          background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
+        }} />
+      </div>
+
       <BackgroundOrbs />
 
       {/* ═══ Ripple effect ═══ */}
@@ -117,7 +138,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
         />
       )}
 
-      {/* ═══ Progress bar — thin gradient line at top ═══ */}
+      {/* ═══ Progress bar ═══ */}
       <div className="absolute top-0 left-0 right-0 z-30 h-[2px] bg-black/20">
         <div
           className="h-full transition-all duration-700 ease-out"
@@ -129,7 +150,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
         />
       </div>
 
-      {/* ═══ Top: Profile pill + date counter ═══ */}
+      {/* ═══ Top bar: Profile pill + date counter ═══ */}
       <div
         className="relative z-20 flex items-center justify-between px-5 pt-12 pb-4"
         style={{
@@ -138,13 +159,13 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
           transition: 'all 0.6s ease-out 0.1s',
         }}
       >
-        {/* Profile pill */}
-        <div className="flex items-center gap-3">
+        {/* Profile pill \u2014 glass */}
+        <div className="glass-tile backdrop-blur-xl flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full">
           <div className="relative">
             <img
               src={person.photo}
               alt={person.name}
-              className="w-10 h-10 rounded-full object-cover"
+              className="w-9 h-9 rounded-full object-cover"
               style={{
                 border: '2px solid rgba(224,64,160,0.4)',
                 boxShadow: '0 2px 12px rgba(224,64,160,0.15)',
@@ -155,7 +176,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                 className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
                 style={{
                   background: rating === 'like' ? '#E040A0' : '#3A3A3E',
-                  border: '1.5px solid #1A1A1E',
+                  border: '1.5px solid rgba(0,0,0,0.4)',
                   animation: 'scale-pop 0.3s ease-out',
                 }}
               >
@@ -167,7 +188,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
             <p className="text-sm font-semibold text-white/90" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               {person.name}, {person.age}
             </p>
-            <p className="text-[0.6rem] text-white/30">{person.location}</p>
+            <p className="text-[0.6rem] text-white/40">{person.location}</p>
           </div>
         </div>
 
@@ -178,7 +199,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
               key={i}
               className="w-1.5 h-1.5 rounded-full transition-all duration-300"
               style={{
-                backgroundColor: i <= dateIndex ? '#E040A0' : 'rgba(224,64,160,0.12)',
+                backgroundColor: i <= dateIndex ? '#E040A0' : 'rgba(224,64,160,0.15)',
                 boxShadow: i === dateIndex ? '0 0 6px rgba(224,64,160,0.4)' : 'none',
               }}
             />
@@ -186,7 +207,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
         </div>
       </div>
 
-      {/* ═══ Center: The Question — owns the viewport ═══ */}
+      {/* ═══ Center: The Question ═══ */}
       <div className="flex-1 relative z-10 flex flex-col items-center justify-center px-8">
         <div
           className="w-full max-w-lg flex flex-col items-center"
@@ -199,65 +220,61 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
           {/* ─── PHASE 1: Chemistry ─── */}
           {phase === 'rating' && (
             <>
-              {/* AI whisper */}
+              {/* AI whisper \u2014 glass pill */}
               <div
                 className="mb-8 max-w-sm text-center"
                 style={{
-                  opacity: visible ? 0.6 : 0,
+                  opacity: visible ? 0.8 : 0,
                   transition: 'opacity 1.2s ease-out 0.4s',
                 }}
               >
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
-                  style={{ background: 'rgba(224,64,160,0.05)', border: '0.5px solid rgba(224,64,160,0.10)' }}>
-                  <svg className="w-3 h-3 text-[#E040A0]/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="glass-tile backdrop-blur-xl inline-flex items-center gap-2 px-4 py-2 rounded-full">
+                  <svg className="w-3 h-3 text-[#E040A0]/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  <p className="text-[0.65rem] text-white/35 italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{whisper}</p>
+                  <p className="text-[0.65rem] text-white/50 italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{whisper}</p>
                 </div>
               </div>
 
-              {/* The big question */}
-              <h2
-                className="text-3xl md:text-5xl text-center mb-4 leading-tight"
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontWeight: 300,
-                  fontStyle: 'italic',
-                  color: '#F5F5F7',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                Did you feel<br />the chemistry?
-              </h2>
+              {/* The big question \u2014 inside glass card */}
+              <div className="glass-tile backdrop-blur-xl rounded-3xl px-8 py-10 mb-8 w-full max-w-sm text-center">
+                <h2
+                  className="text-3xl md:text-4xl leading-tight mb-3"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontWeight: 300,
+                    fontStyle: 'italic',
+                    color: '#F5F5F7',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  Did you feel<br />the chemistry?
+                </h2>
+                <p className="text-xs text-white/30" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  {person.bio}
+                </p>
+              </div>
 
-              <p className="text-xs text-white/20 mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                {person.bio}
-              </p>
-
-              {/* Two big buttons — full width in thumb zone */}
+              {/* Two buttons \u2014 glass */}
               <div className="flex gap-4 w-full max-w-sm">
                 <button
                   onClick={(e) => handleRate('pass', e)}
-                  className="flex-1 group relative overflow-hidden rounded-2xl py-6 flex flex-col items-center gap-3 transition-all duration-200 active:scale-[0.96]"
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                  }}
+                  className="flex-1 group glass-button backdrop-blur-xl rounded-2xl py-6 flex flex-col items-center gap-3 transition-all duration-200 active:scale-[0.96]"
                 >
                   <span className="text-4xl transition-transform duration-200 group-hover:scale-110">{'\u2744\u{FE0F}'}</span>
                   <span className="text-sm font-medium text-white/50" style={{ fontFamily: "'DM Sans', sans-serif" }}>Not this time</span>
                 </button>
                 <button
                   onClick={(e) => handleRate('like', e)}
-                  className="flex-1 group relative overflow-hidden rounded-2xl py-6 flex flex-col items-center gap-3 transition-all duration-200 active:scale-[0.96]"
+                  className="flex-1 group glass-button backdrop-blur-xl rounded-2xl py-6 flex flex-col items-center gap-3 transition-all duration-200 active:scale-[0.96]"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(224,64,160,0.12), rgba(224,64,160,0.06))',
-                    border: '1px solid rgba(224,64,160,0.20)',
-                    boxShadow: '0 4px 24px rgba(224,64,160,0.08)',
+                    background: 'linear-gradient(135deg, rgba(224,64,160,0.18), rgba(224,64,160,0.08))',
+                    borderColor: 'rgba(224,64,160,0.30)',
+                    boxShadow: '0 4px 24px rgba(224,64,160,0.12), inset 0 1px 0 rgba(255,255,255,0.10)',
                   }}
                 >
                   <span className="text-4xl transition-transform duration-200 group-hover:scale-110">{'\u{1F525}'}</span>
-                  <span className="text-sm font-medium text-[#E040A0]/80" style={{ fontFamily: "'DM Sans', sans-serif" }}>I felt it</span>
+                  <span className="text-sm font-medium text-[#E040A0]/90" style={{ fontFamily: "'DM Sans', sans-serif" }}>I felt it</span>
                 </button>
               </div>
             </>
@@ -266,36 +283,38 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
           {/* ─── PHASE 2: Vibe check ─── */}
           {phase === 'vibe' && (
             <>
-              <h2
-                className="text-3xl md:text-5xl text-center mb-3 leading-tight"
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontWeight: 300,
-                  fontStyle: 'italic',
-                  color: '#F5F5F7',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                What was<br />the vibe?
-              </h2>
+              <div className="glass-tile backdrop-blur-xl rounded-3xl px-8 py-8 mb-8 w-full max-w-sm text-center">
+                <h2
+                  className="text-3xl md:text-4xl leading-tight mb-2"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontWeight: 300,
+                    fontStyle: 'italic',
+                    color: '#F5F5F7',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  What was<br />the vibe?
+                </h2>
+                <p className="text-xs text-white/30" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  One word that captures it
+                </p>
+              </div>
 
-              <p className="text-xs text-white/20 mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                One word that captures it
-              </p>
-
-              {/* 3x2 grid of vibe pills */}
+              {/* 3x2 grid \u2014 glass buttons */}
               <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
                 {vibeOptions.map((v) => (
                   <button
                     key={v.label}
                     onClick={(e) => handleVibe(v.label, e, v.color)}
-                    className="group relative overflow-hidden rounded-2xl py-5 flex flex-col items-center gap-2.5 transition-all duration-200 active:scale-[0.94]"
+                    className={`group glass-button backdrop-blur-xl rounded-2xl py-5 flex flex-col items-center gap-2.5 transition-all duration-200 active:scale-[0.94] ${selectedVibe === v.label ? 'ring-1' : ''}`}
                     style={{
                       background: selectedVibe === v.label
                         ? `linear-gradient(135deg, ${v.color}25, ${v.color}10)`
-                        : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${selectedVibe === v.label ? `${v.color}40` : 'rgba(255,255,255,0.06)'}`,
-                      boxShadow: selectedVibe === v.label ? `0 4px 20px ${v.color}15` : 'none',
+                        : undefined,
+                      borderColor: selectedVibe === v.label ? `${v.color}50` : undefined,
+                      boxShadow: selectedVibe === v.label ? `0 4px 20px ${v.color}20, inset 0 1px 0 rgba(255,255,255,0.10)` : undefined,
+                      ringColor: selectedVibe === v.label ? v.color : undefined,
                     }}
                   >
                     <span className="text-2xl transition-transform duration-200 group-hover:scale-110">{v.emoji}</span>
@@ -303,7 +322,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                       className="text-xs font-medium transition-colors duration-200"
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
-                        color: selectedVibe === v.label ? v.color : 'rgba(255,255,255,0.4)',
+                        color: selectedVibe === v.label ? v.color : 'rgba(255,255,255,0.45)',
                       }}
                     >
                       {v.label}
@@ -317,44 +336,45 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
           {/* ─── PHASE 3: Real date intent ─── */}
           {phase === 'intent' && (
             <>
-              <h2
-                className="text-3xl md:text-5xl text-center mb-3 leading-tight"
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontWeight: 300,
-                  fontStyle: 'italic',
-                  color: '#F5F5F7',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                Would you go<br />on a real date?
-              </h2>
+              <div className="glass-tile backdrop-blur-xl rounded-3xl px-8 py-8 mb-8 w-full max-w-sm text-center">
+                <h2
+                  className="text-3xl md:text-4xl leading-tight mb-2"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontWeight: 300,
+                    fontStyle: 'italic',
+                    color: '#F5F5F7',
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  Would you go<br />on a real date?
+                </h2>
+                <p className="text-xs text-white/30" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                  Honest answer only
+                </p>
+              </div>
 
-              <p className="text-xs text-white/20 mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                Honest answer only
-              </p>
-
-              {/* Stacked full-width options — typeform style */}
+              {/* Stacked options \u2014 glass rows */}
               <div className="flex flex-col gap-3 w-full max-w-sm">
                 {dateIntentOptions.map((opt, i) => (
                   <button
                     key={opt.value}
                     onClick={(e) => handleIntent(opt.value, e)}
-                    className="group relative overflow-hidden rounded-2xl py-4 px-5 flex items-center gap-4 transition-all duration-200 active:scale-[0.97]"
+                    className="group glass-button backdrop-blur-xl rounded-2xl py-4 px-5 flex items-center gap-4 transition-all duration-200 active:scale-[0.97]"
                     style={{
                       background: selectedIntent === opt.value
-                        ? 'linear-gradient(135deg, rgba(224,64,160,0.15), rgba(224,64,160,0.05))'
-                        : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${selectedIntent === opt.value ? 'rgba(224,64,160,0.30)' : 'rgba(255,255,255,0.06)'}`,
+                        ? 'linear-gradient(135deg, rgba(224,64,160,0.20), rgba(224,64,160,0.08))'
+                        : undefined,
+                      borderColor: selectedIntent === opt.value ? 'rgba(224,64,160,0.35)' : undefined,
                     }}
                   >
                     {/* Keyboard shortcut hint */}
                     <span
                       className="w-6 h-6 rounded-md flex items-center justify-center text-[0.6rem] font-mono font-bold flex-shrink-0"
                       style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        color: 'rgba(255,255,255,0.25)',
-                        border: '1px solid rgba(255,255,255,0.06)',
+                        background: 'rgba(255,255,255,0.08)',
+                        color: 'rgba(255,255,255,0.30)',
+                        border: '0.5px solid rgba(255,255,255,0.12)',
                       }}
                     >
                       {String.fromCharCode(65 + i)}
@@ -377,13 +397,13 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
             </>
           )}
 
-          {/* ─── PHASE 4: Done — minimal confirmation ─── */}
+          {/* ─── PHASE 4: Done ─── */}
           {phase === 'done' && (
-            <div className="flex flex-col items-center">
+            <div className="glass-tile backdrop-blur-xl rounded-3xl px-10 py-10 flex flex-col items-center">
               <div
                 className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
                 style={{
-                  background: 'radial-gradient(circle, rgba(224,64,160,0.15) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle, rgba(224,64,160,0.20) 0%, transparent 70%)',
                   animation: 'pulse-glow 1.5s ease-in-out infinite',
                 }}
               >
@@ -392,7 +412,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                 </svg>
               </div>
               <p
-                className="text-lg text-white/30"
+                className="text-lg text-white/40"
                 style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}
               >
                 Noted. Moving on...
@@ -402,18 +422,56 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
         </div>
       </div>
 
-      {/* ═══ Bottom: Sponsor tag ═══ */}
+      {/* ═══ Bottom: Sponsor card \u2014 Netflix-style glass integration ═══ */}
       <div
-        className="relative z-10 pb-6 flex items-center justify-center"
+        className="relative z-10 pb-5 px-5"
         style={{
           opacity: visible ? 1 : 0,
-          transition: 'opacity 1.5s ease-out 1s',
+          transform: visible ? 'translateY(0)' : 'translateY(16px)',
+          transition: 'all 1s ease-out 0.8s',
         }}
       >
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full"
-          style={{ background: 'rgba(0,0,0,0.20)', backdropFilter: 'blur(10px)' }}>
-          <span className="text-[0.5rem] tracking-[0.15em] uppercase text-white/20">This moment by</span>
-          <span className="text-[0.55rem] font-medium" style={{ color: sponsor.accent, opacity: 0.5 }}>{sponsor.brand}</span>
+        <div className="glass-tile backdrop-blur-xl rounded-2xl px-5 py-3.5 flex items-center gap-4 max-w-lg mx-auto">
+          {/* Sponsor accent bar */}
+          <div
+            className="w-1 h-10 rounded-full flex-shrink-0"
+            style={{ background: `linear-gradient(to bottom, ${sponsor.accent}, ${sponsor.accent}40)` }}
+          />
+
+          {/* Sponsor info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[0.55rem] tracking-[0.12em] uppercase text-white/25">Presented by</span>
+              <span
+                className="text-[0.5rem] px-1.5 py-0.5 rounded-full uppercase tracking-wider font-medium"
+                style={{ background: `${sponsor.accent}15`, color: `${sponsor.accent}90`, border: `0.5px solid ${sponsor.accent}25` }}
+              >
+                {sponsor.category}
+              </span>
+            </div>
+            <p
+              className="text-base font-semibold text-white/80 truncate"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              {sponsor.brand}
+            </p>
+            <p className="text-[0.6rem] text-white/25 italic truncate" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              {sponsor.tagline}
+            </p>
+          </div>
+
+          {/* CTA button */}
+          <button
+            className="glass-button backdrop-blur-xl rounded-xl px-4 py-2 flex-shrink-0 transition-all duration-200 active:scale-95"
+            style={{
+              background: `linear-gradient(135deg, ${sponsor.accent}18, ${sponsor.accent}08)`,
+              borderColor: `${sponsor.accent}30`,
+            }}
+          >
+            <span className="text-[0.65rem] font-semibold whitespace-nowrap" style={{ color: sponsor.accent }}>
+              {sponsor.cta}
+            </span>
+          </button>
         </div>
       </div>
 
