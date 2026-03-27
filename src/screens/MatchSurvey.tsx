@@ -314,7 +314,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                         : undefined,
                       borderColor: selectedVibe === v.label ? `${v.color}50` : undefined,
                       boxShadow: selectedVibe === v.label ? `0 4px 20px ${v.color}20, inset 0 1px 0 rgba(255,255,255,0.10)` : undefined,
-                      ringColor: selectedVibe === v.label ? v.color : undefined,
+                      outlineColor: selectedVibe === v.label ? v.color : undefined,
                     }}
                   >
                     <span className="text-2xl transition-transform duration-200 group-hover:scale-110">{v.emoji}</span>
