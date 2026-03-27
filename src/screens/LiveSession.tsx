@@ -7,7 +7,7 @@ interface Props {
   onNavigate: () => void
 }
 
-const reactionEmojis = ['\u{1F602}', '\u{1F525}', '\u{2764}\u{FE0F}', '\u{1F60D}', '\u{1F44F}', '\u{1F62E}']
+const reactionEmojis = ['😂', '🔥', '❤️', '😍', '👏', '😮']
 
 interface FloatingEmoji {
   id: number
@@ -15,9 +15,19 @@ interface FloatingEmoji {
   x: number
 }
 
+/* ─── SLOT ARCHITECTURE ───────────────────────────────────────
+   The user sees "5-minute dates." The slot is actually 7 minutes.
+   5:00 conversation → 0:30 rating buffer → 1:30 transition/sponsor
+   When BOTH people hit Extend, the extra 2 min come from the buffer.
+   Conversation goes to 7:00, transition is instant. Schedule never shifts.
+   ──────────────────────────────────────────────────────────── */
+const CONVERSATION_TIME = 300  // 5 minutes default
+const EXTENDED_TIME = 420      // 7 minutes when mutually extended
+const EXTEND_WINDOW = 30       // Extend button appears in last 30 seconds
+
 export default function LiveSession({ dateIndex, onNavigate }: Props) {
   const person = candidates[dateIndex] || candidates[0]
-  const [timer, setTimer] = useState(300)
+  const [timer, setTimer] = useState(CONVERSATION_TIME)
   const [visible, setVisible] = useState(false)
   const [currentQuestion, setCurrentQuestion] = useState<string | null>(null)
   const [isSpinning, setIsSpinning] = useState(false)
@@ -33,6 +43,21 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
   const [compatTarget] = useState(() => Math.floor(Math.random() * 30) + 65)
   const [showCompat, setShowCompat] = useState(false)
 
+  // ── SPARK SIGNAL ──
+  // Either person can tap. If BOTH tap during the same date, magic happens.
+  const [userSparked, setUserSparked] = useState(false)
+  const [partnerSparked, setPartnerSparked] = useState(false)
+  const [sparkRevealed, setSparkRevealed] = useState(false)
+  const [sparkGlow, setSparkGlow] = useState(false)
+
+  // ── EXTEND ──
+  const [userExtended, setUserExtended] = useState(false)
+  const [partnerExtended, setPartnerExtended] = useState(false)
+  const [isExtended, setIsExtended] = useState(false)
+  const [extendFlash, setExtendFlash] = useState(false)
+
+  const showExtendButton = timer <= EXTEND_WINDOW && timer > 0 && !isExtended
+
   useEffect(() => {
     setTimeout(() => setVisible(true), 100)
     setTimeout(() => setShowCompat(true), 1200)
@@ -47,12 +72,50 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
       spawnEmoji(emoji)
     }, 6000)
 
+    // Simulate partner spark (35% chance, after 2-4 minutes)
+    const sparkDelay = 120000 + Math.random() * 120000
+    const partnerSparkTimer = setTimeout(() => {
+      if (Math.random() < 0.35) {
+        setPartnerSparked(true)
+      }
+    }, sparkDelay)
+
+    // Simulate partner extend (60% chance, when timer is low)
+    const partnerExtendTimer = setTimeout(() => {
+      if (Math.random() < 0.6) {
+        setPartnerExtended(true)
+      }
+    }, (CONVERSATION_TIME - EXTEND_WINDOW + 5) * 1000)
+
     return () => {
       clearInterval(interval)
       clearInterval(partnerTimer)
+      clearTimeout(partnerSparkTimer)
+      clearTimeout(partnerExtendTimer)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // ── Mutual Spark detection ──
+  useEffect(() => {
+    if (userSparked && partnerSparked && !sparkRevealed) {
+      setSparkRevealed(true)
+      setSparkGlow(true)
+      // Glow lasts 4 seconds, then dims to subtle
+      setTimeout(() => setSparkGlow(false), 4000)
+    }
+  }, [userSparked, partnerSparked, sparkRevealed])
+
+  // ── Mutual Extend detection ──
+  useEffect(() => {
+    if (userExtended && partnerExtended && !isExtended) {
+      setIsExtended(true)
+      setTimer(EXTENDED_TIME - CONVERSATION_TIME + timer) // Add remaining buffer
+      setExtendFlash(true)
+      setTimeout(() => setExtendFlash(false), 2000)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userExtended, partnerExtended])
 
   // Animate compat score
   useEffect(() => {
@@ -100,11 +163,20 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
     }, 120)
   }, [isSpinning])
 
+  const handleSpark = useCallback(() => {
+    if (userSparked) return
+    setUserSparked(true)
+  }, [userSparked])
+
+  const handleExtend = useCallback(() => {
+    if (userExtended) return
+    setUserExtended(true)
+  }, [userExtended])
+
   // Emergency exit handler
   const handleEmergencyExit = useCallback(() => {
     setEmergencyTriggered(true)
     setShowEmergencyConfirm(false)
-    // Simulate immediate disconnect — black screen, then navigate
     setTimeout(onNavigate, 1500)
   }, [onNavigate])
 
@@ -131,6 +203,28 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#2A2A2E' }}>
       <BackgroundOrbs />
 
+      {/* ── Mutual Spark glow — full border glow when both sparked ── */}
+      {sparkRevealed && (
+        <div
+          className="fixed inset-0 pointer-events-none z-40 transition-opacity duration-1000"
+          style={{
+            opacity: sparkGlow ? 1 : 0.3,
+            boxShadow: 'inset 0 0 80px rgba(224,64,160,0.35), inset 0 0 200px rgba(224,64,160,0.15)',
+          }}
+        />
+      )}
+
+      {/* ── Extend flash — full screen warm flash ── */}
+      {extendFlash && (
+        <div
+          className="fixed inset-0 pointer-events-none z-40 animate-fade-in"
+          style={{
+            background: 'radial-gradient(circle at center, rgba(224,64,160,0.15) 0%, transparent 70%)',
+            animation: 'extend-glow 2s ease-out forwards',
+          }}
+        />
+      )}
+
       {/* Floating emojis */}
       {floatingEmojis.map(e => (
         <div
@@ -145,6 +239,30 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           {e.emoji}
         </div>
       ))}
+
+      {/* ====== MUTUAL SPARK CELEBRATION ====== */}
+      {sparkRevealed && sparkGlow && (
+        <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+          <div className="animate-scale-in text-center">
+            <div className="text-6xl mb-2" style={{ animation: 'spark-pulse 0.8s ease-in-out infinite' }}>✨</div>
+            <p className="text-sm font-semibold text-[#E040A0] tracking-wide animate-fade-in"
+              style={{ animationDelay: '0.3s', animationFillMode: 'backwards', textShadow: '0 0 20px rgba(224,64,160,0.5)' }}>
+              Mutual Spark!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ====== MUTUAL EXTEND CELEBRATION ====== */}
+      {extendFlash && (
+        <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+          <div className="animate-scale-in text-center">
+            <div className="text-5xl mb-2">⏳</div>
+            <p className="text-lg font-bold text-white mb-1">+2 Minutes!</p>
+            <p className="text-sm text-[#E040A0]">You both want more time</p>
+          </div>
+        </div>
+      )}
 
       {/* ====== EMERGENCY CONFIRMATION MODAL ====== */}
       {showEmergencyConfirm && (
@@ -186,7 +304,17 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
       <div className={`relative z-10 flex-1 flex flex-col transition-all duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}>
 
         {/* Video panel */}
-        <div className="flex-1 relative overflow-hidden" style={{ border: '2px solid #E040A0', boxShadow: '0 0 0 1.5px #E040A0, 0 0 20px rgba(224, 64, 160, 0.30)' }}>
+        <div
+          className="flex-1 relative overflow-hidden transition-all duration-1000"
+          style={{
+            border: sparkRevealed
+              ? '2px solid #E040A0'
+              : '2px solid #E040A0',
+            boxShadow: sparkRevealed
+              ? `0 0 0 1.5px #E040A0, 0 0 ${sparkGlow ? '60' : '25'}px rgba(224, 64, 160, ${sparkGlow ? '0.50' : '0.20'})`
+              : '0 0 0 1.5px #E040A0, 0 0 20px rgba(224, 64, 160, 0.30)',
+          }}
+        >
           <img
             src={person.photo}
             alt={`${person.name}, ${person.age}`}
@@ -194,24 +322,55 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
-          {/* Top bar: date counter + emergency */}
+          {/* Top bar: date counter + safety + extend */}
           <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
-            <div className="glass-button rounded-full px-4 py-1.5 text-xs font-semibold text-[#E0E0E5]">
-              Date {dateIndex + 1} of 5
+            <div className="flex items-center gap-2">
+              <div className="glass-button rounded-full px-4 py-1.5 text-xs font-semibold text-[#E0E0E5]">
+                Date {dateIndex + 1} of 5
+              </div>
+              {isExtended && (
+                <div className="glass-button rounded-full px-3 py-1.5 text-xs font-semibold text-[#E040A0] animate-scale-in">
+                  +2 min
+                </div>
+              )}
             </div>
 
-            {/* EMERGENCY EXIT BUTTON */}
-            <button
-              onClick={() => setShowEmergencyConfirm(true)}
-              className="group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-200 hover:bg-[#FF3B30]/20 active:scale-95"
-              style={{ backgroundColor: 'rgba(255,59,48,0.08)', border: '1px solid rgba(255,59,48,0.20)' }}
-              title="Emergency exit — end this date immediately"
-            >
-              <svg className="w-3.5 h-3.5 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span className="text-[0.7rem] font-semibold text-[#FF3B30] hidden md:inline">Safety</span>
-            </button>
+            <div className="flex items-center gap-2">
+              {/* EXTEND BUTTON — appears in last 30 seconds */}
+              {showExtendButton && (
+                <button
+                  onClick={handleExtend}
+                  disabled={userExtended}
+                  className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-300 active:scale-95 animate-scale-in ${
+                    userExtended
+                      ? 'opacity-50'
+                      : 'hover:scale-105'
+                  }`}
+                  style={{
+                    backgroundColor: userExtended ? 'rgba(224,64,160,0.15)' : 'rgba(224,64,160,0.12)',
+                    border: '1px solid rgba(224,64,160,0.30)',
+                  }}
+                >
+                  <span className="text-base">⏳</span>
+                  <span className="text-[0.7rem] font-semibold text-[#E040A0]">
+                    {userExtended ? 'Waiting...' : '+2 min'}
+                  </span>
+                </button>
+              )}
+
+              {/* EMERGENCY EXIT */}
+              <button
+                onClick={() => setShowEmergencyConfirm(true)}
+                className="group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-200 hover:bg-[#FF3B30]/20 active:scale-95"
+                style={{ backgroundColor: 'rgba(255,59,48,0.08)', border: '1px solid rgba(255,59,48,0.20)' }}
+                title="Emergency exit — end this date immediately"
+              >
+                <svg className="w-3.5 h-3.5 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span className="text-[0.7rem] font-semibold text-[#FF3B30] hidden md:inline">Safety</span>
+              </button>
+            </div>
           </div>
 
           {/* Compatibility score */}
@@ -233,6 +392,16 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
                     {compatScore >= 85 ? 'Amazing!' : compatScore >= 75 ? 'Great vibe!' : 'Building...'}
                   </p>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Spark indicator — subtle, top-left below date counter */}
+          {userSparked && !sparkRevealed && (
+            <div className="absolute top-14 left-4 z-20 animate-fade-in">
+              <div className="glass-tile rounded-lg px-3 py-1.5 flex items-center gap-1.5">
+                <span className="text-sm" style={{ animation: 'spark-pulse 1.5s ease-in-out infinite' }}>✨</span>
+                <span className="text-[0.6rem] text-white/40">Spark sent</span>
               </div>
             </div>
           )}
@@ -284,12 +453,42 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
         <div className="relative z-20 glass-strong backdrop-blur-xl px-3 py-2 md:py-3 flex items-center gap-2 md:gap-3" style={{ borderTop: '1px solid rgba(224, 64, 160, 0.1)' }}>
 
           {/* Timer */}
-          <div className="shrink-0 flex items-center gap-1.5 glass-button rounded-full px-3 py-1.5">
-            <div className="w-2 h-2 rounded-full animate-pulse bg-[#E040A0]" />
-            <span className="text-xs font-mono font-semibold text-[#E040A0]">
+          <div className={`shrink-0 flex items-center gap-1.5 glass-button rounded-full px-3 py-1.5 transition-colors duration-300 ${timer <= 30 && !isExtended ? 'animate-pulse' : ''}`}>
+            <div className={`w-2 h-2 rounded-full animate-pulse ${timer <= 30 && !isExtended ? 'bg-[#FF9F0A]' : 'bg-[#E040A0]'}`} />
+            <span className={`text-xs font-mono font-semibold ${timer <= 30 && !isExtended ? 'text-[#FF9F0A]' : 'text-[#E040A0]'}`}>
               {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
           </div>
+
+          {/* ── SPARK SIGNAL BUTTON ── */}
+          <button
+            onClick={handleSpark}
+            disabled={userSparked}
+            className={`shrink-0 relative transition-all duration-300 ${
+              userSparked
+                ? 'opacity-60 scale-95'
+                : 'hover:scale-110 active:scale-90'
+            }`}
+            title={userSparked ? 'Spark sent!' : 'Send a Spark — if they spark too, you\'ll both know'}
+          >
+            <div
+              className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
+                sparkRevealed
+                  ? 'bg-[#E040A0]/30 ring-2 ring-[#E040A0]'
+                  : userSparked
+                    ? 'bg-[rgba(224,64,160,0.15)] border border-[rgba(224,64,160,0.30)]'
+                    : 'glass-button'
+              }`}
+              style={sparkRevealed ? { boxShadow: '0 0 20px rgba(224,64,160,0.4)' } : undefined}
+            >
+              <span className={`text-lg ${sparkRevealed ? '' : ''}`} style={sparkRevealed ? { animation: 'spark-pulse 0.8s ease-in-out infinite' } : undefined}>
+                {sparkRevealed ? '💖' : '✨'}
+              </span>
+            </div>
+            {!userSparked && (
+              <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[0.5rem] text-white/30 whitespace-nowrap">Spark</span>
+            )}
+          </button>
 
           {/* Emoji reactions */}
           <div className="flex-1 overflow-x-auto scrollbar-hide glass-button rounded-full px-1.5 py-0.5">
@@ -336,6 +535,18 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           </button>
         </div>
       </div>
+
+      <style>{`
+        @keyframes spark-pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.3); }
+        }
+        @keyframes extend-glow {
+          0% { opacity: 0; }
+          20% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+      `}</style>
     </div>
   )
 }

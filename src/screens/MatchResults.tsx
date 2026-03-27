@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { candidates, conversationStarters } from '../data/people'
 import BackgroundOrbs from '../components/BackgroundOrbs'
+import MatchCard from '../components/MatchCard'
+import type { Candidate } from '../data/people'
 
 interface Props {
   ratings: Record<string, 'like' | 'pass'>
@@ -75,6 +77,9 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
   const [secondChances, setSecondChances] = useState<Record<string, boolean>>({})
   const [secondChanceNotif, setSecondChanceNotif] = useState<string | null>(null)
 
+  // Match Card state — shown when a mutual match is revealed
+  const [matchCardTarget, setMatchCardTarget] = useState<Candidate | null>(null)
+
   // Derived
   const getEffectiveRating = useCallback((name: string) => secondChances[name] ? 'like' as const : (ratings[name] || 'pass' as const), [secondChances, ratings])
   const mutualMatches = candidates.filter(c => getEffectiveRating(c.name) === 'like' && theirRatings[c.name] === 'like')
@@ -105,6 +110,8 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
           if (yours === 'like' && theirs === 'like' && !hasMatch) {
             hasMatch = true
             setTimeout(() => { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 4000) }, 200)
+            // Show Match Card for the first mutual match after a brief delay
+            setTimeout(() => setMatchCardTarget(c), 800)
           }
         }, 300 * i)
       )
@@ -128,6 +135,14 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
             }} />
           ))}
         </div>
+      )}
+
+      {/* Match Card overlay */}
+      {matchCardTarget && (
+        <MatchCard
+          match={matchCardTarget}
+          onClose={() => setMatchCardTarget(null)}
+        />
       )}
 
       {/* Second Chance notification toast */}
@@ -457,10 +472,17 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                           {/* Actions */}
                           <div className="space-y-2">
                             {match && (
-                              <button className="w-full rounded-xl py-3 text-sm font-semibold bg-[#E040A0] text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                                Message {c.name}
-                              </button>
+                              <>
+                                <button onClick={() => setMatchCardTarget(c)} className="w-full rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+                                  style={{ background: 'linear-gradient(135deg, rgba(224,64,160,0.15), rgba(224,64,160,0.08))', border: '1px solid rgba(224,64,160,0.20)', color: '#E040A0' }}>
+                                  <span>💖</span>
+                                  View Match Card
+                                </button>
+                                <button className="w-full rounded-xl py-3 text-sm font-semibold bg-[#E040A0] text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                                  Message {c.name}
+                                </button>
+                              </>
                             )}
                             {canSecondChance && (
                               <button onClick={() => handleSecondChance(c.name)} className="w-full rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:scale-[1.01]" style={{ backgroundColor: 'rgba(255,159,10,0.10)', border: '1px solid rgba(255,159,10,0.25)', color: '#FF9F0A' }}>
