@@ -869,7 +869,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                 </h2>
 
                 <p className="text-lg md:text-xl text-[#B0B0B8] max-w-2xl mx-auto leading-relaxed">
-                  What you experienced in the last 3 minutes took Tinder 10 years and $3B in revenue to never figure out. We&rsquo;re raising to take this to market.
+                  What you experienced in the last 3 minutes took Tinder 10 years and $3B in revenue to never figure out. We pilot in Dubai. Then we go everywhere &mdash; fast.
                 </p>
               </div>
 
@@ -877,9 +877,9 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 max-w-4xl mx-auto mb-16">
                 {[
                   { value: '$12B', label: 'Global dating market', sub: '2025, growing 8% YoY' },
-                  { value: '350M+', label: 'GCC population under 35', sub: 'Underserved, high-spend' },
+                  { value: '70%', label: 'MENA population under 30', sub: 'No dominant player' },
                   { value: 'AED 75', label: 'Revenue per user per session', sub: 'Day 1 monetization' },
-                  { value: '$0', label: 'CAC with viral loop', sub: 'Every match = content' },
+                  { value: '$0', label: 'CAC via viral loop', sub: 'Every session = content' },
                 ].map((s, i) => (
                   <div key={i} className="glass-tile rounded-2xl p-5 text-center animate-slide-up" style={{ animationDelay: `${0.8 + i * 0.12}s`, animationFillMode: 'backwards' }}>
                     <p className="text-2xl md:text-3xl font-bold font-display text-white">{s.value}</p>
@@ -896,8 +896,8 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                   {[
                     { title: 'Event revenue, not ad revenue', desc: 'Tinder makes money when you don\u2019t find someone. We make money when you show up. Aligned incentives = retention.' },
                     { title: 'Zero content moderation at scale', desc: 'Live video is self-moderating. No fake profiles, no catfishing, no bots. The camera is the trust layer.' },
-                    { title: 'Built-in virality', desc: 'Every session generates sharecards for Instagram, WhatsApp, X. Users market the product because the experience is the content.' },
-                    { title: 'GCC timing is now', desc: 'Young, affluent, mobile-first population. Dating culture is emerging but no dominant player owns the format. First-mover window.' },
+                    { title: 'Engineered to go viral', desc: 'Every session generates sharecards for Instagram, WhatsApp, X. The product is the marketing. Dubai is the launchpad \u2014 the world is the audience.' },
+                    { title: 'Dubai pilot, global explosion', desc: 'We don\u2019t scale city by city. We pilot in the most connected, most social, most visible city on earth \u2014 then ride the wave everywhere at once.' },
                   ].map((item, i) => (
                     <div key={i} className="glass-tile rounded-2xl p-5 animate-slide-up" style={{ animationDelay: `${1.2 + i * 0.1}s`, animationFillMode: 'backwards' }}>
                       <p className="text-sm font-bold text-white mb-2">{item.title}</p>
@@ -913,10 +913,10 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                 <div className="glass-tile rounded-2xl p-6">
                   <div className="space-y-4">
                     {[
-                      { pct: 40, label: 'Product & Engineering', detail: 'Real-time video infrastructure, matching algorithm, mobile apps' },
-                      { pct: 30, label: 'Growth & Launch', detail: 'Dubai pilot, influencer seeding, event partnerships, community' },
-                      { pct: 20, label: 'Operations', detail: 'Safety team, legal, MENA compliance, venue partnerships' },
-                      { pct: 10, label: 'Reserve', detail: '12-month runway buffer' },
+                      { pct: 35, label: 'Product & Engineering', detail: 'Real-time video infrastructure, matching algorithm, iOS + Android' },
+                      { pct: 35, label: 'Dubai Pilot & Viral Launch', detail: 'Influencer seeding, launch events, content engine, PR blitz' },
+                      { pct: 20, label: 'Operations & Safety', detail: 'Trust & safety team, legal, compliance, venue partnerships' },
+                      { pct: 10, label: 'Reserve', detail: 'Runway buffer for rapid scaling' },
                     ].map((item, i) => (
                       <div key={i}>
                         <div className="flex items-center justify-between mb-1.5">
@@ -936,10 +936,10 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
               {/* ── THE ASK ── */}
               <div className="text-center max-w-2xl mx-auto mb-8">
                 <p className="text-2xl md:text-3xl font-bold text-white mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                  Raising $1&ndash;5M to launch in Dubai Q3 2026.
+                  Raising $1&ndash;5M. Dubai pilot. Then everywhere.
                 </p>
                 <p className="text-sm text-[#98989D] mb-8">
-                  The product works. The market is ready. The only question is how fast we move.
+                  The product works. Dubai is the fuse. The only question is whether you&rsquo;re in before it lights.
                 </p>
 
                 <a href="mailto:jamal@hakadian.com?subject=Pulse%20%E2%80%94%20Investment%20Inquiry" className="inline-block px-12 py-4 rounded-full text-base font-bold text-white text-center hover:scale-[1.03] active:scale-[0.98] transition-all mb-3"
