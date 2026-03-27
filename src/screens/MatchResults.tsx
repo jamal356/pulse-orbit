@@ -889,17 +889,67 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                 ))}
               </div>
 
-              {/* ── WHY THIS WINS ── */}
+              {/* ── REVENUE STREAMS ── */}
               <div className="max-w-4xl mx-auto mb-16">
-                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Why This Wins</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Seven Revenue Streams From Day One</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
-                    { title: 'Event revenue, not ad revenue', desc: 'Tinder makes money when you don\u2019t find someone. We make money when you show up. Aligned incentives = retention.' },
-                    { title: 'Zero content moderation at scale', desc: 'Live video is self-moderating. No fake profiles, no catfishing, no bots. The camera is the trust layer.' },
-                    { title: 'Engineered to go viral', desc: 'Every session generates sharecards for Instagram, WhatsApp, X. The product is the marketing. Dubai is the launchpad \u2014 the world is the audience.' },
-                    { title: 'Dubai pilot, global explosion', desc: 'We don\u2019t scale city by city. We pilot in the most connected, most social, most visible city on earth \u2014 then ride the wave everywhere at once.' },
+                    { icon: '🎟️', title: 'Session tickets — AED 75/user', desc: 'Core revenue. 10 users per session = AED 750. Two sessions/night, 4 nights/week = AED 24K/month from a single city before scaling.', highlight: true },
+                    { icon: '👑', title: 'Pulse Premium — AED 199/month', desc: 'Unlimited sessions, see who liked you, 10-min dates, priority matching. Targets power users who come back weekly.' },
+                    { icon: '🔄', title: '2nd Chance & One More Thing', desc: 'In-session microtransactions. Retroactive pass-to-like conversions and time extensions. Impulse purchases at peak emotional moments.' },
+                    { icon: '🏢', title: 'Sponsored sessions & venue partnerships', desc: 'Brands sponsor themed sessions ("Porsche Date Night," "The Palm Singles"). Venues bid to host. Media value per session is measurable.' },
+                    { icon: '📱', title: 'AI photo enhancement', desc: 'Users upload photos, AI generates professional-quality profile pictures. Free basic tier drives platform quality. Premium packs at AED 25\u201349.' },
+                    { icon: '📊', title: 'Sharecard & content virality', desc: 'Every session generates branded content. Organic reach on Instagram, WhatsApp, X. Users market the product. CAC approaches zero at scale.' },
                   ].map((item, i) => (
-                    <div key={i} className="glass-tile rounded-2xl p-5 animate-slide-up" style={{ animationDelay: `${1.2 + i * 0.1}s`, animationFillMode: 'backwards' }}>
+                    <div key={i} className={`glass-tile rounded-2xl p-5 animate-slide-up ${item.highlight ? 'md:col-span-2' : ''}`} style={{ animationDelay: `${1.2 + i * 0.08}s`, animationFillMode: 'backwards', border: item.highlight ? '1px solid rgba(224,64,160,0.20)' : undefined }}>
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl mt-0.5">{item.icon}</span>
+                        <div>
+                          <p className="text-sm font-bold text-white mb-1">{item.title}</p>
+                          <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* ── THE DATA MOAT ── */}
+              <div className="max-w-4xl mx-auto mb-16">
+                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">The Data Moat</h3>
+                <div className="glass-tile rounded-2xl p-6 md:p-8" style={{ border: '1px solid rgba(224,64,160,0.15)', background: 'linear-gradient(160deg, rgba(224,64,160,0.04) 0%, rgba(0,0,0,0.1) 100%)' }}>
+                  <p className="text-base md:text-lg text-white font-medium mb-4 text-center" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    Every 5-minute date generates more signal than 10,000 swipes.
+                  </p>
+                  <p className="text-xs text-[#98989D] text-center max-w-2xl mx-auto mb-6 leading-relaxed">
+                    Swipe apps know who you tap. We know who you actually connect with &mdash; on camera, in real time. That&rsquo;s a fundamentally different dataset.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                      { title: 'Behavioral matching AI', desc: 'Conversation flow, reaction patterns, mutual engagement signals, spark timing. Train a matching algorithm no competitor can replicate because no competitor has live video interaction data at scale.' },
+                      { title: 'Predictive chemistry scoring', desc: 'Over time, predict match quality before a session starts. Higher match rates = higher retention = higher LTV. The product gets smarter every session.' },
+                      { title: 'Licensable insight layer', desc: 'Anonymized behavioral data on real-world chemistry becomes a B2B product. Dating platforms, matchmaking services, and relationship researchers have nothing like this. New revenue vertical.' },
+                    ].map((item, i) => (
+                      <div key={i} className="animate-slide-up" style={{ animationDelay: `${1.6 + i * 0.1}s`, animationFillMode: 'backwards' }}>
+                        <p className="text-sm font-bold text-[#E040A0] mb-2">{item.title}</p>
+                        <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* ── THE GO-TO-MARKET ── */}
+              <div className="max-w-4xl mx-auto mb-16">
+                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Go-To-Market</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[
+                    { phase: '01', title: 'Dubai Pilot', desc: 'Controlled launch. 500 curated users, influencer seeding, exclusive venue partnerships. Prove retention and unit economics.', color: '#E040A0' },
+                    { phase: '02', title: 'Content Detonation', desc: 'Every session generates Instagram stories, TikToks, tweets. Dubai is the world\u2019s social media stage. We don\u2019t buy reach \u2014 users create it.', color: '#E040A0' },
+                    { phase: '03', title: 'Global Wave', desc: 'Once viral content hits, we open waitlists city by city. London, Riyadh, Mumbai, NYC. The product travels because the content travels.', color: '#E040A0' },
+                  ].map((item, i) => (
+                    <div key={i} className="glass-tile rounded-2xl p-5 animate-slide-up" style={{ animationDelay: `${1.8 + i * 0.1}s`, animationFillMode: 'backwards' }}>
+                      <p className="text-2xl font-bold font-display mb-2" style={{ color: item.color, opacity: 0.4 }}>{item.phase}</p>
                       <p className="text-sm font-bold text-white mb-2">{item.title}</p>
                       <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
                     </div>
@@ -936,7 +986,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
               {/* ── THE ASK ── */}
               <div className="text-center max-w-2xl mx-auto mb-8">
                 <p className="text-2xl md:text-3xl font-bold text-white mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                  Raising $1&ndash;5M. Dubai pilot. Then everywhere.
+                  Raising $2.5M. Dubai pilot. Then the world.
                 </p>
                 <p className="text-sm text-[#98989D] mb-8">
                   The product works. Dubai is the fuse. The only question is whether you&rsquo;re in before it lights.
