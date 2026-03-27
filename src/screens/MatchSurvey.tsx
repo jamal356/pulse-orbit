@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { candidates } from '../data/people'
 import { sponsors } from '../data/sponsors'
 import BackgroundOrbs from '../components/BackgroundOrbs'
@@ -8,16 +8,16 @@ interface Props {
   onRate: (name: string, rating: 'like' | 'pass') => void
 }
 
-/* âââ Compatibility whispers â AI-style micro-insights âââ */
+/* ─── Compatibility whispers ─── */
 const compatibilityWhispers: Record<string, string> = {
-  Sofia: "You both value experiences over things \u2014 that\u2019s rare chemistry.",
-  Layla: "Different energy, different wavelength \u2014 trust your gut.",
+  Sofia: "You both value experiences over things — that's rare chemistry.",
+  Layla: "Different energy, different wavelength — trust your gut.",
   Amira: "Shared creative passions can be a powerful foundation.",
-  Nour: "Two ambitious minds \u2014 could be fireworks or fuel.",
-  Yasmine: "Style meets substance \u2014 but did the conversation match?",
+  Nour: "Two ambitious minds — could be fireworks or fuel.",
+  Yasmine: "Style meets substance — but did the conversation match?",
 }
 
-/* âââ Vibe options â quick emotional fingerprint âââ */
+/* ─── Vibe options ─── */
 const vibeOptions = [
   { emoji: '\u26A1', label: 'Electric', color: '#FF6EC7' },
   { emoji: '\u{1F60A}', label: 'Warm', color: '#FF9F0A' },
@@ -27,7 +27,7 @@ const vibeOptions = [
   { emoji: '\u{1F636}', label: 'Awkward', color: '#7A7A80' },
 ]
 
-/* âââ Real-date intent options âââ */
+/* ─── Real-date intent options ─── */
 const dateIntentOptions = [
   { emoji: '\u{1F4AF}', label: 'Absolutely', value: 'definitely' as const },
   { emoji: '\u{1F914}', label: 'Maybe', value: 'maybe' as const },
@@ -36,249 +36,405 @@ const dateIntentOptions = [
 ]
 
 type Phase = 'rating' | 'vibe' | 'intent' | 'done'
+const phaseOrder: Phase[] = ['rating', 'vibe', 'intent', 'done']
 
 export default function MatchSurvey({ dateIndex, onRate }: Props) {
   const person = candidates[dateIndex] || candidates[0]
   const sponsor = sponsors[dateIndex % sponsors.length]
   const [visible, setVisible] = useState(false)
-  const [showWhisper, setShowWhisper] = useState(false)
   const [phase, setPhase] = useState<Phase>('rating')
   const [rating, setRating] = useState<'like' | 'pass' | null>(null)
   const [selectedVibe, setSelectedVibe] = useState<string | null>(null)
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null)
-
-  useEffect(() => {
-    setTimeout(() => setVisible(true), 100)
-    setTimeout(() => setShowWhisper(true), 600)
-  }, [])
-
-  const handleRate = useCallback((r: 'like' | 'pass') => {
-    setRating(r)
-    // Brief pause to show selection, then advance to vibe phase
-    setTimeout(() => setPhase('vibe'), 500)
-  }, [])
-
-  const handleVibe = useCallback((vibe: string) => {
-    setSelectedVibe(vibe)
-    // Advance to intent phase
-    setTimeout(() => setPhase('intent'), 400)
-  }, [])
-
-  const handleIntent = useCallback((intent: string) => {
-    setSelectedIntent(intent)
-    setPhase('done')
-    // Brief celebration, then advance to next screen
-    setTimeout(() => {
-      if (rating) onRate(person.name, rating)
-    }, 600)
-  }, [rating, person.name, onRate])
+  const [transitioning, setTransitioning] = useState(false)
+  const [ripple, setRipple] = useState<{ x: number; y: number; color: string } | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const whisper = compatibilityWhispers[person.name] || 'Trust what you felt in the moment.'
 
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 80)
+    return () => clearTimeout(t)
+  }, [])
+
+  /* ── Phase transition with crossfade ── */
+  const advancePhase = useCallback((next: Phase) => {
+    setTransitioning(true)
+    setTimeout(() => {
+      setPhase(next)
+      setTransitioning(false)
+    }, 300)
+  }, [])
+
+  /* ── Ripple effect on tap ── */
+  const triggerRipple = useCallback((e: React.MouseEvent, color: string) => {
+    const rect = containerRef.current?.getBoundingClientRect()
+    if (!rect) return
+    setRipple({ x: e.clientX - rect.left, y: e.clientY - rect.top, color })
+    setTimeout(() => setRipple(null), 600)
+  }, [])
+
+  const handleRate = useCallback((r: 'like' | 'pass', e: React.MouseEvent) => {
+    setRating(r)
+    triggerRipple(e, r === 'like' ? '#E040A0' : '#6060FF')
+    setTimeout(() => advancePhase('vibe'), 500)
+  }, [advancePhase, triggerRipple])
+
+  const handleVibe = useCallback((vibe: string, e: React.MouseEvent, color: string) => {
+    setSelectedVibe(vibe)
+    triggerRipple(e, color)
+    setTimeout(() => advancePhase('intent'), 450)
+  }, [advancePhase, triggerRipple])
+
+  const handleIntent = useCallback((intent: string, e: React.MouseEvent) => {
+    setSelectedIntent(intent)
+    triggerRipple(e, '#E040A0')
+    advancePhase('done')
+    setTimeout(() => {
+      if (rating) onRate(person.name, rating)
+    }, 700)
+  }, [rating, person.name, onRate, advancePhase, triggerRipple])
+
+  /* ── Progress calculation ── */
+  const progress = phase === 'done' ? 1 : phaseOrder.indexOf(phase) / 3
+
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden bg-[#2A2A2E]">
+    <div ref={containerRef} className="fixed inset-0 flex flex-col overflow-hidden bg-[#1A1A1E]">
       <BackgroundOrbs />
 
-      <div className={`relative z-10 flex flex-col items-center px-6 max-w-md w-full transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+      {/* ═══ Ripple effect ═══ */}
+      {ripple && (
+        <div
+          className="absolute z-50 rounded-full pointer-events-none"
+          style={{
+            left: ripple.x - 200,
+            top: ripple.y - 200,
+            width: 400,
+            height: 400,
+            background: `radial-gradient(circle, ${ripple.color}30 0%, transparent 70%)`,
+            animation: 'ripple-expand 0.6s ease-out forwards',
+          }}
+        />
+      )}
 
-        {/* Header */}
-        <p className="text-[0.7rem] tracking-[0.25em] uppercase text-[#B0B0B8] mb-4 font-medium">
-          Date {dateIndex + 1} of 5 complete
-        </p>
+      {/* ═══ Progress bar — thin gradient line at top ═══ */}
+      <div className="absolute top-0 left-0 right-0 z-30 h-[2px] bg-black/20">
+        <div
+          className="h-full transition-all duration-700 ease-out"
+          style={{
+            width: `${progress * 100}%`,
+            background: 'linear-gradient(90deg, #E040A0, #FF6EC7, #E040A0)',
+            boxShadow: '0 0 12px rgba(224,64,160,0.5)',
+          }}
+        />
+      </div>
 
-        {/* Progress dots â shows which phase we're on */}
-        <div className="flex items-center gap-2 mb-5">
-          {['rating', 'vibe', 'intent'].map((p, i) => {
-            const phases: Phase[] = ['rating', 'vibe', 'intent']
-            const currentIdx = phases.indexOf(phase === 'done' ? 'intent' : phase)
-            const isActive = i <= currentIdx
-            return (
-              <div key={p} className="flex items-center gap-2">
-                <div
-                  className="w-1.5 h-1.5 rounded-full transition-all duration-500"
-                  style={{
-                    backgroundColor: isActive ? '#E040A0' : 'rgba(224,64,160,0.15)',
-                    boxShadow: isActive ? '0 0 8px rgba(224,64,160,0.4)' : 'none',
-                    transform: isActive ? 'scale(1.3)' : 'scale(1)',
-                  }}
-                />
-                {i < 2 && (
-                  <div className="w-6 h-px" style={{ backgroundColor: i < currentIdx ? 'rgba(224,64,160,0.3)' : 'rgba(224,64,160,0.08)' }} />
-                )}
+      {/* ═══ Top: Profile pill + date counter ═══ */}
+      <div
+        className="relative z-20 flex items-center justify-between px-5 pt-12 pb-4"
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(-12px)',
+          transition: 'all 0.6s ease-out 0.1s',
+        }}
+      >
+        {/* Profile pill */}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <img
+              src={person.photo}
+              alt={person.name}
+              className="w-10 h-10 rounded-full object-cover"
+              style={{
+                border: '2px solid rgba(224,64,160,0.4)',
+                boxShadow: '0 2px 12px rgba(224,64,160,0.15)',
+              }}
+            />
+            {rating && (
+              <div
+                className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
+                style={{
+                  background: rating === 'like' ? '#E040A0' : '#3A3A3E',
+                  border: '1.5px solid #1A1A1E',
+                  animation: 'scale-pop 0.3s ease-out',
+                }}
+              >
+                <span className="text-[0.45rem]">{rating === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
               </div>
-            )
-          })}
+            )}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white/90" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              {person.name}, {person.age}
+            </p>
+            <p className="text-[0.6rem] text-white/30">{person.location}</p>
+          </div>
         </div>
 
-        {/* Person photo â shrinks after rating phase */}
-        <div className={`relative mb-4 transition-all duration-500 ${phase !== 'rating' ? 'scale-75 -mb-1' : ''}`}>
-          <img
-            src={person.photo}
-            alt={person.name}
-            className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover"
-            style={{ border: '3px solid #E040A0', boxShadow: '0 8px 30px rgba(224,64,160,0.15)' }}
-          />
-          {/* Rating badge â shows after rating */}
-          {rating && phase !== 'rating' && (
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center animate-scale-in"
-              style={{ background: rating === 'like' ? '#E040A0' : '#3A3A3E', border: '2px solid #2A2A2E' }}>
-              <span className="text-xs">{rating === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
+        {/* Date counter */}
+        <div className="flex items-center gap-1.5">
+          {[...Array(5)].map((_, i) => (
+            <div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full transition-all duration-300"
+              style={{
+                backgroundColor: i <= dateIndex ? '#E040A0' : 'rgba(224,64,160,0.12)',
+                boxShadow: i === dateIndex ? '0 0 6px rgba(224,64,160,0.4)' : 'none',
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ═══ Center: The Question — owns the viewport ═══ */}
+      <div className="flex-1 relative z-10 flex flex-col items-center justify-center px-8">
+        <div
+          className="w-full max-w-lg flex flex-col items-center"
+          style={{
+            opacity: transitioning ? 0 : (visible ? 1 : 0),
+            transform: transitioning ? 'translateY(20px) scale(0.97)' : (visible ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.95)'),
+            transition: 'all 0.35s ease-out',
+          }}
+        >
+          {/* ─── PHASE 1: Chemistry ─── */}
+          {phase === 'rating' && (
+            <>
+              {/* AI whisper */}
+              <div
+                className="mb-8 max-w-sm text-center"
+                style={{
+                  opacity: visible ? 0.6 : 0,
+                  transition: 'opacity 1.2s ease-out 0.4s',
+                }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+                  style={{ background: 'rgba(224,64,160,0.05)', border: '0.5px solid rgba(224,64,160,0.10)' }}>
+                  <svg className="w-3 h-3 text-[#E040A0]/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <p className="text-[0.65rem] text-white/35 italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{whisper}</p>
+                </div>
+              </div>
+
+              {/* The big question */}
+              <h2
+                className="text-3xl md:text-5xl text-center mb-4 leading-tight"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontWeight: 300,
+                  fontStyle: 'italic',
+                  color: '#F5F5F7',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                Did you feel<br />the chemistry?
+              </h2>
+
+              <p className="text-xs text-white/20 mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                {person.bio}
+              </p>
+
+              {/* Two big buttons — full width in thumb zone */}
+              <div className="flex gap-4 w-full max-w-sm">
+                <button
+                  onClick={(e) => handleRate('pass', e)}
+                  className="flex-1 group relative overflow-hidden rounded-2xl py-6 flex flex-col items-center gap-3 transition-all duration-200 active:scale-[0.96]"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                  }}
+                >
+                  <span className="text-4xl transition-transform duration-200 group-hover:scale-110">{'\u2744\u{FE0F}'}</span>
+                  <span className="text-sm font-medium text-white/50" style={{ fontFamily: "'DM Sans', sans-serif" }}>Not this time</span>
+                </button>
+                <button
+                  onClick={(e) => handleRate('like', e)}
+                  className="flex-1 group relative overflow-hidden rounded-2xl py-6 flex flex-col items-center gap-3 transition-all duration-200 active:scale-[0.96]"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(224,64,160,0.12), rgba(224,64,160,0.06))',
+                    border: '1px solid rgba(224,64,160,0.20)',
+                    boxShadow: '0 4px 24px rgba(224,64,160,0.08)',
+                  }}
+                >
+                  <span className="text-4xl transition-transform duration-200 group-hover:scale-110">{'\u{1F525}'}</span>
+                  <span className="text-sm font-medium text-[#E040A0]/80" style={{ fontFamily: "'DM Sans', sans-serif" }}>I felt it</span>
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ─── PHASE 2: Vibe check ─── */}
+          {phase === 'vibe' && (
+            <>
+              <h2
+                className="text-3xl md:text-5xl text-center mb-3 leading-tight"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontWeight: 300,
+                  fontStyle: 'italic',
+                  color: '#F5F5F7',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                What was<br />the vibe?
+              </h2>
+
+              <p className="text-xs text-white/20 mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                One word that captures it
+              </p>
+
+              {/* 3x2 grid of vibe pills */}
+              <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
+                {vibeOptions.map((v) => (
+                  <button
+                    key={v.label}
+                    onClick={(e) => handleVibe(v.label, e, v.color)}
+                    className="group relative overflow-hidden rounded-2xl py-5 flex flex-col items-center gap-2.5 transition-all duration-200 active:scale-[0.94]"
+                    style={{
+                      background: selectedVibe === v.label
+                        ? `linear-gradient(135deg, ${v.color}25, ${v.color}10)`
+                        : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${selectedVibe === v.label ? `${v.color}40` : 'rgba(255,255,255,0.06)'}`,
+                      boxShadow: selectedVibe === v.label ? `0 4px 20px ${v.color}15` : 'none',
+                    }}
+                  >
+                    <span className="text-2xl transition-transform duration-200 group-hover:scale-110">{v.emoji}</span>
+                    <span
+                      className="text-xs font-medium transition-colors duration-200"
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        color: selectedVibe === v.label ? v.color : 'rgba(255,255,255,0.4)',
+                      }}
+                    >
+                      {v.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* ─── PHASE 3: Real date intent ─── */}
+          {phase === 'intent' && (
+            <>
+              <h2
+                className="text-3xl md:text-5xl text-center mb-3 leading-tight"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontWeight: 300,
+                  fontStyle: 'italic',
+                  color: '#F5F5F7',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                Would you go<br />on a real date?
+              </h2>
+
+              <p className="text-xs text-white/20 mb-10" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+                Honest answer only
+              </p>
+
+              {/* Stacked full-width options — typeform style */}
+              <div className="flex flex-col gap-3 w-full max-w-sm">
+                {dateIntentOptions.map((opt, i) => (
+                  <button
+                    key={opt.value}
+                    onClick={(e) => handleIntent(opt.value, e)}
+                    className="group relative overflow-hidden rounded-2xl py-4 px-5 flex items-center gap-4 transition-all duration-200 active:scale-[0.97]"
+                    style={{
+                      background: selectedIntent === opt.value
+                        ? 'linear-gradient(135deg, rgba(224,64,160,0.15), rgba(224,64,160,0.05))'
+                        : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${selectedIntent === opt.value ? 'rgba(224,64,160,0.30)' : 'rgba(255,255,255,0.06)'}`,
+                    }}
+                  >
+                    {/* Keyboard shortcut hint */}
+                    <span
+                      className="w-6 h-6 rounded-md flex items-center justify-center text-[0.6rem] font-mono font-bold flex-shrink-0"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        color: 'rgba(255,255,255,0.25)',
+                        border: '1px solid rgba(255,255,255,0.06)',
+                      }}
+                    >
+                      {String.fromCharCode(65 + i)}
+                    </span>
+
+                    <span className="text-xl">{opt.emoji}</span>
+
+                    <span
+                      className="text-sm font-medium"
+                      style={{
+                        fontFamily: "'DM Sans', sans-serif",
+                        color: selectedIntent === opt.value ? '#E040A0' : 'rgba(255,255,255,0.5)',
+                      }}
+                    >
+                      {opt.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* ─── PHASE 4: Done — minimal confirmation ─── */}
+          {phase === 'done' && (
+            <div className="flex flex-col items-center">
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center mb-5"
+                style={{
+                  background: 'radial-gradient(circle, rgba(224,64,160,0.15) 0%, transparent 70%)',
+                  animation: 'pulse-glow 1.5s ease-in-out infinite',
+                }}
+              >
+                <svg className="w-7 h-7 text-[#E040A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" style={{ animation: 'draw-check 0.5s ease-out forwards' }} />
+                </svg>
+              </div>
+              <p
+                className="text-lg text-white/30"
+                style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}
+              >
+                Noted. Moving on...
+              </p>
             </div>
           )}
         </div>
-
-        {/* Person name â always visible */}
-        <h2 className={`text-xl md:text-2xl font-bold font-display mb-0.5 text-white transition-all duration-500 ${phase !== 'rating' ? 'text-lg' : ''}`}>
-          {person.name}, {person.age}
-        </h2>
-        <p className={`text-xs text-[#98989D] transition-all duration-500 ${phase === 'rating' ? 'mb-1' : 'mb-3'}`}>{person.location}</p>
-
-        {/* âââââââ PHASE 1: RATING âââââââ */}
-        {phase === 'rating' && (
-          <div className="animate-fade-in w-full flex flex-col items-center">
-            <p className="text-sm text-[#E0E0E5] italic mb-3 text-center">{person.bio}</p>
-
-            {/* AI whisper */}
-            <div
-              className="mb-5 max-w-xs text-center"
-              style={{
-                opacity: showWhisper ? 1 : 0,
-                transform: showWhisper ? 'translateY(0)' : 'translateY(8px)',
-                transition: 'all 800ms ease-out',
-              }}
-            >
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'rgba(224,64,160,0.06)', border: '0.5px solid rgba(224,64,160,0.12)' }}>
-                <svg className="w-3 h-3 text-[#E040A0]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <p className="text-[0.65rem] text-white/40 italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{whisper}</p>
-              </div>
-            </div>
-
-            <h3
-              className="text-xl md:text-2xl font-display italic mb-8 text-center"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, color: '#F5F5F7' }}
-            >
-              Did you feel the chemistry?
-            </h3>
-
-            <div className="flex gap-5 w-full max-w-xs">
-              <button
-                onClick={() => handleRate('pass')}
-                className="flex-1 glass-button rounded-2xl py-5 flex flex-col items-center gap-2 hover:scale-105 active:scale-95 transition-all"
-              >
-                <span className="text-3xl">{'\u2744\u{FE0F}'}</span>
-                <span className="text-sm font-semibold text-[#E0E0E5]">Not this time</span>
-              </button>
-              <button
-                onClick={() => handleRate('like')}
-                className="flex-1 rounded-2xl py-5 flex flex-col items-center gap-2 hover:scale-105 active:scale-95 transition-all"
-                style={{
-                  backgroundColor: 'rgba(224,64,160,0.10)',
-                  border: '1px solid rgba(224,64,160,0.25)',
-                  boxShadow: '0 2px 8px rgba(224,64,160,0.08)',
-                }}
-              >
-                <span className="text-3xl">{'\u{1F525}'}</span>
-                <span className="text-sm font-semibold text-[#E040A0]">I felt it</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* âââââââ PHASE 2: VIBE CHECK âââââââ */}
-        {phase === 'vibe' && (
-          <div className="animate-slide-up w-full flex flex-col items-center" style={{ animationDuration: '0.4s' }}>
-            <h3
-              className="text-lg md:text-xl font-display italic mb-2 text-center"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, color: '#F5F5F7' }}
-            >
-              What was the vibe?
-            </h3>
-            <p className="text-[0.65rem] text-white/30 mb-5">One word that captures it</p>
-
-            <div className="grid grid-cols-3 gap-2.5 w-full max-w-xs">
-              {vibeOptions.map((v) => (
-                <button
-                  key={v.label}
-                  onClick={() => handleVibe(v.label)}
-                  className={`rounded-xl py-3 px-2 flex flex-col items-center gap-1.5 hover:scale-105 active:scale-95 transition-all ${selectedVibe === v.label ? 'ring-2' : ''}`}
-                  style={{
-                    backgroundColor: selectedVibe === v.label ? `${v.color}20` : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${selectedVibe === v.label ? `${v.color}50` : 'rgba(255,255,255,0.06)'}`,
-                    boxShadow: selectedVibe === v.label ? `0 0 0 2px ${v.color}40` : 'none',
-                  }}
-                >
-                  <span className="text-xl">{v.emoji}</span>
-                  <span className="text-[0.65rem] font-medium" style={{ color: selectedVibe === v.label ? v.color : '#B0B0B8' }}>{v.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* âââââââ PHASE 3: REAL DATE INTENT âââââââ */}
-        {phase === 'intent' && (
-          <div className="animate-slide-up w-full flex flex-col items-center" style={{ animationDuration: '0.4s' }}>
-            <h3
-              className="text-lg md:text-xl font-display italic mb-2 text-center"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, color: '#F5F5F7' }}
-            >
-              Would you go on a real date?
-            </h3>
-            <p className="text-[0.65rem] text-white/30 mb-5">Honest answer only</p>
-
-            <div className="flex gap-2.5 w-full max-w-xs">
-              {dateIntentOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => handleIntent(opt.value)}
-                  className={`flex-1 rounded-xl py-3.5 flex flex-col items-center gap-1.5 hover:scale-105 active:scale-95 transition-all ${selectedIntent === opt.value ? 'ring-2 ring-[#E040A0]' : ''}`}
-                  style={{
-                    backgroundColor: selectedIntent === opt.value ? 'rgba(224,64,160,0.12)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${selectedIntent === opt.value ? 'rgba(224,64,160,0.30)' : 'rgba(255,255,255,0.06)'}`,
-                  }}
-                >
-                  <span className="text-lg">{opt.emoji}</span>
-                  <span className="text-[0.6rem] font-medium" style={{ color: selectedIntent === opt.value ? '#E040A0' : '#B0B0B8' }}>{opt.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* âââââââ PHASE 4: DONE â brief confirmation âââââââ */}
-        {phase === 'done' && (
-          <div className="animate-scale-in flex flex-col items-center mt-4">
-            <div className="w-10 h-10 rounded-full bg-[#E040A0]/15 flex items-center justify-center mb-3"
-              style={{ boxShadow: '0 0 30px rgba(224,64,160,0.2)' }}>
-              <svg className="w-5 h-5 text-[#E040A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <p className="text-sm text-white/40" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>Noted. Moving on...</p>
-          </div>
-        )}
       </div>
 
-      {/* ââ Discreet sponsor tag â bottom of screen ââ */}
+      {/* ═══ Bottom: Sponsor tag ═══ */}
       <div
-        className="absolute bottom-5 left-0 right-0 z-10 flex items-center justify-center"
+        className="relative z-10 pb-6 flex items-center justify-center"
         style={{
           opacity: visible ? 1 : 0,
           transition: 'opacity 1.5s ease-out 1s',
         }}
       >
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: 'rgba(0,0,0,0.20)', backdropFilter: 'blur(10px)' }}>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full"
+          style={{ background: 'rgba(0,0,0,0.20)', backdropFilter: 'blur(10px)' }}>
           <span className="text-[0.5rem] tracking-[0.15em] uppercase text-white/20">This moment by</span>
           <span className="text-[0.55rem] font-medium" style={{ color: sponsor.accent, opacity: 0.5 }}>{sponsor.brand}</span>
         </div>
       </div>
 
+      {/* ═══ Animations ═══ */}
       <style>{`
-        @keyframes slide-up-survey {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes ripple-expand {
+          0% { transform: scale(0); opacity: 1; }
+          100% { transform: scale(2.5); opacity: 0; }
+        }
+        @keyframes scale-pop {
+          0% { transform: scale(0); }
+          60% { transform: scale(1.3); }
+          100% { transform: scale(1); }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.05); }
+        }
+        @keyframes draw-check {
+          0% { stroke-dasharray: 30; stroke-dashoffset: 30; }
+          100% { stroke-dasharray: 30; stroke-dashoffset: 0; }
         }
       `}</style>
     </div>
