@@ -4,12 +4,12 @@ import BackgroundOrbs from '../components/BackgroundOrbs'
 import MatchCard from '../components/MatchCard'
 import type { Candidate } from '../data/people'
 
-/* âââ SOUND ENGINE â Web Audio API procedural sounds âââââââââ
+/* ─── SOUND ENGINE — Web Audio API procedural sounds ─────────
    No external audio files. Pure synthesis.
    tick: quick percussive click for each card flip
    match: warm rising chord when a mutual match is revealed
    drumroll: building anticipation before cascade
-   ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+   ──────────────────────────────────────────────────────────── */
 function createSoundEngine() {
   let ctx: AudioContext | null = null
   const getCtx = () => {
@@ -36,7 +36,7 @@ function createSoundEngine() {
     matchChime() {
       try {
         const c = getCtx()
-        // Rising major chord: C5 â E5 â G5 staggered
+        // Rising major chord: C5 → E5 → G5 staggered
         ;[523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
           const osc = c.createOscillator()
           const gain = c.createGain()
@@ -104,7 +104,7 @@ function createSoundEngine() {
       } catch { /* */ }
     },
 
-    // Connected call tone â warm confirmation
+    // Connected call tone — warm confirmation
     callConnected() {
       try {
         const c = getCtx()
@@ -153,221 +153,659 @@ interface Props {
 }
 
 // Simulate their ratings
-const theirRatingsXÛÜÝ[Ë	ÛZÙIÈ	Ü\ÜÉÏHÂÛÙXN	ÛZÙIË^[N	Ü\ÜÉË[Z\N	ÛZÙIËÝ\	ÛZÙIËX\ÛZ[N	Ü\ÜÉËBËÈ\^H]BÛÛÝ\^Q]NXÛÜÝ[ËÈ]Y\Ý[ÛÎÝ[Ö×NÈYÚYÚÎÝ[Ö×NÈ\][ÛÝ[ÎÈ[[Ú\ÎÝ[Ö×HOHÂÛÙXNÂ]Y\Ý[ÛÎØÛÛ\Ø][ÛÝ\\ÖÌKÛÛ\Ø][ÛÝ\\ÖÌ×WKYÚYÚÎÉÓ]YÚYXÝ]][Z\Ú\ÉË	ÐÝÝHÝY]ÛÙ[[ÚÛÚÉË	ÔÚHY[[ÛYØ[ØH[Ú[É×K\][Û	ÍN	Ë[[Ú\ÎÉ×^ÌQIË	×^ÌQL_IË	×^ÌÍW^ÑLIË	×^ÌQI×KK^[NÂ]Y\Ý[ÛÎØÛÛ\Ø][ÛÝ\\ÖÌWKÛÛ\Ø][ÛÝ\\ÖÍWWKYÚYÚÎÉÑY\ÛÛ\Ø][ÛXÝ]Ù[\ÜÉË	ÑY\[[\ÞHÝ[\ÉË	ÔÚHXÛÛ[Y[YHÙØ\Ý	×K\][Û	ÍN	Ë[[Ú\ÎÉ×^ÌQ_IË	×^ÌQ
-I×KK[Z\NÂ]Y\Ý[ÛÎØÛÛ\Ø][ÛÝ\\ÖÌKÛÛ\Ø][ÛÝ\\ÖÍ×WKYÚYÚÎÉÒ[Ý[Ú[Z\ÝHLMÝ\Ý\ÉË	ÔÚHÛÛXÝÈ[YÙH[ÉË	Ô[ÈÈ\Ú]Ý]HXHXI×K\][Û	ÍN	Ë[[Ú\ÎÉ×^ÌQIË	×^ÌQL_IË	×^ÌQ
-IË	×^ÌQQI×KKÝ\Â]Y\Ý[ÛÎØÛÛ\Ø][ÛÝ\\ÖÍKÛÛ\Ø][ÛÝ\\ÖÎWWKYÚYÚÎÉÐÝ[XÚLMÚHÙ]ÈHÜ[	Ë	ÕÙYZÙ[ZÚ[È[]IË	ÔÚH]YÚY][Ý\YÚÙI×K\][Û	ÍN	Ë[[Ú\ÎÉ×^ÌQL_IË	×^ÌÍW^ÑLIË	×^ÌQI×KKX\ÛZ[NÂ]Y\Ý[ÛÎØÛÛ\Ø][ÛÝ\\ÖÍKÛÛ\Ø][ÛÝ\\ÖÎWKYÚYÚÎÉÑ\Ú[ÛÛÜÝÜY\ÉË	ÑY\[Ù[ÙHÙ[[ÜË	ÐÛÛÛ[YÙHØ[Y\HÛÛXÝ[Û×K\][Û	ÍN	Ë[[Ú\ÎÉ×^ÌQ_I×KKBËÈÛÛ]B[\XÙHÛÛ]TYXÙHÈY[X\ÈY[X\È[^N[X\È\][Û[X\ÈÛÛÜÝ[ÎÈÚ^N[X\ÈÝ][Û[X\B[Ý[ÛXZÙPÛÛ]JÛÝ[[X\NÛÛ]TYXÙV×HÂÛÛÝÛÛÜÈHÉÈÑL
-L	Ë	ÈÑ
-L	Ë	ÈÑPÍÉË	ÈÍ
-Ë	ÈÌÌMN	Ë	ÈÑQIË	ÈÑ
-Ì	Ë	ÈÐÎN	Ë	ÈÐ×B]\\^KÛJÈ[ÝÛÝ[K
-ËJHO
-ÂYKYX][ÛJ
-H
-L[^NX][ÛJ
-H
-KK\][ÛH
-ÈX][ÛJ
-H
-ÛÛÜÛÛÜÖÓX]ÛÜX][ÛJ
-H
-ÛÛÜË[Ý
-WKÚ^N
-
-ÈX][ÛJ
-H
-
-Ý][ÛX][ÛJ
-H
-ÍJJBB\H\ÙHH	Ú[ÉÈ	ØØ\ØØYIÈ	ÜÝ[[X\IÂ^ÜY][[Ý[ÛX]Ú\Ý[ÊÈ][ÜËÛ\Ý\ÛÛÛ[YHNÜÊHÂÛÛÝÜ\ÙKÙ]\ÙWHH\ÙTÝ]O\ÙO	Ú[ÉÊBÛÛÝÜ]X[YØ\ËÙ]]X[YØ\×HH\ÙTÝ]OÛÛX[×OØ[Y]\ËX\
+const theirRatings: Record<string, 'like' | 'pass'> = {
+  Sofia: 'like',
+  Layla: 'pass',
+  Amira: 'like',
+  Nour: 'like',
+  Yasmine: 'pass',
+}
 
+// Replay data
+const replayData: Record<string, { questions: string[]; highlights: string[]; duration: string; emojis: string[] }> = {
+  Sofia: {
+    questions: [conversationStarters[0], conversationStarters[3]],
+    highlights: ['Laughed about travel mishaps', 'Both love street food in Bangkok', 'She mentioned salsa dancing'],
+    duration: '5:00',
+    emojis: ['\u{1F60D}', '\u{1F525}', '\u{2764}\u{FE0F}', '\u{1F602}'],
+  },
+  Layla: {
+    questions: [conversationStarters[1], conversationStarters[5]],
+    highlights: ['Deep conversation about wellness', 'Different energy styles', 'She recommended a podcast'],
+    duration: '5:00',
+    emojis: ['\u{1F60A}', '\u{1F44F}'],
+  },
+  Amira: {
+    questions: [conversationStarters[2], conversationStarters[7]],
+    highlights: ['Instant chemistry \u2014 both art lovers', 'She collects vintage prints', 'Plans to visit Louvre Abu Dhabi'],
+    duration: '5:00',
+    emojis: ['\u{1F60D}', '\u{1F525}', '\u{1F44F}', '\u{1F4AF}'],
+  },
+  Nour: {
+    questions: [conversationStarters[4], conversationStarters[9]],
+    highlights: ['Both in tech \u2014 she gets the grind', 'Weekend hiking in Hatta', 'She laughed at your bad joke'],
+    duration: '5:00',
+    emojis: ['\u{1F525}', '\u{2764}\u{FE0F}', '\u{1F602}'],
+  },
+  Yasmine: {
+    questions: [conversationStarters[6], conversationStarters[8]],
+    highlights: ['Fashion world stories', 'Different sense of humor', 'Cool vintage camera collection'],
+    duration: '5:00',
+    emojis: ['\u{1F60E}'],
+  },
+}
 
-HO[ÙJJBÛÛÝÜÚÝÐÛÛ]KÙ]ÚÝÐÛÛ]WHH\ÙTÝ]J[ÙJBÛÛÝØÛÛ]WHH\ÙTÝ]J
+// Confetti
+interface ConfettiPiece { id: number; left: number; delay: number; duration: number; color: string; size: number; rotation: number }
+function makeConfetti(count: number): ConfettiPiece[] {
+  const colors = ['#E040A0', '#F050B0', '#FF6EC7', '#6060FF', '#30D158', '#FF9F0A', '#FFD700', '#C82E88', '#B0B0FF']
+  return Array.from({ length: count }, (_, i) => ({
+    id: i, left: Math.random() * 100, delay: Math.random() * 1.5, duration: 2.5 + Math.random() * 2,
+    color: colors[Math.floor(Math.random() * colors.length)], size: 4 + Math.random() * 6, rotation: Math.random() * 360,
+  }))
+}
 
-HOXZÙPÛÛ]J
-JBÛÛÝÜ\^SÜ[Ù]\^SÜ[HH\ÙTÝ]OÝ[È[[
-BÛÛÝÜÚÝÔÚ\XØ\Ù]ÚÝÔÚ\XØ\HH\ÙTÝ]J[ÙJBËÈÙXÛÛÚ[ÙHÝ]BÛÛÝÜÙXÛÛÚ[Ù\ËÙ]ÙXÛÛÚ[Ù\×HH\ÙTÝ]OXÛÜÝ[ËÛÛX[ßJBÛÛÝÜÙXÛÛÚ[ÙSÝYÙ]ÙXÛÛÚ[ÙSÝYHH\ÙTÝ]OÝ[È[[
-BËÈX]ÚØ\Ý]H8 %ÚÝÛÚ[H]]X[X]Ú\È]X[YÛÛÝÛX]ÚØ\\Ù]Ù]X]ÚØ\\Ù]HH\ÙTÝ]OØ[Y]H[[
-BËÈÛÝ[[Ú[BÛÛÝÛÝ[YH\ÙTYÜX]TÛÝ[[Ú[J
-JB\ÙQYXÝ
+type Phase = 'intro' | 'cascade' | 'summary'
 
+export default function MatchResults({ ratings, onRestart, onContinue }: Props) {
+  const [phase, setPhase] = useState<Phase>('intro')
+  const [revealedCards, setRevealedCards] = useState<boolean[]>(candidates.map(() => false))
+  const [showConfetti, setShowConfetti] = useState(false)
+  const [confetti] = useState(() => makeConfetti(80))
+  const [replayOpen, setReplayOpen] = useState<string | null>(null)
+  const [showSharecard, setShowSharecard] = useState(false)
 
-HO
+  // Second Chance state
+  const [secondChances, setSecondChances] = useState<Record<string, boolean>>({})
+  const [secondChanceNotif, setSecondChanceNotif] = useState<string | null>(null)
 
-HOÛÝ[YÝ\[ÛX[\
+  // Match Card state — shown when a mutual match is revealed
+  const [matchCardTarget, setMatchCardTarget] = useState<Candidate | null>(null)
 
-K×JBËÈØ^HHÛ\ÈØ[Ý]BÛÛÝÜØ^RU\Ù]Ù]Ø^RU\Ù]HH\ÙTÝ]OØ[Y]H[[
-BÛÛÝÜØ^RU[Y\Ù]Ø^RU[Y\HH\ÙTÝ]J
-
-BÛÛÝÜØ^RPXÝ]KÙ]Ø^RPXÝ]WHH\ÙTÝ]J[ÙJBËÈØ^HH[Y\ÛÝ[ÝÛ\ÙQYXÝ
+  // Sound engine
+  const soundRef = useRef(createSoundEngine())
+  useEffect(() => () => soundRef.current.cleanup(), [])
 
+  // "Say Hi" bonus call state
+  const [sayHiTarget, setSayHiTarget] = useState<Candidate | null>(null)
+  const [sayHiTimer, setSayHiTimer] = useState(60)
+  const [sayHiActive, setSayHiActive] = useState(false)
 
-HOÂY
-\Ø^RPXÝ]JH]\ÛÛÝ[Y\HÙ][\[
+  // Say Hi timer countdown
+  useEffect(() => {
+    if (!sayHiActive) return
+    const timer = setInterval(() => {
+      setSayHiTimer(p => {
+        if (p <= 1) {
+          setSayHiActive(false)
+          setSayHiTarget(null)
+          return 60
+        }
+        return p - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [sayHiActive])
 
+  const handleSayHi = useCallback((c: Candidate) => {
+    setSayHiTarget(c)
+    setSayHiActive(true)
+    setSayHiTimer(60)
+    // Ring → then connected tone after 2s
+    soundRef.current.ringTone()
+    setTimeout(() => soundRef.current.callConnected(), 2500)
+  }, [])
 
-HOÂÙ]Ø^RU[Y\OÂY
-HJHÂÙ]Ø^RPXÝ]J[ÙJBÙ]Ø^RU\Ù]
-[
-B]\
-B]\HBJBKL
-B]\
+  // Derived
+  const getEffectiveRating = useCallback((name: string) => secondChances[name] ? 'like' as const : (ratings[name] || 'pass' as const), [secondChances, ratings])
+  const mutualMatches = candidates.filter(c => getEffectiveRating(c.name) === 'like' && theirRatings[c.name] === 'like')
 
-HOÛX\[\[
-[Y\BKÜØ^RPXÝ]WJBÛÛÝ[TØ^RHH\ÙPØ[XÚÊ
-ÎØ[Y]JHOÂÙ]Ø^RU\Ù]
-ÊBÙ]Ø^RPXÝ]JYJBÙ]Ø^RU[Y\
-
-BËÈ[È8¡¤[ÛÛXÝYÛHY\ÂÛÝ[YÝ\[[ÕÛJ
-BÙ][Y[Ý]
+  // Second Chance handler
+  const handleSecondChance = useCallback((name: string) => {
+    setSecondChances(prev => ({ ...prev, [name]: true }))
+    setSecondChanceNotif(name)
+    setTimeout(() => setSecondChanceNotif(null), 3000)
+  }, [])
 
+  /* ─── CASCADE REVEAL ───
+     Intro (1.5s) → all 5 cards flip rapid-fire (300ms apart = 1.5s) → celebrate (2.5s) → summary
+     Total: ~5.5 seconds. Fast, dramatic, no dead air.
+     ─────────────────────── */
+  useEffect(() => {
+    if (phase === 'intro') {
+      // Play drumroll during intro
+      const drumTimer = setTimeout(() => soundRef.current.drumroll(), 200)
+      const t = setTimeout(() => setPhase('cascade'), 1500)
+      return () => { clearTimeout(t); clearTimeout(drumTimer) }
+    }
+    if (phase === 'cascade') {
+      let hasMatch = false
+      const timers = candidates.map((c, i) =>
+        setTimeout(() => {
+          setRevealedCards(prev => { const next = [...prev]; next[i] = true; return next })
+          // Card flip sound
+          soundRef.current.tick()
+          const yours = secondChances[c.name] ? 'like' : (ratings[c.name] || 'pass')
+          const theirs = theirRatings[c.name] || 'pass'
+          if (yours === 'like' && theirs === 'like' && !hasMatch) {
+            hasMatch = true
+            // Match chime!
+            setTimeout(() => soundRef.current.matchChime(), 100)
+            setTimeout(() => { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 4000) }, 200)
+            setTimeout(() => setMatchCardTarget(c), 800)
+          }
+        }, 300 * i)
+      )
+      const summaryTimer = setTimeout(() => setPhase('summary'), 300 * candidates.length + 2500)
+      return () => { timers.forEach(clearTimeout); clearTimeout(summaryTimer) }
+    }
+  }, [phase, ratings, secondChances])
 
-HOÛÝ[YÝ\[Ø[ÛÛXÝY
+  return (
+    <div className="fixed inset-0 bg-[#2A2A2E] overflow-hidden">
+      <BackgroundOrbs />
 
-KL
-BK×JBËÈ\]YÛÛÝÙ]YXÝ]T][ÈH\ÙPØ[XÚÊ
-[YNÝ[ÊHOÙXÛÛÚ[Ù\ÖÛ[YWHÈ	ÛZÙIÈ\ÈÛÛÝ
-][ÜÖÛ[YWH	Ü\ÜÉÈ\ÈÛÛÝ
-KÜÙXÛÛÚ[Ù\Ë][Ü×JBÛÛÝ]]X[X]Ú\ÈHØ[Y]\Ë[\ÈOÙ]YXÝ]T][ÊË[YJHOOH	ÛZÙIÈ	Z\][ÜÖØË[YWHOOH	ÛZÙIÊBËÈÙXÛÛÚ[ÙH[\ÛÛÝ[TÙXÛÛÚ[ÙHH\ÙPØ[XÚÊ
-[YNÝ[ÊHOÂÙ]ÙXÛÛÚ[Ù\Ê]O
-È]Û[YWNYHJJBÙ]ÙXÛÛÚ[ÙSÝY[YJBÙ][Y[Ý]
+      {/* Confetti */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50">
+          {confetti.map(p => (
+            <div key={p.id} className="absolute top-0" style={{
+              left: `${p.left}%`, width: `${p.size}px`, height: `${p.size * 1.8}px`,
+              backgroundColor: p.color, borderRadius: '2px', transform: `rotate(${p.rotation}deg)`,
+              animation: `confetti-fall ${p.duration}s ease-out ${p.delay}s forwards`, opacity: 0,
+            }} />
+          ))}
+        </div>
+      )}
 
+      {/* Match Card overlay */}
+      {matchCardTarget && (
+        <MatchCard
+          match={matchCardTarget}
+          onClose={() => setMatchCardTarget(null)}
+        />
+      )}
 
-HOÙ]ÙXÛÛÚ[ÙSÝY[
-KÌ
-BK×JBÊ8¥ 8¥ 8¥ ÐTÐÐQHUPS8¥ 8¥ 8¥ [È
-K\ÊH8¡¤[
-HØ\È\\YY\H
-Ì\È\\HK\ÊH8¡¤Ù[X]H
-\ÊH8¡¤Ý[[X\BÝ[KHÙXÛÛË\Ý[X]XËÈXYZ\8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 8¥ 
-Â\ÙQYXÝ
+      {/* Say Hi bonus call overlay */}
+      {sayHiTarget && sayHiActive && (
+        <div className="fixed inset-0 z-[65] flex flex-col items-center justify-center bg-black/90 backdrop-blur-lg animate-fade-in">
+          <div className="text-center mb-8 animate-scale-in">
+            <div className="relative inline-block mb-4">
+              <img src={sayHiTarget.photo} alt={sayHiTarget.name}
+                className="w-24 h-24 rounded-full object-cover"
+                style={{ border: '3px solid #E040A0', boxShadow: '0 0 40px rgba(224,64,160,0.3)' }} />
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#30D158] flex items-center justify-center"
+                style={{ boxShadow: '0 0 12px rgba(48,209,88,0.4)' }}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-1">Say Hi to {sayHiTarget.name}!</h3>
+            <p className="text-sm text-white/40 mb-6">60-second bonus call — say what you couldn't in 5 minutes</p>
 
+            {/* Timer ring */}
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(224,64,160,0.15)" strokeWidth="4" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#E040A0" strokeWidth="4" strokeLinecap="round"
+                  strokeDasharray="283" strokeDashoffset={283 - (sayHiTimer / 60) * 283}
+                  className="transition-all duration-1000 ease-linear" />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-lg font-mono font-bold text-[#E040A0]">{sayHiTimer}s</span>
+              </div>
+            </div>
 
-HOÂY
-\ÙHOOH	Ú[ÉÊHÂËÈ^H[\Û\[È[ÂÛÛÝ[U[Y\HÙ][Y[Ý]
+            {/* Simulated call wave */}
+            <div className="flex items-center justify-center gap-1 mb-6">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="w-1 rounded-full bg-[#E040A0]"
+                  style={{
+                    height: `${12 + Math.random() * 20}px`,
+                    animation: `wave-bar 0.8s ease-in-out ${i * 0.1}s infinite alternate`,
+                  }} />
+              ))}
+            </div>
 
+            <button
+              onClick={() => { soundRef.current.hangup(); setSayHiActive(false); setSayHiTarget(null); setSayHiTimer(60) }}
+              className="px-8 py-3 rounded-full text-sm font-semibold bg-[#FF3B30] text-white hover:scale-105 active:scale-95 transition-all"
+            >
+              End Call
+            </button>
+          </div>
+        </div>
+      )}
 
-HOÛÝ[YÝ\[[\Û
+      {/* Second Chance notification toast */}
+      {secondChanceNotif && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+          <div className="glass-tile rounded-2xl px-5 py-3 flex items-center gap-3" style={{ boxShadow: '0 8px 32px rgba(224,64,160,0.25)' }}>
+            <span className="text-lg">{'\u{1F525}'}</span>
+            <div>
+              <p className="text-sm font-semibold text-white">Second Chance sent!</p>
+              <p className="text-xs text-[#98989D]">{secondChanceNotif} will be notified you changed your mind</p>
+            </div>
+          </div>
+        </div>
+      )}
 
-K
-BÛÛÝHÙ][Y[Ý]
+      {/* Sharecard Modal */}
+      {showSharecard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in">
+          <div className="glass-tile rounded-3xl p-5 max-w-sm mx-4 w-full animate-scale-in" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-white text-sm">Share to Instagram Story</h3>
+              <button onClick={() => setShowSharecard(false)} className="w-8 h-8 glass-button rounded-full flex items-center justify-center text-[#7A7A80]">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
 
+            {/* Instagram Story Card */}
+            <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '9/16', maxHeight: '420px' }}>
+              <div className="w-full h-full relative flex flex-col items-center justify-between py-8 px-6" style={{
+                background: 'linear-gradient(165deg, #2A2A2E 0%, #1a1a1e 30%, #E040A0 100%)',
+              }}>
+                <div className="text-center">
+                  <h4 className="text-3xl font-bold font-display text-white mb-1">Pulse</h4>
+                  <p className="text-[0.65rem] text-white/40 uppercase tracking-[0.2em]">Tonight's Session</p>
+                </div>
+                <div className="w-full">
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {[
+                      { v: '5', l: 'People Met' },
+                      { v: String(mutualMatches.length), l: 'Matches' },
+                      { v: '25m', l: 'Total Time' },
+                    ].map((s, i) => (
+                      <div key={i} className="rounded-xl py-3 text-center" style={{ backgroundColor: 'rgba(0,0,0,0.25)' }}>
+                        <p className="text-2xl font-bold text-white font-display">{s.v}</p>
+                        <p className="text-[0.55rem] uppercase text-white/50 tracking-wider mt-0.5">{s.l}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {mutualMatches.length > 0 && (
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <span className="text-xs text-white/50">Matched with</span>
+                      <div className="flex -space-x-2">
+                        {mutualMatches.map(m => (
+                          <img key={m.name} src={m.photo} alt={m.name} className="w-7 h-7 rounded-full object-cover border-2 border-[#E040A0]" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <p className="text-center text-sm italic text-white/70" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    {mutualMatches.length >= 2 ? '"Chemistry confirmed \u2014 twice."' : mutualMatches.length === 1 ? '"Found a spark in 25 minutes."' : '"5 real conversations. Zero time wasted."'}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[0.7rem] text-white/30 mb-1">Skip the texting. See the chemistry.</p>
+                  <p className="text-xs font-semibold text-white/60">pulse.app</p>
+                </div>
+              </div>
+            </div>
 
-HOÙ]\ÙJ	ØØ\ØØYIÊKML
-B]\
+            <div className="mt-4 space-y-2">
+              <button className="w-full py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+                Share to Instagram Story
+              </button>
+              <div className="flex gap-2">
+                <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold glass-button text-[#E0E0E5] active:scale-[0.98] transition-transform">WhatsApp</button>
+                <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold glass-button text-[#E0E0E5] active:scale-[0.98] transition-transform">X / Twitter</button>
+                <button className="flex-1 py-2.5 rounded-xl text-xs font-semibold glass-button text-[#E0E0E5] active:scale-[0.98] transition-transform">Save Image</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-HOÈÛX\[Y[Ý]
-
-NÈÛX\[Y[Ý]
-[U[Y\HBBY
-\ÙHOOH	ØØ\ØØYIÊHÂ]\ÓX]ÚH[ÙBÛÛÝ[Y\ÈHØ[Y]\ËX\
+      {/* Header */}
+      <header className="relative z-20 px-5 py-3 flex items-center justify-between">
+        <h1 className="text-xl font-bold font-display text-[#E040A0]">Pulse</h1>
+        <div className="text-xs text-[#7A7A80]">
+          {phase === 'intro' && 'Session Complete'}
+          {phase === 'cascade' && 'Revealing...'}
+          {phase === 'summary' && 'Your Results'}
+        </div>
+      </header>
 
-ËJHOÙ][Y[Ý]
+      {/* ====== INTRO ====== */}
+      {phase === 'intro' && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6">
+          <div className="text-center animate-fade-in">
+            <div className="text-6xl mb-6">{'\u2728'}</div>
+            <h2 className="text-3xl md:text-5xl mb-4 font-display" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontStyle: 'italic' }}>
+              Time for the truth.
+            </h2>
+            <p className="text-[#98989D] text-base md:text-lg max-w-md mx-auto mb-2">You met 5 people tonight. You made your choices.</p>
+            <p className="text-[#E040A0] text-lg font-semibold animate-pulse">Did they feel it too?</p>
+          </div>
+        </div>
+      )}
 
+      {/* ====== CASCADE REVEAL — all cards flip rapid-fire ====== */}
+      {phase === 'cascade' && (
+        <div className="absolute inset-0 top-12 z-10 flex items-center justify-center px-4 overflow-hidden">
+          <div className="w-full max-w-4xl">
+            <div className="grid grid-cols-5 gap-3 md:gap-4">
+              {candidates.map((c, i) => {
+                const revealed = revealedCards[i]
+                const effRating = getEffectiveRating(c.name)
+                const theirs = theirRatings[c.name] || 'pass'
+                const isMatch = effRating === 'like' && theirs === 'like'
+                return (
+                  <div key={c.name} className="perspective-500">
+                    <div
+                      className="relative transition-all duration-700 ease-out"
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        transform: revealed ? 'rotateY(0deg)' : 'rotateY(180deg)',
+                      }}
+                    >
+                      {/* Front — revealed result */}
+                      <div
+                        className={`glass-tile rounded-2xl overflow-hidden transition-all duration-500 ${isMatch && revealed ? 'ring-2 ring-[#E040A0]' : ''}`}
+                        style={{
+                          backfaceVisibility: 'hidden',
+                          boxShadow: isMatch && revealed ? '0 0 30px rgba(224,64,160,0.25)' : '0 4px 16px rgba(0,0,0,0.2)',
+                        }}
+                      >
+                        <div className="relative aspect-[3/4] overflow-hidden">
+                          <img src={c.photo} alt={c.name} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#2A2A2E] via-transparent to-transparent" />
+                          <div className="absolute bottom-2 left-3 right-3">
+                            <p className="text-sm font-bold text-white font-display">{c.name}, {c.age}</p>
+                            <p className="text-[0.6rem] text-white/50">{c.location}</p>
+                          </div>
+                          {isMatch && revealed && (
+                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-[#E040A0] text-[0.55rem] font-bold text-white animate-scale-in">
+                              MATCH
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-2.5 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[0.55rem] text-[#7A7A80] uppercase">You</span>
+                            <span className="text-sm">{effRating === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
+                          </div>
+                          <div className="h-px" style={{ background: 'rgba(224,64,160,0.10)' }} />
+                          <div className="flex items-center justify-between">
+                            <span className="text-[0.55rem] text-[#7A7A80] uppercase">Them</span>
+                            <span className="text-sm">{theirs === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
+                          </div>
+                          {isMatch && (
+                            <p className="text-center text-[0.6rem] font-bold text-[#E040A0] pt-1 animate-pulse">{'\u{1F4AB}'} Chemistry confirmed</p>
+                          )}
+                        </div>
+                      </div>
 
-HOÂÙ]]X[YØ\Ê]OÈÛÛÝ^HË]NÈ^ÚWHHYNÈ]\^JBËÈØ\\ÛÝ[ÛÝ[YÝ\[XÚÊ
-BÛÛÝ[Ý\ÈHÙXÛÛÚ[Ù\ÖØË[YWHÈ	ÛZÙIÈ
-][ÜÖØË[YWH	Ü\ÜÉÊBÛÛÝZ\ÈHZ\][ÜÖØË[YWH	Ü\ÜÉÂY
-[Ý\ÈOOH	ÛZÙIÈ	Z\ÈOOH	ÛZÙIÈ	Z\ÓX]Ú
-HÂ\ÓX]ÚHYBËÈX]ÚÚ[YHBÙ][Y[Ý]
+                      {/* Back — face down card */}
+                      <div
+                        className="absolute inset-0 glass-tile rounded-2xl flex flex-col items-center justify-center"
+                        style={{
+                          backfaceVisibility: 'hidden',
+                          transform: 'rotateY(180deg)',
+                          background: 'linear-gradient(135deg, rgba(224,64,160,0.08) 0%, rgba(224,64,160,0.02) 100%)',
+                          border: '1px solid rgba(224,64,160,0.15)',
+                        }}
+                      >
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
+                          style={{ background: 'rgba(224,64,160,0.10)' }}>
+                          <svg className="w-6 h-6 text-[#E040A0]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                        <p className="text-[0.65rem] text-[#E040A0]/50 font-medium">?</p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
 
+            {/* Countdown text */}
+            {!revealedCards[0] && (
+              <p className="text-center mt-6 text-sm text-[#E040A0] animate-pulse font-medium">Revealing results...</p>
+            )}
+            {revealedCards.every(Boolean) && mutualMatches.length > 0 && (
+              <p className="text-center mt-6 text-lg font-display text-[#E040A0] animate-scale-in" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontStyle: 'italic' }}>
+                {mutualMatches.length} mutual {mutualMatches.length === 1 ? 'match' : 'matches'} tonight
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
-HOÛÝ[YÝ\[X]ÚÚ[YJ
-KL
-BÙ][Y[Ý]
+      {/* ====== SUMMARY ====== */}
+      {phase === 'summary' && (
+        <div className="absolute inset-0 top-12 z-10 overflow-y-auto">
+          <div className="max-w-2xl mx-auto px-4 pb-24 pt-4 animate-fade-in">
 
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold font-display mb-2">Tonight's Results</h2>
+              <p className="text-sm text-[#98989D]">
+                {mutualMatches.length > 0 ? `${mutualMatches.length} mutual ${mutualMatches.length === 1 ? 'match' : 'matches'} \u2014 real chemistry, confirmed.` : 'No mutual matches tonight \u2014 every session is different.'}
+              </p>
+            </div>
 
-HOÈÙ]ÚÝÐÛÛ]JYJNÈÙ][Y[Ý]
+            {/* Stats */}
+            <div className="grid grid-cols-4 gap-3 mb-8">
+              {[
+                { value: '5', label: 'People Met', icon: '\u{1F465}' },
+                { value: String(mutualMatches.length), label: 'Matches', icon: '\u{1F4AB}' },
+                { value: '25m', label: 'Total Time', icon: '\u23F1' },
+                { value: `${Object.values(ratings).filter(r => r === 'like').length + Object.keys(secondChances).length}`, label: 'You Liked', icon: '\u{1F525}' },
+              ].map((s, i) => (
+                <div key={i} className="glass-tile rounded-2xl p-4 text-center animate-slide-up" style={{ animationDelay: `${i * 0.1}s`, animationFillMode: 'backwards' }}>
+                  <span className="text-lg">{s.icon}</span>
+                  <p className="text-2xl font-bold text-[#E040A0] font-display mt-1">{s.value}</p>
+                  <p className="text-[0.65rem] text-[#7A7A80] uppercase tracking-wider mt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
 
+            {/* Share button */}
+            <button onClick={() => setShowSharecard(true)} className="w-full glass-tile rounded-2xl p-4 flex items-center justify-between mb-6 group hover:scale-[1.01] active:scale-[0.99] transition-transform">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-white">Share Your Session Card</p>
+                  <p className="text-xs text-[#7A7A80]">Post to Instagram, WhatsApp, or X</p>
+                </div>
+              </div>
+              <svg className="w-5 h-5 text-[#7A7A80] group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            </button>
 
-HOÙ]ÚÝÐÛÛ]J[ÙJK
-
-HK
-BÙ][Y[Ý]
+            {/* All dates with replay + second chance */}
+            <h3 className="text-xs tracking-[0.2em] uppercase text-[#7A7A80] font-semibold mb-3">Your Dates</h3>
+            <div className="space-y-3 mb-8">
+              {candidates.map((c, i) => {
+                const effRating = getEffectiveRating(c.name)
+                const theirs = theirRatings[c.name] || 'pass'
+                const match = effRating === 'like' && theirs === 'like'
+                const originallyPassed = ratings[c.name] === 'pass'
+                const usedSecondChance = secondChances[c.name]
+                const canSecondChance = originallyPassed && !usedSecondChance
+                const replay = replayData[c.name]
+                const isReplayOpen = replayOpen === c.name
 
+                return (
+                  <div key={c.name} className={`glass-tile rounded-2xl overflow-hidden transition-all duration-300 animate-slide-up ${match ? 'ring-1 ring-[rgba(224,64,160,0.30)]' : ''}`} style={{ animationDelay: `${0.3 + i * 0.08}s`, animationFillMode: 'backwards', boxShadow: match ? '0 4px 16px rgba(224,64,160,0.10)' : undefined }}>
+                    <div className="p-4 flex items-center gap-3">
+                      <img src={c.photo} alt={c.name} className="w-12 h-12 rounded-full object-cover shrink-0" style={{ border: match ? '2px solid #E040A0' : '2px solid rgba(255,255,255,0.1)' }} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-white">{c.name}, {c.age}</p>
+                          {match && <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[rgba(224,64,160,0.12)] text-[#E040A0] font-bold">Match</span>}
+                          {usedSecondChance && <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-[rgba(255,159,10,0.12)] text-[#FF9F0A] font-bold">2nd Chance</span>}
+                        </div>
+                        <p className="text-xs text-[#7A7A80]">{c.location}</p>
+                      </div>
 
-HOÙ]X]ÚØ\\Ù]
-ÊK
-BBKÌ
-JB
-BÛÛÝÝ[[X\U[Y\HÙ][Y[Ý]
+                      {/* ── PRIMARY ACTIONS — visible at card level, no expand needed ── */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {match && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleSayHi(c) }}
+                            className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold bg-[#E040A0] text-white hover:scale-105 active:scale-95 transition-all"
+                            style={{ boxShadow: '0 2px 12px rgba(224,64,160,0.35)' }}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            Say Hi
+                          </button>
+                        )}
+                        {match && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMatchCardTarget(c) }}
+                            className="w-9 h-9 rounded-full flex items-center justify-center hover:scale-110 active:scale-90 transition-transform"
+                            style={{ background: 'rgba(224,64,160,0.12)', border: '1px solid rgba(224,64,160,0.20)' }}
+                            title="View Match Card"
+                          >
+                            <span className="text-sm">💖</span>
+                          </button>
+                        )}
+                        {canSecondChance && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleSecondChance(c.name) }}
+                            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold hover:scale-105 active:scale-95 transition-all"
+                            style={{ background: 'rgba(255,159,10,0.10)', border: '1px solid rgba(255,159,10,0.25)', color: '#FF9F0A' }}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                            2nd Chance
+                          </button>
+                        )}
+                        <button onClick={() => setReplayOpen(isReplayOpen ? null : c.name)} className="shrink-0 w-9 h-9 rounded-full glass-button flex items-center justify-center hover:scale-110 active:scale-90 transition-transform">
+                          <svg className={`w-4 h-4 transition-transform ${isReplayOpen ? 'rotate-180' : ''} text-[#E0E0E5]`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                      </div>
+                    </div>
 
+                    {isReplayOpen && replay && (
+                      <div className="px-4 pb-4 animate-slide-up" style={{ animationDuration: '0.3s', borderTop: '1px solid rgba(224,64,160,0.08)' }}>
+                        <div className="pt-3 space-y-4">
+                          {/* Replay video */}
+                          <div className="rounded-xl overflow-hidden glass-button">
+                            <div className="aspect-video relative flex items-center justify-center">
+                              <img src={c.photo} alt={c.name} className="absolute inset-0 w-full h-full object-cover opacity-30" style={{ filter: 'blur(8px)' }} />
+                              <div className="relative z-10 flex flex-col items-center gap-2">
+                                <button className="w-14 h-14 rounded-full bg-[#E040A0]/20 border border-[#E040A0]/30 flex items-center justify-center hover:scale-110 transition-transform">
+                                  <svg className="w-6 h-6 ml-0.5 text-[#E040A0]" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                </button>
+                                <p className="text-xs text-white/50">Rewatch {replay.duration} conversation</p>
+                              </div>
+                              <div className="absolute bottom-2 right-2 glass-button rounded-full px-2 py-0.5 text-[0.6rem] text-white/50">Available 24hrs</div>
+                            </div>
+                          </div>
 
-HOÙ]\ÙJ	ÜÝ[[X\IÊKÌ
-Ø[Y]\Ë[Ý
-ÈL
-B]\
+                          {/* Emoji timeline */}
+                          <div>
+                            <p className="text-[0.65rem] uppercase tracking-wider text-[#7A7A80] font-semibold mb-2">Reactions During Date</p>
+                            <div className="flex gap-1.5">
+                              {replay.emojis.map((e, ei) => (
+                                <span key={ei} className="w-8 h-8 glass-button rounded-full flex items-center justify-center text-sm">{e}</span>
+                              ))}
+                            </div>
+                          </div>
 
-HOÈ[Y\ËÜXXÚ
-ÛX\[Y[Ý]
-NÈÛX\[Y[Ý]
-Ý[[X\U[Y\HBBKÜ\ÙK][ÜËÙXÛÛÚ[Ù\×JB]\
-]Û\ÜÓ[YOH^Y[Ù]LËVÈÌLLWHÝ\ÝËZY[XÚÙÜÝ[ÜÈÏËÊÛÛ]H
-ßBÜÚÝÐÛÛ]H	
-]Û\ÜÓ[YOH^Y[Ù]LÚ[\Y][Ë[ÛHMLØÛÛ]KX\
-O
-]Ù^O^ÜYHÛ\ÜÓ[YOHXÛÛ]HÜLÝ[O^ÞÂY	ÜYIXÚY	ÜÚ^_\ZYÚ	ÜÚ^H
-K\XÚÙÜÝ[ÛÛÜÛÛÜÜ\Y]\Î	Ì	Ë[ÙÜNÝ]J	ÜÝ][ÛYYÊX[[X][ÛÛÛ]KY[	Ü\][Û\ÈX\ÙK[Ý]	Ü[^_\ÈÜØ\ØÜXÚ]N_HÏ
-J_BÙ]
-_BËÊX]ÚØ\Ý\^H
-ßBÛX]ÚØ\\Ù]	
-X]ÚØ\X]Ú^ÛX]ÚØ\\Ù]BÛÛÜÙO^Ê
-HOÙ]X]ÚØ\\Ù]
-[
-_BÏ
-_BËÊØ^HHÛ\ÈØ[Ý\^H
-ßBÜØ^RU\Ù]	Ø^RPXÝ]H	
-]Û\ÜÓ[YOH^Y[Ù]LVÍWH^^XÛÛ][\ËXÙ[\\ÝYKXÙ[\ËXXÚËÎLXÚÙÜX\[È[[X]KYYKZ[]Û\ÜÓ[YOH^XÙ[\XN[[X]K\ØØ[KZ[]Û\ÜÓ[YOH[]]H[[KXØÚÈXM[YÈÜÏ^ÜØ^RU\Ù]ÝßH[^ÜØ^RU\Ù][Y_BÛ\ÜÓ[YOHËLLÝ[YY[ØXÝXÛÝ\Ý[O^ÞÈÜ\	ÌÜÛÛYÑL
-L	ËÞÚYÝÎ	Ì
-ØJ
-MÊIÈ_HÏ]Û\ÜÓ[YOHXÛÛ]HXÝÛKLH\YÚLHËNNÝ[YY[ËVÈÌÌMNH^][\ËXÙ[\\ÝYKXÙ[\Ý[O^ÞÈÞÚYÝÎ	ÌLØJ
-K
-IÈ_OÝÈÛ\ÜÓ[YOHËMM^]Ú]H[HÛHY]ÐÞHÝÚÙOHÝ\[ÛÛÜÝÚÙUÚY^Ì_O]ÝÚÙS[XØ\HÝ[ÝÚÙS[ZÚ[HÝ[HLÈ
-XLLLËLHHKM
-KN
-LØLHHKKLK[LMÈKLØLLK
-LK
-
-KLM
-KLMKLËLMØLHHLKKKL
-LÈKNLHHK
-MUNXLKLLPÎKÌMHÈM
-È
-^ÏÜÝÏÙ]Ù]ÈÛ\ÜÓ[YOH^^ÛXÛ^]Ú]HXLHØ^HHÈÜØ^RU\Ù][Y_HOÚÏÛ\ÜÓ[YOH^\ÛH^]Ú]KÍXM\ÙXÛÛÛ\ÈØ[8 %Ø^HÚ][ÝHÛÝ[Ý[
-HZ[]\ÏÜËÊ[Y\[È
-ßB]Û\ÜÓ[YOH[]]HËLL^X]]ÈXMÝÈÛ\ÜÓ[YOHËLL\Ý]KNLY]ÐÞHLLÚ\ÛHÞHLÞOHLH
-H[HÛHÝÚÙOHØJ
-MMJHÝÚÙUÚYHÏÚ\ÛHÞHLÞOHLH
-H[HÛHÝÚÙOHÑL
-LÝÚÙUÚYHÝÚÙS[XØ\HÝ[ÝÚÙQ\Ú\^OHÈÝÚÙQ\ÚÙÙ]^ÌÈH
-Ø^RU[Y\È
-
-H
-ßBÛ\ÜÓ[YOH[Ú][ÛX[\][ÛLLX\ÙK[[X\ÏÜÝÏ]Û\ÜÓ[YOHXÛÛ]H[Ù]L^][\ËXÙ[\\ÝYKXÙ[\Ü[Û\ÜÓ[YOH^[ÈÛ[[ÛÈÛXÛ^VÈÑL
-LHÜØ^RU[Y\\ÏÜÜ[Ù]Ù]ËÊÚ[][]YØ[Ø]H
-ßB]Û\ÜÓ[YOH^][\ËXÙ[\\ÝYKXÙ[\Ø\LHXMÖË\^J
-JWKX\
+                          {/* Highlights */}
+                          <div>
+                            <p className="text-[0.65rem] uppercase tracking-wider text-[#7A7A80] font-semibold mb-2">Conversation Highlights</p>
+                            <div className="space-y-1.5">
+                              {replay.highlights.map((h, hi) => (
+                                <div key={hi} className="flex items-start gap-2">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] mt-1.5 shrink-0" />
+                                  <p className="text-sm text-[#E0E0E5]">{h}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
 
-ËJHO
-]Ù^O^Ú_HÛ\ÜÓ[YOHËLHÝ[YY[ËVÈÑL
-LHÝ[O^ÞÂZYÚ	ÌL
-ÈX][ÛJ
-H
-\[[X][ÛØ]KX\ÈX\ÙKZ[[Ý]	ÚH
-_\È[[]H[\]X_HÏ
-J_BÙ]]ÛÛÛXÚÏ^Ê
-HOÈÛÝ[YÝ\[[Ý\
+                          {/* Questions */}
+                          <div>
+                            <p className="text-[0.65rem] uppercase tracking-wider text-[#7A7A80] font-semibold mb-2">Questions Discussed</p>
+                            <div className="space-y-1.5">
+                              {replay.questions.map((q, qi) => (
+                                <div key={qi} className="glass-button rounded-lg px-3 py-2 text-xs text-[#E0E0E5] italic">&ldquo;{q}&rdquo;</div>
+                              ))}
+                            </div>
+                          </div>
 
-NÈÙ]Ø^RPXÝ]J[ÙJNÈÙ]Ø^RU\Ù]
-[
-NÈÙ]Ø^RU[Y\
-
-H_BÛ\ÜÓ[YOHNKLÈÝ[YY[^\ÛHÛ\Ù[ZXÛËVÈÑÐÌH^]Ú]HÝ\ØØ[KLL
-HXÝ]NØØ[KNMH[Ú][ÛX[[Ø[Ø]ÛÙ]Ù]
-_BËÊÙXÛÛÚ[ÙHÝYXØ][ÛØ\Ý
-ßBÜÙXÛÛÚ[ÙSÝY	
-]Û\ÜÓ[YOH^YÜLYLKÌ][Û]K^LKÌML[[X]K\ÛYK]\]Û\ÜÓ[YOHÛ\ÜË][HÝ[YLMHKLÈ^][\ËXÙ[\Ø\LÈÝ[O^ÞÈÞÚYÝÎ	ÌÌØJ
-MJIÈ_OÜ[Û\ÜÓ[YOH^[ÈÉ×^ÌQL_IßOÜÜ[]Û\ÜÓ[YOH^\ÛHÛ\Ù[ZXÛ^]Ú]HÙXÛÛÚ[ÙHÙ[OÜÛ\ÜÓ[YOH^^È^VÈÎNNQHÜÙXÛÛÚ[ÙSÝYHÚ[HÝYYY[ÝHÚ[ÙY[Ý\Z[ÜÙ]Ù]Ù]
-_BËÊÚ\XØ\[Ù[
-ßBÜÚÝÔÚ\XØ\	
-]Û\ÜÓ[YOH^Y[Ù]LML^][\ËXÙ[\\ÝYKXÙ[\ËXXÚËÍÌXÚÙÜX\[Y[[X]KYYKZ[]Û\ÜÓ[YOHÛ\ÜË][HÝ[YLÞMHX^]Ë\ÛH^MËY[[[X]K\ØØ[KZ[Ý[O^ÞÈÞÚYÝÎ	ÌÌØJ
-IÈ_O]Û\ÜÓ[[Ò&fÆWFV×2Ö6VçFW"§W7FgÖ&WGvVVâÖ"ÓB#à¢Æ26Æ74æÖSÒ&föçBÖ&öÆBFWB×vFRFWB×6Ò#å6&RFòç7Fw&Ò7F÷'Âö3à¢Æ'WGFöâöä6Æ6³×²Óâ6WE6÷u6&V6&BfÇ6RÒ6Æ74æÖSÒ'rÓÓvÆ72Ö'WGFöâ&÷VæFVBÖgVÆÂfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"FWBÕ²3ttÒ#à¢Ç7fr6Æ74æÖSÒ'rÓBÓB"fÆÃÒ&æöæR"fWt&÷Ò##B#B"7G&ö¶SÒ&7W'&VçD6öÆ÷""7G&ö¶UvGF×³'ÓãÇF7G&ö¶TÆæV6Ò'&÷VæB"7G&ö¶TÆæV¦öãÒ'&÷VæB"CÒ$ÓbÃdÓbfÃ"""óãÂ÷7fsà¢Âö'WGFöãà¢ÂöFcà ¢²ò¢ç7Fw&Ò7F÷'6&B¢÷Ð¢ÆFb6Æ74æÖSÒ'&÷VæFVBÓ'Â÷fW&fÆ÷rÖFFVâ"7GÆS×·²7V7E&Fó¢sóbrÂÖVvC¢sC#r×Óà¢ÆFb6Æ74æÖSÒ'rÖgVÆÂÖgVÆÂ&VÆFfRfÆWfÆWÖ6öÂFV×2Ö6VçFW"§W7FgÖ&WGvVVâÓÓb"7GÆS×·°¢&6¶w&÷VæC¢vÆæV"Öw&FVçBcVFVrÂ3$$$RRÂ3R3RÂ4SCRrÀ¢×Óà¢ÆFb6Æ74æÖSÒ'FWBÖ6VçFW"#à¢ÆB6Æ74æÖSÒ'FWBÓ7ÂföçBÖ&öÆBföçBÖF7ÆFWB×vFRÖ"Ó#åVÇ6SÂöCà¢Ç6Æ74æÖSÒ'FWBÕ³ãcW&VÕÒFWB×vFRóCWW&66RG&6¶ærÕ³ã&VÕÒ#åFöævBw26W76öãÂ÷à¢ÂöFcà¢ÆFb6Æ74æÖSÒ'rÖgVÆÂ#à¢ÆFb6Æ74æÖSÒ&w&Bw&BÖ6öÇ2Ó2vÓ"Ö"ÓB#à¢µ°¢²c¢sRrÂÃ¢uV÷ÆRÖWBrÒÀ¢²c¢7G&ær×WGVÄÖF6W2æÆVæwFÂÃ¢tÖF6W2rÒÀ¢²c¢s#VÒrÂÃ¢uF÷FÂFÖRrÒÀ¢ÒæÖ2ÂÓâ¢ÆFb¶W×¶Ò6Æ74æÖSÒ'&÷VæFVB×ÂÓ2FWBÖ6VçFW""7GÆS×·²&6¶w&÷VæD6öÆ÷#¢w&v&ÃÃÃã#Rr×Óà¢Ç6Æ74æÖSÒ'FWBÓ'ÂföçBÖ&öÆBFWB×vFRföçBÖF7Æ#ç·2çgÓÂ÷à¢Ç6Æ74æÖSÒ'FWBÕ³ãSW&VÕÒWW&66RFWB×vFRóSG&6¶ær×vFW"×BÓãR#ç·2æÇÓÂ÷à¢ÂöFcà¢Ð¢ÂöFcà¢¶×WGVÄÖF6W2æÆVæwFâbb¢ÆFb6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"vÓ"Ö"Ó2#à¢Ç7â6Æ74æÖSÒ'FWB×2FWB×vFRóS#äÖF6VBvFÂ÷7ãà¢ÆFb6Æ74æÖSÒ&fÆW×76R×Ó"#à¢¶×WGVÄÖF6W2æÖÒÓâ¢ÆÖr¶W×¶ÒææÖWÒ7&3×¶Òç÷F÷ÒÇC×¶ÒææÖWÒ6Æ74æÖSÒ'rÓrÓr&÷VæFVBÖgVÆÂö&¦V7BÖ6÷fW"&÷&FW"Ó"&÷&FW"Õ²4SCÒ"óà¢Ð¢ÂöFcà¢ÂöFcà¢Ð¢Ç6Æ74æÖSÒ'FWBÖ6VçFW"FWB×6ÒFÆ2FWB×vFRós"7GÆS×·²föçDfÖÇ¢"t6÷&Ö÷&çBv&ÖöæBrÂ6W&b"×Óà¢¶×WGVÄÖF6W2æÆVæwFãÒ"òr$6VÖ7G'6öæf&ÖVBÇS#BGv6Râ"r¢×WGVÄÖF6W2æÆVæwFÓÓÒòr$f÷VæB7&²â#RÖçWFW2â"r¢r#R&VÂ6öçfW'6Föç2â¦W&òFÖRv7FVBâ"wÐ¢Â÷à¢ÂöFcà¢ÆFb6Æ74æÖSÒ'FWBÖ6VçFW"#à¢Ç6Æ74æÖSÒ'FWBÕ³ãw&VÕÒFWB×vFRó3Ö"Ó#å6¶FRFWFærâ6VRFR6VÖ7G'ãÂ÷à¢Ç6Æ74æÖSÒ'FWB×2föçB×6VÖ&öÆBFWB×vFRóc#çVÇ6RæÂ÷à¢ÂöFcà¢ÂöFcà¢ÂöFcà ¢ÆFb6Æ74æÖSÒ&×BÓB76R×Ó"#à¢Æ'WGFöâ6Æ74æÖSÒ'rÖgVÆÂÓ2&÷VæFVB×ÂFWB×6ÒföçB×6VÖ&öÆB&rÖw&FVçB×Fò×"g&öÒÕ²334#EÒfÕ²4dCCEÒFòÕ²4csss3uÒFWB×vFRfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"vÓ"7FfS§66ÆRÕ³ãÒG&ç6Föâ×G&ç6f÷&Ò#à¢6&RFòç7Fw&Ò7F÷'¢Âö'WGFöãà¢ÆFb6Æ74æÖSÒ&fÆWvÓ"#à¢Æ'WGFöâ6Æ74æÖSÒ&fÆWÓÓ"ãR&÷VæFVB×ÂFWB×2föçB×6VÖ&öÆBvÆ72Ö'WGFöâFWBÕ²4SSSUÒ7FfS§66ÆRÕ³ãÒG&ç6Föâ×G&ç6f÷&Ò#åvG4Âö'WGFöãà¢Æ'WGFöâ6Æ74æÖSÒ&fÆWÓÓ"ãR&÷VæFVB×ÂFWB×2föçB×6VÖ&öÆBvÆ72Ö'WGFöâFWBÕ²4SSSUÒ7FfS§66ÆRÕ³ãÒG&ç6Föâ×G&ç6f÷&Ò#åòGvGFW#Âö'WGFöãà¢Æ'WGFöâ6Æ74æÖSÒ&fÆWÓÓ"ãR&÷VæFVB×ÂFWB×2föçB×6VÖ&öÆBvÆ72Ö'WGFöâFWBÕ²4SSSUÒ7FfS§66ÆRÕ³ãÒG&ç6Föâ×G&ç6f÷&Ò#å6fRÖvSÂö'WGFöãà¢ÂöFcà¢ÂöFcà¢ÂöFcà¢ÂöFcà¢Ð ¢²ò¢VFW"¢÷Ð¢ÆVFW"6Æ74æÖSÒ'&VÆFfR¢Ó#ÓRÓ2fÆWFV×2Ö6VçFW"§W7FgÖ&WGvVVâ#à¢Æ6Æ74æÖSÒ'FWB×ÂföçBÖ&öÆBföçBÖF7ÆFWBÕ²4SCÒ#åVÇ6SÂöà¢ÆFb6Æ74æÖSÒ'FWB×2FWBÕ²3ttÒ#à¢·6RÓÓÒvçG&òrbbu6W76öâ6ö×ÆWFRwÐ¢·6RÓÓÒv666FRrbbu&WfVÆærâââwÐ¢·6RÓÓÒw7VÖÖ'rbbu÷W"&W7VÇG2wÐ¢ÂöFcà¢ÂöVFW#à ¢²ò¢ÓÓÓÓÓÒåE$òÓÓÓÓÓÒ¢÷Ð¢·6RÓÓÒvçG&òrbb¢ÆFb6Æ74æÖSÒ&'6öÇWFRç6WBÓ¢ÓfÆWfÆWÖ6öÂFV×2Ö6VçFW"§W7FgÖ6VçFW"Ób#à¢ÆFb6Æ74æÖSÒ'FWBÖ6VçFW"æÖFRÖfFRÖâ#à¢ÆFb6Æ74æÖSÒ'FWBÓgÂÖ"Ób#ç²uÇS#s#wÓÂöFcà¢Æ"6Æ74æÖSÒ'FWBÓ7ÂÖC§FWBÓWÂÖ"ÓBföçBÖF7Æ"7GÆS×·²föçDfÖÇ¢"t6÷&Ö÷&çBv&ÖöæBrÂ6W&b"ÂföçEvVvC¢3ÂföçE7GÆS¢vFÆ2r×Óà¢FÖRf÷"FRG'WFà¢Âö#à¢Ç6Æ74æÖSÒ'FWBÕ²3EÒFWBÖ&6RÖC§FWBÖÆrÖ×rÖÖB×ÖWFòÖ"Ó"#å÷RÖWBRV÷ÆRFöævBâ÷RÖFR÷W"6ö6W2ãÂ÷à¢Ç6Æ74æÖSÒ'FWBÕ²4SCÒFWBÖÆrföçB×6VÖ&öÆBæÖFR×VÇ6R#äFBFWfVVÂBFöóóÂ÷à¢ÂöFcà¢ÂöFcà¢Ð ¢²ò¢ÓÓÓÓÓÒ444DR$UdTÂ(	BÆÂ6&G2fÆ&BÖf&RÓÓÓÓÓÒ¢÷Ð¢·6RÓÓÒv666FRrbb¢ÆFb6Æ74æÖSÒ&'6öÇWFRç6WBÓF÷Ó"¢ÓfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"ÓB÷fW&fÆ÷rÖFFVâ#à¢ÆFb6Æ74æÖSÒ'rÖgVÆÂÖ×rÓGÂ#à¢ÆFb6Æ74æÖSÒ&w&Bw&BÖ6öÇ2ÓRvÓ2ÖC¦vÓB#à¢¶6æFFFW2æÖ2ÂÓâ°¢6öç7B&WfVÆVBÒ&WfVÆVD6&G5¶Ð¢6öç7BVfe&FærÒvWDVffV7FfU&Fær2ææÖR¢6öç7BFV'2ÒFV%&Fæw5¶2ææÖUÒÇÂw72p¢6öç7B4ÖF6ÒVfe&FærÓÓÒvÆ¶RrbbFV'2ÓÓÒvÆ¶Rp¢&WGW&â¢ÆFb¶W×¶2ææÖWÒ6Æ74æÖSÒ'W'7V7FfRÓS#à¢ÆF`¢6Æ74æÖSÒ'&VÆFfRG&ç6FöâÖÆÂGW&FöâÓsV6RÖ÷WB ¢7GÆS×·°¢G&ç6f÷&Õ7GÆS¢w&W6W'fRÓ6BrÀ¢G&ç6f÷&Ó¢&WfVÆVBòw&÷FFUFVrr¢w&÷FFUFVrrÀ¢×Ð¢à¢²ò¢g&öçB(	B&WfVÆVB&W7VÇB¢÷Ð¢ÆF`¢6Æ74æÖS×¶vÆ72×FÆR&÷VæFVBÓ'Â÷fW&fÆ÷rÖFFVâG&ç6FöâÖÆÂGW&FöâÓSG¶4ÖF6bb&WfVÆVBòw&ærÓ"&ærÕ²4SCÒr¢rwÖÐ¢7GÆS×·°¢&6¶f6Uf6&ÆG¢vFFVârÀ¢&÷6F÷s¢4ÖF6bb&WfVÆVBòs3&v&##BÃcBÃcÃã#Rr¢sGg&v&ÃÃÃã"rÀ¢×Ð¢à¢ÆFb6Æ74æÖSÒ'&VÆFfR7V7BÕ³2óEÒ÷fW&fÆ÷rÖFFVâ#à¢ÆÖr7&3×¶2ç÷F÷ÒÇC×¶2ææÖWÒ6Æ74æÖSÒ'rÖgVÆÂÖgVÆÂö&¦V7BÖ6÷fW""óà¢ÆFb6Æ74æÖSÒ&'6öÇWFRç6WBÓ&rÖw&FVçB×Fò×Bg&öÒÕ²3$$$UÒf×G&ç7&VçBFò×G&ç7&VçB"óà¢ÆFb6Æ74æÖSÒ&'6öÇWFR&÷GFöÒÓ"ÆVgBÓ2&vBÓ2#à¢Ç6Æ74æÖSÒ'FWB×6ÒföçBÖ&öÆBFWB×vFRföçBÖF7Æ#ç¶2ææÖWÒÂ¶2ævWÓÂ÷à¢Ç6Æ74æÖSÒ'FWBÕ³ãg&VÕÒFWB×vFRóS#ç¶2æÆö6FöçÓÂ÷à¢ÂöFcà¢¶4ÖF6bb&WfVÆVBbb¢ÆFb6Æ74æÖSÒ&'6öÇWFRF÷Ó"&vBÓ"Ó"Ó&÷VæFVBÖgVÆÂ&rÕ²4SCÒFWBÕ³ãSW&VÕÒföçBÖ&öÆBFWB×vFRæÖFR×66ÆRÖâ#à¢ÔD4¢ÂöFcà¢Ð¢ÂöFcà¢ÆFb6Æ74æÖSÒ'Ó"ãR76R×ÓãR#à¢ÆFb6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"§W7FgÖ&WGvVVâ#à¢Ç7â6Æ74æÖSÒ'FWBÕ³ãSW&VÕÒFWBÕ²3ttÒWW&66R#å÷SÂ÷7ãà¢Ç7â6Æ74æÖSÒ'FWB×6Ò#ç¶Vfe&FærÓÓÒvÆ¶RròuÇW³cS#WÒr¢uÇS#sCEÇW´dSgÒwÓÂ÷7ãà¢ÂöFcà¢ÆFb6Æ74æÖSÒ&×"7GÆS×·²&6¶w&÷VæC¢w&v&##BÃcBÃcÃãr×Òóà¢ÆFb6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"§W7FgÖ&WGvVVâ#à¢Ç7â6Æ74æÖSÒ'FWBÕ³ãSW&VÕÒFWBÕ²3ttÒWW&66R#åFVÓÂ÷7ãà¢Ç7â6Æ74æÖSÒ'FWB×6Ò#ç·FV'2ÓÓÒvÆ¶RròuÇW³cS#WÒr¢uÇS#sCEÇW´dSgÒwÓÂ÷7ãà¢ÂöFcà¢¶4ÖF6bb¢Ç6Æ74æÖSÒ'FWBÖ6VçFW"FWBÕ³ãg&VÕÒföçBÖ&öÆBFWBÕ²4SCÒBÓæÖFR×VÇ6R#ç²uÇW³cD'ÒwÒ6VÖ7G'6öæf&ÖVCÂ÷à¢Ð¢ÂöFcà¢ÂöFcà ¢²ò¢&6²(	Bf6RF÷vâ6&B¢÷Ð¢ÆF`¢6Æ74æÖSÒ&'6öÇWFRç6WBÓvÆ72×FÆR&÷VæFVBÓ'ÂfÆWfÆWÖ6öÂFV×2Ö6VçFW"§W7FgÖ6VçFW" ¢7GÆS×·°¢&6¶f6Uf6&ÆG¢vFFVârÀ¢G&ç6f÷&Ó¢w&÷FFUFVrrÀ¢&6¶w&÷VæC¢vÆæV"Öw&FVçB3VFVrÂ&v&##BÃcBÃcÃãRÂ&v&##BÃcBÃcÃã"RrÀ¢&÷&FW#¢s6öÆB&v&##BÃcBÃcÃãRrÀ¢×Ð¢à¢ÆFb6Æ74æÖSÒ'rÓ"Ó"&÷VæFVBÖgVÆÂfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"Ö"Ó" ¢7GÆS×·²&6¶w&÷VæC¢w&v&##BÃcBÃcÃãr×Óà¢Ç7fr6Æ74æÖSÒ'rÓbÓbFWBÕ²4SCÒóC"fÆÃÒ&æöæR"fWt&÷Ò##B#B"7G&ö¶SÒ&7W'&VçD6öÆ÷""7G&ö¶UvGF×³ãWÓà¢ÇF7G&ö¶TÆæV6Ò'&÷VæB"7G&ö¶TÆæV¦öãÒ'&÷VæB"CÒ$Ó"Wc&ÒÓbF&"""Ó'bÓf""Ó"Ó$f""Ó"'cf"""'¦ÓÓcvBBÓcF¢"óà¢Â÷7fsà¢ÂöFcà¢Ç6Æ74æÖSÒ'FWBÕ³ãcW&VÕÒFWBÕ²4SCÒóSföçBÖÖVFVÒ#ãóÂ÷à¢ÂöFcà¢ÂöFcà¢ÂöFcà¢¢ÒÐ¢ÂöFcà ¢²ò¢6÷VçFF÷vâFWB¢÷Ð¢²&WfVÆVD6&G5³Òbb¢Ç6Æ74æÖSÒ'FWBÖ6VçFW"×BÓbFWB×6ÒFWBÕ²4SCÒæÖFR×VÇ6RföçBÖÖVFVÒ#å&WfVÆær&W7VÇG2ââãÂ÷à¢Ð¢·&WfVÆVD6&G2æWfW'&ööÆVâbb×WGVÄÖF6W2æÆVæwFâbb¢Ç6Æ74æÖSÒ'FWBÖ6VçFW"×BÓbFWBÖÆrföçBÖF7ÆFWBÕ²4SCÒæÖFR×66ÆRÖâ"7GÆS×·²föçDfÖÇ¢"t6÷&Ö÷&çBv&ÖöæBrÂ6W&b"ÂföçEvVvC¢CÂföçE7GÆS¢vFÆ2r×Óà¢¶×WGVÄÖF6W2æÆVæwFÒ×WGVÂ¶×WGVÄÖF6W2æÆVæwFÓÓÒòvÖF6r¢vÖF6W2wÒFöæv@¢Â÷à¢Ð¢ÂöFcà¢ÂöFcà¢Ð ¢²ò¢ÓÓÓÓÓÒ5TÔÔ%ÓÓÓÓÓÒ¢÷Ð¢·6RÓÓÒw7VÖÖ'rbb¢ÆFb6Æ74æÖSÒ&'6öÇWFRç6WBÓF÷Ó"¢Ó÷fW&fÆ÷r×ÖWFò#à¢ÆFb6Æ74æÖSÒ&Ö×rÓ'Â×ÖWFòÓB"Ó#BBÓBæÖFRÖfFRÖâ#à ¢ÆFb6Æ74æÖSÒ'FWBÖ6VçFW"Ö"Ó#à¢Æ"6Æ74æÖSÒ'FWBÓ'ÂÖC§FWBÓ7ÂföçBÖ&öÆBföçBÖF7ÆÖ"Ó"#åFöævBw2&W7VÇG3Âö#à¢Ç6Æ74æÖSÒ'FWB×6ÒFWBÕ²3EÒ#à¢¶×WGVÄÖF6W2æÆVæwFâòG¶×WGVÄÖF6W2æÆVæwFÒ×WGVÂG¶×WGVÄÖF6W2æÆVæwFÓÓÒòvÖF6r¢vÖF6W2wÒÇS#B&VÂ6VÖ7G'Â6öæf&ÖVBæ¢tæò×WGVÂÖF6W2FöævBÇS#BWfW'6W76öâ2FffW&VçBâwÐ¢Â÷à¢ÂöFcà ¢²ò¢7FG2¢÷Ð¢ÆFb6Æ74æÖSÒ&w&Bw&BÖ6öÇ2ÓBvÓ2Ö"Ó#à¢µ°¢²fÇVS¢sRrÂÆ&VÃ¢uV÷ÆRÖWBrÂ6öã¢uÇW³cCcWÒrÒÀ¢²fÇVS¢7G&ær×WGVÄÖF6W2æÆVæwFÂÆ&VÃ¢tÖF6W2rÂ6öã¢uÇW³cD'ÒrÒÀ¢²fÇVS¢s#VÒrÂÆ&VÃ¢uF÷FÂFÖRrÂ6öã¢uÇS#4crÒÀ¢²fÇVS¢G´ö&¦V7BçfÇVW2&Fæw2æfÇFW""Óâ"ÓÓÒvÆ¶RræÆVæwF²ö&¦V7Bæ¶W26V6öæD6æ6W2æÆVæwFÖÂÆ&VÃ¢u÷RÆ¶VBrÂ6öã¢uÇW³cS#WÒrÒÀ¢ÒæÖ2ÂÓâ¢ÆFb¶W×¶Ò6Æ74æÖSÒ&vÆ72×FÆR&÷VæFVBÓ'ÂÓBFWBÖ6VçFW"æÖFR×6ÆFR×W"7GÆS×·²æÖFöäFVÆ¢G¶¢ã×6ÂæÖFöäfÆÄÖöFS¢v&6·v&G2r×Óà¢Ç7â6Æ74æÖSÒ'FWBÖÆr#ç·2æ6öçÓÂ÷7ãà¢Ç6Æ74æÖSÒ'FWBÓ'ÂföçBÖ&öÆBFWBÕ²4SCÒföçBÖF7Æ×BÓ#ç·2çfÇVWÓÂ÷à¢Ç6Æ74æÖSÒ'FWBÕ³ãcW&VÕÒFWBÕ²3ttÒWW&66RG&6¶ær×vFW"×BÓãR#ç·2æÆ&VÇÓÂ÷à¢ÂöFcà¢Ð¢ÂöFcà ¢²ò¢6&R'WGFöâ¢÷Ð¢Æ'WGFöâöä6Æ6³×²Óâ6WE6÷u6&V6&BG'VRÒ6Æ74æÖSÒ'rÖgVÆÂvÆ72×FÆR&÷VæFVBÓ'ÂÓBfÆWFV×2Ö6VçFW"§W7FgÖ&WGvVVâÖ"Óbw&÷W÷fW#§66ÆRÕ³ãÒ7FfS§66ÆRÕ³ãÒG&ç6Föâ×G&ç6f÷&Ò#à¢ÆFb6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"vÓ2#à¢ÆFb6Æ74æÖSÒ'rÓÓ&÷VæFVB×Â&rÖw&FVçB×FòÖ'"g&öÒÕ²334#EÒfÕ²4dCCEÒFòÕ²4csss3uÒfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"#à¢Ç7fr6Æ74æÖSÒ'rÓRÓRFWB×vFR"fÆÃÒ&æöæR"fWt&÷Ò##B#B"7G&ö¶SÒ&7W'&VçD6öÆ÷""7G&ö¶UvGF×³'ÓãÇF7G&ö¶TÆæV6Ò'&÷VæB"7G&ö¶TÆæV¦öãÒ'&÷VæB"CÒ$ÓBfÃBãSbÓBãSf"""ã#ÃbfÒÓ"Ó&ÃãSbÓãSf"""ã#Ã#FÒÓbÓfãÓb#&"""Ó%cf""Ó"Ó$f""Ó"'c&"""'¢"óãÂ÷7fsà¢ÂöFcà¢ÆFb6Æ74æÖSÒ'FWBÖÆVgB#à¢Ç6Æ74æÖSÒ'FWB×6ÒföçB×6VÖ&öÆBFWB×vFR#å6&R÷W"6W76öâ6&CÂ÷à¢Ç6Æ74æÖSÒ'FWB×2FWBÕ²3ttÒ#å÷7BFòç7Fw&ÒÂvG4Â÷"Â÷à¢ÂöFcà¢ÂöFcà¢Ç7fr6Æ74æÖSÒ'rÓRÓRFWBÕ²3ttÒw&÷WÖ÷fW#§G&ç6ÆFR×ÓG&ç6Föâ×G&ç6f÷&Ò"fÆÃÒ&æöæR"fWt&÷Ò##B#B"7G&ö¶SÒ&7W'&VçD6öÆ÷""7G&ö¶UvGF×³'ÓãÇF7G&ö¶TÆæV6Ò'&÷VæB"7G&ö¶TÆæV¦öãÒ'&÷VæB"CÒ$ÓVÃrrÓrr"óãÂ÷7fsà¢Âö'WGFöãà ¢²ò¢ÆÂFFW2vF&WÆ²6V6öæB6æ6R¢÷Ð¢Æ26Æ74æÖSÒ'FWB×2G&6¶ærÕ³ã&VÕÒWW&66RFWBÕ²3ttÒföçB×6VÖ&öÆBÖ"Ó2#å÷W"FFW3Âö3à¢ÆFb6Æ74æÖSÒ'76R×Ó2Ö"Ó#à¢¶6æFFFW2æÖ2ÂÓâ°¢6öç7BVfe&FærÒvWDVffV7FfU&Fær2ææÖR¢6öç7BFV'2ÒFV%&Fæw5¶2ææÖUÒÇÂw72p¢6öç7BÖF6ÒVfe&FærÓÓÒvÆ¶RrbbFV'2ÓÓÒvÆ¶Rp¢6öç7B÷&væÆÇ76VBÒ&Fæw5¶2ææÖUÒÓÓÒw72p¢6öç7BW6VE6V6öæD6æ6RÒ6V6öæD6æ6W5¶2ææÖUÐ¢6öç7B6å6V6öæD6æ6RÒ÷&væÆÇ76VBbbW6VE6V6öæD6æ6P¢6öç7B&WÆÒ&WÆFF¶2ææÖUÐ¢6öç7B5&WÆ÷VâÒ&WÆ÷VâÓÓÒ2ææÖP ¢&WGW&â¢ÆFb¶W×¶2ææÖWÒ6Æ74æÖS×¶vÆ72×FÆR&÷VæFVBÓ'Â÷fW&fÆ÷rÖFFVâG&ç6FöâÖÆÂGW&FöâÓ3æÖFR×6ÆFR×WG¶ÖF6òw&ærÓ&ærÕ·&v&##BÃcBÃcÃã3Òr¢rwÖÒ7GÆS×·²æÖFöäFVÆ¢G³ã2²¢ã×6ÂæÖFöäfÆÄÖöFS¢v&6·v&G2rÂ&÷6F÷s¢ÖF6òsGg&v&##BÃcBÃcÃãr¢VæFVfæVB×Óà¢ÆFb6Æ74æÖSÒ'ÓBfÆWFV×2Ö6VçFW"vÓ2#à¢ÆÖr7&3×¶2ç÷F÷ÒÇC×¶2ææÖWÒ6Æ74æÖSÒ'rÓ"Ó"&÷VæFVBÖgVÆÂö&¦V7BÖ6÷fW"6&æ²Ó"7GÆS×·²&÷&FW#¢ÖF6òs'6öÆB4SCr¢s'6öÆB&v&#SRÃ#SRÃ#SRÃãr×Òóà¢ÆFb6Æ74æÖSÒ&fÆWÓÖâ×rÓ#à¢ÆFb6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"vÓ"fÆW×w&#à¢Ç6Æ74æÖSÒ&föçB×6VÖ&öÆBFWB×vFR#ç¶2ææÖWÒÂ¶2ævWÓÂ÷à¢¶ÖF6bbÇ7â6Æ74æÖSÒ'FWBÕ³ãcW&VÕÒÓ"ÓãR&÷VæFVBÖgVÆÂ&rÕ·&v&##BÃcBÃcÃã"ÒFWBÕ²4SCÒföçBÖ&öÆB#äÖF6Â÷7ãçÐ¢·W6VE6V6öæD6æ6RbbÇ7â6Æ74æÖSÒ'FWBÕ³ãg&VÕÒÓ"ÓãR&÷VæFVBÖgVÆÂ&rÕ·&v&#SRÃSÃÃã"ÒFWBÕ²4dccÒföçBÖ&öÆB#ã&æB6æ6SÂ÷7ãçÐ¢ÂöFcà¢Ç6Æ74æÖSÒ'FWB×2FWBÕ²3ttÒ#ç¶2æÆö6FöçÓÂ÷à¢ÂöFcà ¢²ò¢)H)H$Ô%5Dôå2(	Bf6&ÆRB6&BÆWfVÂÂæòWæBæVVFVB)H)H¢÷Ð¢ÆFb6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"vÓ"6&æ²Ó#à¢¶ÖF6bb¢Æ'WGFöà¢öä6Æ6³×²RÓâ²Rç7F÷&÷vFöâ²æFÆU62×Ð¢6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"vÓãR&÷VæFVBÖgVÆÂÓ2ãRÓ"FWB×2föçB×6VÖ&öÆB&rÕ²4SCÒFWB×vFR÷fW#§66ÆRÓR7FfS§66ÆRÓRG&ç6FöâÖÆÂ ¢7GÆS×·²&÷6F÷s¢s''&v&##BÃcBÃcÃã3Rr×Ð¢à¢Ç7fr6Æ74æÖSÒ'rÓ2ãRÓ2ãR"fÆÃÒ&æöæR"fWt&÷Ò##B#B"7G&ö¶SÒ&7W'&VçD6öÆ÷""7G&ö¶UvGF×³"ãWÓà¢ÇF7G&ö¶TÆæV6Ò'&÷VæB"7G&ö¶TÆæV¦öãÒ'&÷VæB"CÒ$Ó2V"""Ó&2ã#ãCãcFÃãCBãC6ÒãS"ã#ÂÓ"ã#Srã6ãC"ãC"RãSbRãSfÃã2Ó"ã#Svã#ÒãS&ÃBãC2ãCãcBãCc""Ó"&Ó3ãsb#2Bã#B2ecW¢"óà¢Â÷7fsà¢6¢Âö'WGFöãà¢Ð¢¶ÖF6bb¢Æ'WGFöà¢öä6Æ6³×²RÓâ²Rç7F÷&÷vFöâ²6WDÖF66&EF&vWB2×Ð¢6Æ74æÖSÒ'rÓÓ&÷VæFVBÖgVÆÂfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"÷fW#§66ÆRÓ7FfS§66ÆRÓG&ç6Föâ×G&ç6f÷&Ò ¢7GÆS×·²&6¶w&÷VæC¢w&v&##BÃcBÃcÃã"rÂ&÷&FW#¢s6öÆB&v&##BÃcBÃcÃã#r×Ð¢FFÆSÒ%fWrÖF66&B ¢à¢Ç7â6Æ74æÖSÒ'FWB×6Ò#ï	ù)cÂ÷7ãà¢Âö'WGFöãà¢Ð¢¶6å6V6öæD6æ6Rbb¢Æ'WGFöà¢öä6Æ6³×²RÓâ²Rç7F÷&÷vFöâ²æFÆU6V6öæD6æ6R2ææÖR×Ð¢6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"vÓãR&÷VæFVBÖgVÆÂÓ2Ó"FWB×2föçB×6VÖ&öÆB÷fW#§66ÆRÓR7FfS§66ÆRÓRG&ç6FöâÖÆÂ ¢7GÆS×·²&6¶w&÷VæC¢w&v&#SRÃSÃÃãrÂ&÷&FW#¢s6öÆB&v&#SRÃSÃÃã#RrÂ6öÆ÷#¢r4dccr×Ð¢à¢Ç7fr6Æ74æÖSÒ'rÓ2ãRÓ2ãR"fÆÃÒ&æöæR"fWt&÷Ò##B#B"7G&ö¶SÒ&7W'&VçD6öÆ÷""7G&ö¶UvGF×³'ÓãÇF7G&ö¶TÆæV6Ò'&÷VæB"7G&ö¶TÆæV¦öãÒ'&÷VæB"CÒ$ÓBGcVãS&ÓRã3Sb$ããBãS"ÓÓbÓVÒãSÓã2ã2ÓRã3SrÓ&ÓRã3Sr$R"óãÂ÷7fsà¢&æB6æ6P¢Âö'WGFöãà¢Ð¢Æ'WGFöâöä6Æ6³×²Óâ6WE&WÆ÷Vâ5&WÆ÷VâòçVÆÂ¢2ææÖRÒ6Æ74æÖSÒ'6&æ²ÓrÓÓ&÷VæFVBÖgVÆÂvÆ72Ö'WGFöâfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"÷fW#§66ÆRÓ7FfS§66ÆRÓG&ç6Föâ×G&ç6f÷&Ò#à¢Ç7fr6Æ74æÖS×¶rÓBÓBG&ç6Föâ×G&ç6f÷&ÒG¶5&WÆ÷Vâòw&÷FFRÓr¢rwÒFWBÕ²4SSSUÖÒfÆÃÒ&æöæR"fWt&÷Ò##B#B"7G&ö¶SÒ&7W'&VçD6öÆ÷""7G&ö¶UvGF×³'ÓãÇF7G&ö¶TÆæV6Ò'&÷VæB"7G&ö¶TÆæV¦öãÒ'&÷VæB"CÒ$ÓÂÓrrÓrÓr"óãÂ÷7fsà¢Âö'WGFöãà¢ÂöFcà¢ÂöFcà ¢¶5&WÆ÷Vâbb&WÆbb¢ÆFb6Æ74æÖSÒ'ÓB"ÓBæÖFR×6ÆFR×W"7GÆS×·²æÖFöäGW&Föã¢sã72rÂ&÷&FW%F÷¢s6öÆB&v&##BÃcBÃcÃãr×Óà¢ÆFb6Æ74æÖSÒ'BÓ276R×ÓB#à¢²ò¢&WÆfFVò¢÷Ð¢ÆFb6Æ74æÖSÒ'&÷VæFVB×Â÷fW&fÆ÷rÖFFVâvÆ72Ö'WGFöâ#à¢ÆFb6Æ74æÖSÒ&7V7B×fFVò&VÆFfRfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"#à¢ÆÖr7&3×¶2ç÷F÷ÒÇC×¶2ææÖWÒ6Æ74æÖSÒ&'6öÇWFRç6WBÓrÖgVÆÂÖgVÆÂö&¦V7BÖ6÷fW"÷6GÓ3"7GÆS×·²fÇFW#¢v&ÇW"r×Òóà¢ÆFb6Æ74æÖSÒ'&VÆFfR¢ÓfÆWfÆWÖ6öÂFV×2Ö6VçFW"vÓ"#à¢Æ'WGFöâ6Æ74æÖSÒ'rÓBÓB&÷VæFVBÖgVÆÂ&rÕ²4SCÒó#&÷&FW"&÷&FW"Õ²4SCÒó3fÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"÷fW#§66ÆRÓG&ç6Föâ×G&ç6f÷&Ò#à¢Ç7fr6Æ74æÖSÒ'rÓbÓbÖÂÓãRFWBÕ²4SCÒ"fÆÃÒ&7W'&VçD6öÆ÷""fWt&÷Ò##B#B#ãÇFCÒ$ÓWcFÃÓw¢"óãÂ÷7fsà¢Âö'WGFöãà¢Ç6Æ74æÖSÒ'FWB×2FWB×vFRóS#å&WvF6·&WÆæGW&FöçÒ6öçfW'6FöãÂ÷à¢ÂöFcà¢ÆFb6Æ74æÖSÒ&'6öÇWFR&÷GFöÒÓ"&vBÓ"vÆ72Ö'WGFöâ&÷VæFVBÖgVÆÂÓ"ÓãRFWBÕ³ãg&VÕÒFWB×vFRóS#äfÆ&ÆR#F'3ÂöFcà¢ÂöFcà¢ÂöFcà ¢²ò¢VÖö¦FÖVÆæR¢÷Ð¢ÆFcà¢Ç6Æ74æÖSÒ'FWBÕ³ãcW&VÕÒWW&66RG&6¶ær×vFW"FWBÕ²3ttÒföçB×6VÖ&öÆBÖ"Ó"#å&V7Föç2GW&ærFFSÂ÷à¢ÆFb6Æ74æÖSÒ&fÆWvÓãR#à¢·&WÆæVÖö¦2æÖRÂVÓâ¢Ç7â¶W×¶VÒ6Æ74æÖSÒ'rÓÓvÆ72Ö'WGFöâ&÷VæFVBÖgVÆÂfÆWFV×2Ö6VçFW"§W7FgÖ6VçFW"FWB×6Ò#ç¶WÓÂ÷7ãà¢Ð¢ÂöFcà¢ÂöFcà ¢²ò¢vÆvG2¢÷Ð¢ÆFcà¢Ç6Æ74æÖSÒ'FWBÕ³ãcW&VÕÒWW&66RG&6¶ær×vFW"FWBÕ²3ttÒföçB×6VÖ&öÆBÖ"Ó"#ä6öçfW'6FöâvÆvG3Â÷à¢ÆFb6Æ74æÖSÒ'76R×ÓãR#à¢·&WÆævÆvG2æÖÂÓâ¢ÆFb¶W×¶Ò6Æ74æÖSÒ&fÆWFV×2×7F'BvÓ"#à¢ÆFb6Æ74æÖSÒ'rÓãRÓãR&÷VæFVBÖgVÆÂ&rÕ²4SCÒ×BÓãR6&æ²Ó"óà¢Ç6Æ74æÖSÒ'FWB×6ÒFWBÕ²4SSSUÒ#ç¶ÓÂ÷à¢ÂöFcà¢Ð¢ÂöFcà¢ÂöFcà ¢²ò¢VW7Föç2¢÷Ð¢ÆFcà¢Ç6Æ74æÖSÒ'FWBÕ³ãcW&VÕÒWW&66RG&6¶ær×vFW"FWBÕ²3ttÒföçB×6VÖ&öÆBÖ"Ó"#åVW7Föç2F67W76VCÂ÷à¢ÆFb6Æ74æÖSÒ'76R×ÓãR#à¢·&WÆçVW7Föç2æÖÂÓâ¢ÆFb¶W×·Ò6Æ74æÖSÒ&vÆ72Ö'WGFöâ&÷VæFVBÖÆrÓ2Ó"FWB×2FWBÕ²4SSSUÒFÆ2#âfÆGVó··Òg&GVó³ÂöFcà¢Ð¢ÂöFcà¢ÂöFcà ¢²ò¢7Föç2(	B6V6öæF'7Föç2öæÇ&Ö'6²ÖF66&B&RB6&BÆWfVÂ¢÷Ð¢ÆFb6Æ74æÖSÒ'76R×Ó"#à¢·W6VE6V6öæD6æ6RbbÖF6bb¢ÆFb6Æ74æÖSÒ'&÷VæFVB×ÂÓ2ÓBFWBÖ6VçFW""7GÆS×·²&6¶w&÷VæD6öÆ÷#¢w&v&#SRÃSÃÃãbrÂ&÷&FW#¢s6öÆB&v&#SRÃSÃÃã"r×Óà¢Ç6Æ74æÖSÒ'FWB×2FWBÕ²4dccÒ#ç²uÇW³cS#WÒwÒ÷RW6VB÷W"6V6öæB6æ6RfÖF6²¶2ææÖWÒ2&VVâæ÷FfVCÂ÷à¢Ç6Æ74æÖSÒ'FWBÕ³ãcW&VÕÒFWBÕ²3ttÒ×BÓãR#åFWfR#B÷W'2Fò&WvF6æBFV6FSÂ÷à¢ÂöFcà¢Ð¢ÂöFcà¢ÂöFcà¢ÂöFcà¢Ð¢ÂöFcà¢¢ÒÐ¢ÂöFcà ¢²ò¢çfW7F÷"ç6vB¢÷Ð¢ÆFb6Æ74æÖSÒ&vÆ72×FÆR&÷VæFVBÓ'ÂÓbÖ"Ób#à¢Æ26Æ74æÖSÒ'FWB×2G&6¶ærÕ³ã&VÕÒWW&66RFWBÕ²4SCÒföçB×6VÖ&öÆBÖ"ÓBFWBÖ6VçFW"#åvB§W7BVæVCÂö3à¢ÆFb6Æ74æÖSÒ'76R×Ó2#à¢µ°¢²ÖWG&3¢s#RÖçWFW2F÷FÂrÂç6vC¢wg2â2²÷W'2öbFWFæröâG&FFöæÂ2rÒÀ¢²ÖWG&3¢u¦W&ò6Ff6ærrÂç6vC¢t6ÖW&öâÒvB÷R6VR2vB÷RvWBrÒÀ¢²ÖWG&3¢tVÖW&vVæ7WBrÂç6vC¢tç7FçB6fWGF66öææV7BÇS#BG'W7BVæ&ÆW2÷VææW72rÒÀ¢²ÖWG&3¢u6V6öæB6æ6R6öçfW'G2rÂç6vC¢uW6W'2vò&WvF6Ww&FR3BRöb76W2FòÆ¶W2rÒÀ¢²ÖWG&3¢u6ö6Â6&ærÆö÷rÂç6vC¢tWfW'6&V6&B2g&VRBFò÷W"W7BFVÖöw&2rÒÀ¢ÒæÖFVÒÂÓâ¢ÆFb¶W×¶Ò6Æ74æÖSÒ&fÆWFV×2×7F'BvÓ2#à¢ÆFb6Æ74æÖSÒ'rÓãRÓãR&÷VæFVBÖgVÆÂ&rÕ²4SCÒ×BÓ"6&æ²Ó"óà¢Ç6Æ74æÖSÒ'FWB×6Ò#ãÇ7â6Æ74æÖSÒ&föçB×6VÖ&öÆBFWB×vFR#ç¶FVÒæÖWG&7ÓÂ÷7ãâÇ7â6Æ74æÖSÒ'FWBÕ²3EÒ#âfÖF6²¶FVÒæç6vGÓÂ÷7ããÂ÷à¢ÂöFcà¢Ð¢ÂöFcà¢ÂöFcà ¢²ò¢7öç6÷"FVÂ&VÖæFW"¢÷Ð¢ÆFb6Æ74æÖSÒ&vÆ72×FÆR&÷VæFVBÓ'Â÷fW&fÆ÷rÖFFVâÖ"Ób"7GÆS×·²&÷&FW#¢s6öÆB&v&#ÃCÃrÃã#r×Óà¢ÆFb6Æ74æÖSÒ&fÆWFV×2Ö6VçFW"vÓBÓB#à¢ÆFb6Æ74æÖSÒ'rÓ"Ó"&÷VæFVB×Â÷fW&fÆ÷rÖFFVâ6&æ²Ó#à¢ÆÖr7&3Ò&GG3¢òöÖvW2çVç7Æ6æ6öÒ÷÷FòÓS#CS3ssÓVV#cfc3÷sÓ#gÓ"ÇCÒ%FRÆÒ"6Æ74æÖSÒ'rÖgVÆÂÖgVÆÂö&¦V7BÖ6÷fW""óà¢ÂöFcà¢ÆFb6Æ74æÖSÒ&fÆWÓÖâ×rÓ#à¢Ç6Æ74æÖSÒ'FWB×2FWBÕ²43Sd%ÒföçB×6VÖ&öÆBWW&66RG&6¶ær×vFW"#å÷W"W6ÇW6fRöffW#Â÷à¢Ç6Æ74æÖSÒ'FWB×6ÒFWB×vFRföçBÖÖVFVÒ×BÓãR#åFRÆÒ§VÖV&(	B7Vç6WBFææW"f÷"GvóÂ÷à¢Ç6Æ74æÖSÒ'FWB×2FWBÕ²3ttÒ×BÓãR#ä6ö×ÆÖVçF'vF÷W"ÖF6FöævCÂ÷à¢ÂöFcà¢Æ'WGFöâ6Æ74æÖSÒ'6&æ²ÓÓBÓ"&÷VæFVBÖgVÆÂFWB×2föçB×6VÖ&öÆBG&ç6FöâÖÆÂ÷fW#§66ÆRÓR"7GÆS×·²&6¶w&÷VæC¢w&v&#ÃCÃrÃãRrÂ6öÆ÷#¢r43Sd"rÂ&÷&FW#¢s6öÆB&v&#ÃCÃrÃã#Rr×Óà¢6ÆÐ¢Âö'WGFöãà¢ÂöFcà¢ÂöFcà ¢ÆFb6Æ74æÖSÒ'76R×Ó2#à¢¶öä6öçFçVRò¢Æ'WGFöâöä6Æ6³×¶öä6öçFçVWÒ6Æ74æÖSÒ'rÖgVÆÂÓB&÷VæFVBÖgVÆÂ&rÕ²4SCÒFWB×vFRFWBÖ&6RföçB×6VÖ&öÆB÷fW#§66ÆRÕ³ã%Ò7FfS§66ÆRÕ³ãÒG&ç6FöâÖÆÂ"7GÆS×·²&÷6F÷s¢sG#&v&##BÃcBÃcÃã2r×Óä6öçFçVR(i#Âö'WGFöãà¢¢¢Æ'WGFöâ6Æ74æÖSÒ'rÖgVÆÂÓB&÷VæFVBÖgVÆÂ&rÕ²4SCÒFWB×vFRFWBÖ&6RföçB×6VÖ&öÆB÷fW#§66ÆRÕ³ã%Ò7FfS§66ÆRÕ³ãÒG&ç6FöâÖÆÂ"7GÆS×·²&÷6F÷s¢sG#&v&##BÃcBÃcÃã2r×Óä&öö²æWB6W76öâfÖF6²TBsSÂö'WGFöãà¢Ð¢Æ'WGFöâöä6Æ6³×¶öå&W7F'GÒ6Æ74æÖSÒ'rÖgVÆÂÓ2&÷VæFVBÖgVÆÂvÆ72Ö'WGFöâFWB×6ÒföçB×6VÖ&öÆBFWBÕ²3EÒ÷fW#§FWB×vFRG&ç6FöâÖ6öÆ÷'2#âfÆ'#²&WÆFVÖóÂö'WGFöãà¢ÂöFcà¢ÂöFcà¢ÂöFcà¢Ð ¢Ç7GÆSç¶ ¢çW'7V7FfRÓS²W'7V7FfS¢S²Ð¢¶Wg&ÖW2F÷B×VÇ6R²RÂR²G&ç6f÷&Ó¢66ÆR²÷6G¢²ÒSR²G&ç6f÷&Ó¢66ÆRãB²÷6G¢ãc²ÒÐ¢¶Wg&ÖW26&BÖ'&VFR²RÂR²G&ç6f÷&Ó¢66ÆR²ÒSR²G&ç6f÷&Ó¢66ÆRãR²ÒÐ¢¶Wg&ÖW2VÇ6RÖÆæR²R²÷6G¢ã3²G&ç6f÷&Ó¢66ÆUãR²ÒSR²÷6G¢²G&ç6f÷&Ó¢66ÆUãR²ÒR²÷6G¢ã3²G&ç6f÷&Ó¢66ÆUãR²ÒÐ¢¶Wg&ÖW2vfRÖ&"²R²VvC¢²ÒR²VvC¢#²ÒÐ¢ÓÂ÷7GÆSà¢ÂöFcà¢§Ð
+                          {/* Actions — secondary actions only (primary Say Hi + Match Card are at card level) */}
+                          <div className="space-y-2">
+                            {usedSecondChance && !match && (
+                              <div className="rounded-xl py-3 px-4 text-center" style={{ backgroundColor: 'rgba(255,159,10,0.06)', border: '1px solid rgba(255,159,10,0.12)' }}>
+                                <p className="text-xs text-[#FF9F0A]">{'\u{1F525}'} You used your Second Chance &mdash; {c.name} has been notified</p>
+                                <p className="text-[0.65rem] text-[#7A7A80] mt-0.5">They have 24 hours to rewatch and decide</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Investor insight */}
+            <div className="glass-tile rounded-2xl p-6 mb-6">
+              <h3 className="text-xs tracking-[0.2em] uppercase text-[#E040A0] font-semibold mb-4 text-center">What Just Happened</h3>
+              <div className="space-y-3">
+                {[
+                  { metric: '25 minutes total', insight: 'vs. 3+ hours of texting on traditional apps' },
+                  { metric: 'Zero catfishing', insight: 'Camera on = what you see is what you get' },
+                  { metric: 'Emergency exit', insight: 'Instant safety disconnect \u2014 trust enables openness' },
+                  { metric: 'Second Chance converts', insight: 'Users who rewatch upgrade 34% of passes to likes' },
+                  { metric: 'Social sharing loop', insight: 'Every sharecard is a free ad to your exact demographic' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] mt-2 shrink-0" />
+                    <p className="text-sm"><span className="font-semibold text-white">{item.metric}</span> <span className="text-[#98989D]">&mdash; {item.insight}</span></p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sponsor deal reminder */}
+            <div className="glass-tile rounded-2xl overflow-hidden mb-6" style={{ border: '1px solid rgba(201,149,107,0.20)' }}>
+              <div className="flex items-center gap-4 p-4">
+                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                  <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200&q=80" alt="The Palm" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-[#C9956B] font-semibold uppercase tracking-wider">Your Exclusive Offer</p>
+                  <p className="text-sm text-white font-medium mt-0.5">The Palm Jumeirah — Sunset Dinner for Two</p>
+                  <p className="text-xs text-[#7A7A80] mt-0.5">Complimentary with your match tonight</p>
+                </div>
+                <button className="shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all hover:scale-105" style={{ background: 'rgba(201,149,107,0.15)', color: '#C9956B', border: '1px solid rgba(201,149,107,0.25)' }}>
+                  Claim
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {onContinue ? (
+                <button onClick={onContinue} className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Continue →</button>
+              ) : (
+                <button className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Book Next Session &mdash; AED 75</button>
+              )}
+              <button onClick={onRestart} className="w-full py-3 rounded-full glass-button text-sm font-semibold text-[#98989D] hover:text-white transition-colors">&larr; Replay demo</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        .perspective-500 { perspective: 500px; }
+        @keyframes dot-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.6; } }
+        @keyframes card-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.015); } }
+        @keyframes pulse-line { 0% { opacity: 0.3; transform: scaleX(0.95); } 50% { opacity: 1; transform: scaleX(1.05); } 100% { opacity: 0.3; transform: scaleX(0.95); } }
+        @keyframes wave-bar { 0% { height: 8px; } 100% { height: 28px; } }
+      `}</style>
+    </div>
+  )
+}
