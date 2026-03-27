@@ -24,6 +24,7 @@ interface FloatingEmoji {
 const CONVERSATION_TIME = 300  // 5 minutes default
 const EXTENDED_TIME = 420      // 7 minutes when mutually extended
 const EXTEND_WINDOW = 30       // Extend button appears in last 30 seconds
+const ONE_MORE_TIME = 60       // "One More Thing" adds 60 seconds — no mutual requirement
 
 export default function LiveSession({ dateIndex, onNavigate }: Props) {
   const person = candidates[dateIndex] || candidates[0]
@@ -55,6 +56,10 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
   const [partnerExtended, setPartnerExtended] = useState(false)
   const [isExtended, setIsExtended] = useState(false)
   const [extendFlash, setExtendFlash] = useState(false)
+
+  // ── ONE MORE THING ── unilateral 1-min boost, once per session
+  const [usedOneMore, setUsedOneMore] = useState(false)
+  const [oneMoreFlash, setOneMoreFlash] = useState(false)
 
   const showExtendButton = timer <= EXTEND_WINDOW && timer > 0 && !isExtended
 
@@ -173,6 +178,14 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
     setUserExtended(true)
   }, [userExtended])
 
+  const handleOneMore = useCallback(() => {
+    if (usedOneMore) return
+    setUsedOneMore(true)
+    setTimer(prev => prev + ONE_MORE_TIME)
+    setOneMoreFlash(true)
+    setTimeout(() => setOneMoreFlash(false), 2500)
+  }, [usedOneMore])
+
   // Emergency exit handler
   const handleEmergencyExit = useCallback(() => {
     setEmergencyTriggered(true)
@@ -262,6 +275,26 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
             <p className="text-sm text-[#E040A0]">You both want more time</p>
           </div>
         </div>
+      )}
+
+      {/* ====== ONE MORE THING CELEBRATION ====== */}
+      {oneMoreFlash && (
+        <>
+          <div
+            className="fixed inset-0 pointer-events-none z-40 animate-fade-in"
+            style={{
+              background: `radial-gradient(circle at center, rgba(${USER_COLOR.rgb},0.12) 0%, transparent 70%)`,
+              animation: 'extend-glow 2.5s ease-out forwards',
+            }}
+          />
+          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+            <div className="animate-scale-in text-center">
+              <div className="text-5xl mb-2">⚡</div>
+              <p className="text-lg font-bold text-white mb-1">+1 Minute!</p>
+              <p className="text-sm" style={{ color: USER_COLOR.primary }}>The vibe continues...</p>
+            </div>
+          </div>
+        </>
       )}
 
       {/* ====== EMERGENCY CONFIRMATION MODAL ====== */}
@@ -458,6 +491,23 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
               {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
           </div>
+
+          {/* ONE MORE THING — unilateral +1 min, always visible, once per session */}
+          {!usedOneMore && (
+            <button
+              onClick={handleOneMore}
+              className="shrink-0 group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-300 active:scale-95 hover:scale-105"
+              style={{
+                background: `linear-gradient(135deg, rgba(${USER_COLOR.rgb},0.20), rgba(224,64,160,0.15))`,
+                border: `1.5px solid rgba(${USER_COLOR.rgb},0.35)`,
+                boxShadow: `0 0 10px rgba(${USER_COLOR.rgb},0.15)`,
+              }}
+              title="Add 1 minute — keep the vibe going"
+            >
+              <span className="text-base">⚡</span>
+              <span className="text-[0.65rem] font-bold text-white/90 whitespace-nowrap">One More Thing</span>
+            </button>
+          )}
 
           {/* ── SPARK SIGNAL BUTTON ── */}
           <button

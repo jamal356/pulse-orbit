@@ -836,6 +836,45 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                 </div>
               </div>
 
+              {/* 🤝 PARTNER / INVEST CTA */}
+              <div className="glass-tile rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(224,64,160,0.20)', background: 'linear-gradient(160deg, rgba(224,64,160,0.06) 0%, rgba(45,212,191,0.04) 50%, rgba(0,0,0,0.1) 100%)' }}>
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-base">🤝</span>
+                    <p className="text-xs text-[#E040A0] font-bold uppercase tracking-wider">Partner With Pulse</p>
+                  </div>
+                  <p className="text-sm text-white font-medium mb-1">The future of dating is live.</p>
+                  <p className="text-xs text-[#98989D] mb-4 leading-relaxed">
+                    Pulse is redefining how people connect &mdash; 5-minute live video dates, zero swiping, real chemistry. We&rsquo;re looking for visionary partners and investors to scale across the GCC and beyond.
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {[
+                      { v: 'AED 75', l: 'Per session' },
+                      { v: '5 min', l: 'To a match' },
+                      { v: '34%', l: '2nd chance rate' },
+                    ].map((s, i) => (
+                      <div key={i} className="rounded-lg py-2 text-center" style={{ background: 'rgba(224,64,160,0.06)' }}>
+                        <p className="text-sm font-bold text-[#E040A0] font-display">{s.v}</p>
+                        <p className="text-[0.5rem] uppercase text-[#7A7A80] tracking-wider">{s.l}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <a href="mailto:jamal@hakadian.com" className="block w-full py-3 rounded-full text-sm font-semibold text-center text-white hover:scale-[1.02] active:scale-[0.98] transition-all" style={{ background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>
+                      Invest in Pulse
+                    </a>
+                    <a href="mailto:jamal@hakadian.com" className="block w-full py-2.5 rounded-full text-xs font-semibold text-center transition-all hover:scale-[1.02]" style={{ background: 'rgba(45,212,191,0.10)', color: '#2DD4BF', border: '1px solid rgba(45,212,191,0.25)' }}>
+                      Become a Venue Partner
+                    </a>
+                  </div>
+                </div>
+                <div className="px-5 py-3" style={{ borderTop: '1px solid rgba(224,64,160,0.10)', background: 'rgba(0,0,0,0.15)' }}>
+                  <p className="text-[0.6rem] text-[#7A7A80] text-center">
+                    jamal@hakadian.com &middot; Dubai, UAE &middot; Seed stage
+                  </p>
+                </div>
+              </div>
+
               {/* Bottom actions */}
               <div className="space-y-3">
                 {onContinue ? (
