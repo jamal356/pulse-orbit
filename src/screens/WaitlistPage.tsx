@@ -149,7 +149,7 @@ function FormStep({
       <button
         onClick={onNext}
         disabled={!canProceed}
-        className="px-6 py-2.5 rounded-full text-sm tracking-wide transition-all duration-500"
+        className="glass-button px-6 py-2.5 rounded-full text-sm tracking-wide transition-all duration-500"
         style={{
           border: `1px solid ${canProceed ? 'rgba(255,255,255,0.20)' : 'rgba(255,255,255,0.06)'}`,
           color: canProceed ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.15)',
@@ -198,7 +198,7 @@ function PillSelect({
             key={opt}
             type="button"
             onClick={() => onChange(opt)}
-            className="px-5 py-2.5 rounded-full text-sm tracking-wide transition-all duration-400"
+            className={`px-5 py-2.5 rounded-full text-sm tracking-wide transition-all duration-400 ${!selected ? 'glass-button' : ''}`}
             style={{
               background: selected ? 'rgba(224,64,160,0.15)' : 'rgba(255,255,255,0.03)',
               border: `1px solid ${selected ? 'rgba(224,64,160,0.35)' : 'rgba(255,255,255,0.08)'}`,
@@ -306,7 +306,7 @@ function PhotoUpload({
         onDrop={handleDrop}
       >
         <div
-          className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden flex items-center justify-center transition-all duration-500"
+          className="glass-tile w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden flex items-center justify-center transition-all duration-500"
           style={{
             border: value
               ? '2px solid rgba(224,64,160,0.4)'
@@ -524,7 +524,7 @@ export default function WaitlistPage() {
                     onChange={e => update('email', e.target.value)}
                     placeholder="Your email"
                     required
-                    className="w-64 px-5 py-3 rounded-full text-white placeholder:text-white/25 text-sm tracking-wide focus:outline-none transition-all duration-500 text-center sm:text-left"
+                    className="glass-tile w-64 px-5 py-3 rounded-full text-white placeholder:text-white/25 text-sm tracking-wide focus:outline-none transition-all duration-500 text-center sm:text-left"
                     style={{
                       background: 'rgba(255,255,255,0.04)',
                       border: '1px solid rgba(255,255,255,0.10)',
@@ -540,7 +540,7 @@ export default function WaitlistPage() {
                   />
                   <button
                     type="submit"
-                    className="px-6 py-3 rounded-full text-sm tracking-wide transition-all duration-500"
+                    className="glass-button px-6 py-3 rounded-full text-sm tracking-wide transition-all duration-500"
                     style={{
                       border: '1px solid rgba(255,255,255,0.18)',
                       color: 'rgba(255,255,255,0.65)',
@@ -772,7 +772,7 @@ export default function WaitlistPage() {
               }}
             >
               <div
-                className="px-6 py-3 rounded-full"
+                className="glass-tile px-6 py-3 rounded-full"
                 style={{
                   border: '1px solid rgba(255,255,255,0.06)',
                   background: 'rgba(255,255,255,0.02)',
