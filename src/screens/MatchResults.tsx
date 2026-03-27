@@ -1,8 +1,88 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { candidates, conversationStarters } from '../data/people'
 import BackgroundOrbs from '../components/BackgroundOrbs'
 import MatchCard from '../components/MatchCard'
 import type { Candidate } from '../data/people'
+
+/* ─── SOUND ENGINE — Web Audio API procedural sounds ─────────
+   No external audio files. Pure synthesis.
+   tick: quick percussive click for each card flip
+   match: warm rising chord when a mutual match is revealed
+   drumroll: building anticipation before cascade
+   ──────────────────────────────────────────────────────────── */
+function createSoundEngine() {
+  let ctx: AudioContext | null = null
+  const getCtx = () => {
+    if (!ctx) ctx = new AudioContext()
+    return ctx
+  }
+
+  return {
+    tick() {
+      try {
+        const c = getCtx()
+        const osc = c.createOscillator()
+        const gain = c.createGain()
+        osc.type = 'sine'
+        osc.frequency.value = 1200
+        gain.gain.setValueAtTime(0.15, c.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.08)
+        osc.connect(gain).connect(c.destination)
+        osc.start(c.currentTime)
+        osc.stop(c.currentTime + 0.08)
+      } catch { /* */ }
+    },
+
+    matchChime() {
+      try {
+        const c = getCtx()
+        // Rising major chord: C5 → E5 → G5 staggered
+        ;[523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+          const osc = c.createOscillator()
+          const gain = c.createGain()
+          osc.type = 'sine'
+          osc.frequency.value = freq
+          gain.gain.setValueAtTime(0, c.currentTime + i * 0.08)
+          gain.gain.linearRampToValueAtTime(0.12, c.currentTime + i * 0.08 + 0.05)
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + i * 0.08 + 0.8)
+          osc.connect(gain).connect(c.destination)
+          osc.start(c.currentTime + i * 0.08)
+          osc.stop(c.currentTime + i * 0.08 + 0.8)
+        })
+      } catch { /* */ }
+    },
+
+    drumroll() {
+      try {
+        const c = getCtx()
+        // Soft snare-like noise bursts accelerating
+        for (let i = 0; i < 16; i++) {
+          const bufferSize = 800
+          const buffer = c.createBuffer(1, bufferSize, c.sampleRate)
+          const data = buffer.getChannelData(0)
+          for (let j = 0; j < bufferSize; j++) data[j] = (Math.random() * 2 - 1) * 0.3
+          const noise = c.createBufferSource()
+          noise.buffer = buffer
+          const gain = c.createGain()
+          const filter = c.createBiquadFilter()
+          filter.type = 'bandpass'
+          filter.frequency.value = 300
+          filter.Q.value = 2
+          const time = c.currentTime + i * (0.12 - i * 0.005)
+          gain.gain.setValueAtTime(0.03 + i * 0.005, time)
+          gain.gain.exponentialRampToValueAtTime(0.001, time + 0.06)
+          noise.connect(filter).connect(gain).connect(c.destination)
+          noise.start(time)
+          noise.stop(time + 0.06)
+        }
+      } catch { /* */ }
+    },
+
+    cleanup() {
+      if (ctx) ctx.close().catch(() => {})
+    }
+  }
+}
 
 interface Props {
   ratings: Record<string, 'like' | 'pass'>
@@ -80,6 +160,37 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
   // Match Card state — shown when a mutual match is revealed
   const [matchCardTarget, setMatchCardTarget] = useState<Candidate | null>(null)
 
+  // Sound engine
+  const soundRef = useRef(createSoundEngine())
+  useEffect(() => () => soundRef.current.cleanup(), [])
+
+  // "Say Hi" bonus call state
+  const [sayHiTarget, setSayHiTarget] = useState<Candidate | null>(null)
+  const [sayHiTimer, setSayHiTimer] = useState(60)
+  const [sayHiActive, setSayHiActive] = useState(false)
+
+  // Say Hi timer countdown
+  useEffect(() => {
+    if (!sayHiActive) return
+    const timer = setInterval(() => {
+      setSayHiTimer(p => {
+        if (p <= 1) {
+          setSayHiActive(false)
+          setSayHiTarget(null)
+          return 60
+        }
+        return p - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [sayHiActive])
+
+  const handleSayHi = useCallback((c: Candidate) => {
+    setSayHiTarget(c)
+    setSayHiActive(true)
+    setSayHiTimer(60)
+  }, [])
+
   // Derived
   const getEffectiveRating = useCallback((name: string) => secondChances[name] ? 'like' as const : (ratings[name] || 'pass' as const), [secondChances, ratings])
   const mutualMatches = candidates.filter(c => getEffectiveRating(c.name) === 'like' && theirRatings[c.name] === 'like')
@@ -97,20 +208,25 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
      ─────────────────────── */
   useEffect(() => {
     if (phase === 'intro') {
+      // Play drumroll during intro
+      const drumTimer = setTimeout(() => soundRef.current.drumroll(), 200)
       const t = setTimeout(() => setPhase('cascade'), 1500)
-      return () => clearTimeout(t)
+      return () => { clearTimeout(t); clearTimeout(drumTimer) }
     }
     if (phase === 'cascade') {
       let hasMatch = false
       const timers = candidates.map((c, i) =>
         setTimeout(() => {
           setRevealedCards(prev => { const next = [...prev]; next[i] = true; return next })
+          // Card flip sound
+          soundRef.current.tick()
           const yours = secondChances[c.name] ? 'like' : (ratings[c.name] || 'pass')
           const theirs = theirRatings[c.name] || 'pass'
           if (yours === 'like' && theirs === 'like' && !hasMatch) {
             hasMatch = true
+            // Match chime!
+            setTimeout(() => soundRef.current.matchChime(), 100)
             setTimeout(() => { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 4000) }, 200)
-            // Show Match Card for the first mutual match after a brief delay
             setTimeout(() => setMatchCardTarget(c), 800)
           }
         }, 300 * i)
@@ -143,6 +259,58 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
           match={matchCardTarget}
           onClose={() => setMatchCardTarget(null)}
         />
+      )}
+
+      {/* Say Hi bonus call overlay */}
+      {sayHiTarget && sayHiActive && (
+        <div className="fixed inset-0 z-[65] flex flex-col items-center justify-center bg-black/90 backdrop-blur-lg animate-fade-in">
+          <div className="text-center mb-8 animate-scale-in">
+            <div className="relative inline-block mb-4">
+              <img src={sayHiTarget.photo} alt={sayHiTarget.name}
+                className="w-24 h-24 rounded-full object-cover"
+                style={{ border: '3px solid #E040A0', boxShadow: '0 0 40px rgba(224,64,160,0.3)' }} />
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#30D158] flex items-center justify-center"
+                style={{ boxShadow: '0 0 12px rgba(48,209,88,0.4)' }}>
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-1">Say Hi to {sayHiTarget.name}!</h3>
+            <p className="text-sm text-white/40 mb-6">60-second bonus call — say what you couldn't in 5 minutes</p>
+
+            {/* Timer ring */}
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(224,64,160,0.15)" strokeWidth="4" />
+                <circle cx="50" cy="50" r="45" fill="none" stroke="#E040A0" strokeWidth="4" strokeLinecap="round"
+                  strokeDasharray="283" strokeDashoffset={283 - (sayHiTimer / 60) * 283}
+                  className="transition-all duration-1000 ease-linear" />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-lg font-mono font-bold text-[#E040A0]">{sayHiTimer}s</span>
+              </div>
+            </div>
+
+            {/* Simulated call wave */}
+            <div className="flex items-center justify-center gap-1 mb-6">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="w-1 rounded-full bg-[#E040A0]"
+                  style={{
+                    height: `${12 + Math.random() * 20}px`,
+                    animation: `wave-bar 0.8s ease-in-out ${i * 0.1}s infinite alternate`,
+                  }} />
+              ))}
+            </div>
+
+            <button
+              onClick={() => { setSayHiActive(false); setSayHiTarget(null) }}
+              className="px-8 py-3 rounded-full text-sm font-semibold bg-[#FF3B30] text-white hover:scale-105 active:scale-95 transition-all"
+            >
+              End Call
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Second Chance notification toast */}
@@ -478,9 +646,12 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                                   <span>💖</span>
                                   View Match Card
                                 </button>
-                                <button className="w-full rounded-xl py-3 text-sm font-semibold bg-[#E040A0] text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
-                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                                  Message {c.name}
+                                <button onClick={() => handleSayHi(c)} className="w-full rounded-xl py-3 text-sm font-semibold bg-[#E040A0] text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+                                  style={{ boxShadow: '0 4px 16px rgba(224,64,160,0.25)' }}>
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                  </svg>
+                                  Say Hi — 60s Bonus Call
                                 </button>
                               </>
                             )}
@@ -558,6 +729,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
         @keyframes dot-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.6; } }
         @keyframes card-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.015); } }
         @keyframes pulse-line { 0% { opacity: 0.3; transform: scaleX(0.95); } 50% { opacity: 1; transform: scaleX(1.05); } 100% { opacity: 0.3; transform: scaleX(0.95); } }
+        @keyframes wave-bar { 0% { height: 8px; } 100% { height: 28px; } }
       `}</style>
     </div>
   )

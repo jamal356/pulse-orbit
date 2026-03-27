@@ -217,18 +217,26 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
             className="rounded-2xl px-4 py-3 flex items-center gap-3"
             style={{ backgroundColor: 'rgba(0,0,0,0.40)', backdropFilter: 'blur(30px)', border: '0.5px solid rgba(255,255,255,0.08)' }}
           >
-            {/* Next person preview */}
+            {/* Next person preview — rich teaser */}
             <img
               src={nextPerson.photo}
               alt={nextPerson.name}
-              className="w-9 h-9 rounded-full object-cover shrink-0"
+              className="w-10 h-10 rounded-full object-cover shrink-0"
               style={{ border: '1.5px solid #E040A0', boxShadow: '0 0 8px rgba(224,64,160,0.3)' }}
             />
             <div className="flex-1 min-w-0">
               <p className="text-xs text-white/80 font-medium">
                 Up next: <span className="text-[#E040A0]">{nextPerson.name}</span>, {nextPerson.age}
               </p>
-              <p className="text-[0.65rem] text-white/35">{nextPerson.location}</p>
+              <p className="text-[0.65rem] text-white/35 mb-1">{nextPerson.location} · {nextPerson.bio}</p>
+              <div className="flex gap-1">
+                {nextPerson.tags.slice(0, 3).map(tag => (
+                  <span key={tag} className="text-[0.5rem] px-1.5 py-0.5 rounded-full"
+                    style={{ background: 'rgba(224,64,160,0.10)', color: '#E040A0', border: '0.5px solid rgba(224,64,160,0.15)' }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
 
             {/* Session progress dots */}

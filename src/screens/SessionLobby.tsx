@@ -1,10 +1,38 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { candidates } from '../data/people'
 import { sponsors } from '../data/sponsors'
 
 interface Props {
   onNavigate: () => void
 }
+
+/* ─── THIS OR THAT — interactive personality game ───────────
+   Quick, fun, swipeable choices. Feels like a game but builds
+   a compatibility profile. Sponsor-branded questions rotate in.
+   ──────────────────────────────────────────────────────────── */
+interface ThisOrThat {
+  a: string
+  b: string
+  sponsor?: string
+}
+
+const thisOrThatQuestions: ThisOrThat[] = [
+  { a: 'Mountains', b: 'Beach' },
+  { a: 'Cook at home', b: 'Dine out' },
+  { a: 'Early bird', b: 'Night owl' },
+  { a: 'Road trip', b: 'First class', sponsor: 'Emirates' },
+  { a: 'Cats', b: 'Dogs' },
+  { a: 'Netflix', b: 'Live concert' },
+  { a: 'Coffee', b: 'Tea' },
+  { a: 'City life', b: 'Countryside' },
+  { a: 'Text first', b: 'Call first' },
+  { a: 'Sunset dinner', b: 'Sunrise hike', sponsor: 'The Palm Jumeirah' },
+  { a: 'Introvert', b: 'Extrovert' },
+  { a: 'Spontaneous', b: 'Planner' },
+  { a: 'Sweet', b: 'Savory' },
+  { a: 'Podcast', b: 'Music' },
+  { a: 'Test drive', b: 'Window shop', sponsor: 'Porsche Dubai' },
+]
 
 /* ─── Two-layer Netflix model ─────────────────────────────────
    BACKGROUND: Sponsor images cycle continuously (full-bleed,
@@ -88,15 +116,72 @@ export default function SessionLobby({ onNavigate }: Props) {
   const [fgVisible, setFgVisible] = useState(false)
   const [fgProgress, setFgProgress] = useState(0)
 
+  // This or That game
+  const [totIdx, setTotIdx] = useState(0)
+  const [totPick, setTotPick] = useState<'a' | 'b' | null>(null)
+  const [totAnswered, setTotAnswered] = useState(0)
+  const [totAnimating, setTotAnimating] = useState(false)
+
+  const handleTotPick = useCallback((pick: 'a' | 'b') => {
+    if (totAnimating) return
+    setTotPick(pick)
+    setTotAnimating(true)
+    setTotAnswered(p => p + 1)
+    setTimeout(() => {
+      setTotPick(null)
+      setTotIdx(p => (p + 1) % thisOrThatQuestions.length)
+      setTotAnimating(false)
+    }, 800)
+  }, [totAnimating])
+
+  // Ambient audio — warm lo-fi pad
+  const audioRef = useRef<AudioContext | null>(null)
+  const audioStarted = useRef(false)
+
+  const startAmbient = useCallback(() => {
+    if (audioStarted.current) return
+    audioStarted.current = true
+    try {
+      const ctx = new AudioContext()
+      audioRef.current = ctx
+      // Create a warm ambient pad using oscillators
+      const createPad = (freq: number, vol: number) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        const filter = ctx.createBiquadFilter()
+        osc.type = 'sine'
+        osc.frequency.value = freq
+        filter.type = 'lowpass'
+        filter.frequency.value = 800
+        gain.gain.value = 0
+        gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 3)
+        osc.connect(filter).connect(gain).connect(ctx.destination)
+        osc.start()
+        return { osc, gain }
+      }
+      // Soft chord: Cmaj7 — warm, anticipatory
+      createPad(130.81, 0.04) // C3
+      createPad(164.81, 0.03) // E3
+      createPad(196.00, 0.025) // G3
+      createPad(246.94, 0.02) // B3
+    } catch { /* Audio not available */ }
+  }, [])
+
   const fg = fgSequence[fgIdx]
   const fgDuration = fg.type === 'profile' ? PROFILE_SHOW : SPONSOR_SHOW
+  const totQ = thisOrThatQuestions[totIdx]
 
   // ── Countdown + join simulation ──
   useEffect(() => {
     setTimeout(() => setVisible(true), 200)
     const timer = setInterval(() => setCountdown(p => (p > 0 ? p - 1 : 0)), 1000)
     const joinTimer = setInterval(() => setJoined(p => Math.min(p + 1, 10)), 3000)
-    return () => { clearInterval(timer); clearInterval(joinTimer) }
+    return () => {
+      clearInterval(timer)
+      clearInterval(joinTimer)
+      // Clean up audio
+      if (audioRef.current) audioRef.current.close().catch(() => {})
+    }
   }, [])
 
   // ── Background: slow sponsor image rotation ──
@@ -270,6 +355,80 @@ export default function SessionLobby({ onNavigate }: Props) {
               </button>
             </div>
           )}
+        </div>
+
+        {/* ─── THIS OR THAT game — bottom right corner ─── */}
+        <div className="absolute bottom-28 right-6 sm:right-10 z-30 w-[220px] sm:w-[260px]">
+          <div
+            className={`transition-all duration-500 ${totAnswered === 0 ? 'animate-slide-up' : ''}`}
+            style={{ animationDelay: '2s', animationFillMode: 'backwards' }}
+            onClick={startAmbient}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[0.55rem] tracking-[0.15em] uppercase text-white/30">While you wait...</span>
+              {totAnswered > 0 && (
+                <span className="text-[0.55rem] text-[#E040A0]/60">{totAnswered} answered</span>
+              )}
+            </div>
+
+            {/* Card */}
+            <div
+              className="rounded-xl overflow-hidden transition-all duration-300"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                backdropFilter: 'blur(20px)',
+                transform: totAnimating ? 'scale(0.97)' : 'scale(1)',
+              }}
+            >
+              {/* Sponsor badge */}
+              {totQ.sponsor && (
+                <div className="px-3 pt-2.5">
+                  <span className="text-[0.5rem] tracking-[0.12em] uppercase text-white/20">
+                    Presented by {totQ.sponsor}
+                  </span>
+                </div>
+              )}
+
+              {/* Question label */}
+              <div className="px-3 pt-2.5 pb-1">
+                <p className="text-[0.6rem] uppercase tracking-wider text-[#E040A0]/60 font-semibold">This or That?</p>
+              </div>
+
+              {/* Options */}
+              <div className="p-2.5 flex gap-2">
+                <button
+                  onClick={() => handleTotPick('a')}
+                  disabled={totAnimating}
+                  className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all duration-300 active:scale-95 ${
+                    totPick === 'a' ? 'bg-[#E040A0] text-white scale-105' : totPick === 'b' ? 'opacity-30 scale-95' : 'hover:scale-102'
+                  }`}
+                  style={!totPick ? { background: 'rgba(224,64,160,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(224,64,160,0.15)' } : undefined}
+                >
+                  {totQ.a}
+                </button>
+                <button
+                  onClick={() => handleTotPick('b')}
+                  disabled={totAnimating}
+                  className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all duration-300 active:scale-95 ${
+                    totPick === 'b' ? 'bg-[#E040A0] text-white scale-105' : totPick === 'a' ? 'opacity-30 scale-95' : 'hover:scale-102'
+                  }`}
+                  style={!totPick ? { background: 'rgba(224,64,160,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(224,64,160,0.15)' } : undefined}
+                >
+                  {totQ.b}
+                </button>
+              </div>
+
+              {/* Progress dots */}
+              <div className="px-3 pb-2.5 flex justify-center gap-1">
+                {[0, 1, 2, 3, 4].map(i => (
+                  <div key={i} className="w-1 h-1 rounded-full transition-colors duration-300"
+                    style={{ background: i < totAnswered ? '#E040A0' : 'rgba(255,255,255,0.1)' }} />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ─── Progress bars + bottom bar ─── */}
