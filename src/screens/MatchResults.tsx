@@ -78,6 +78,68 @@ function createSoundEngine() {
       } catch { /* */ }
     },
 
+    // Ringing tone for Say Hi call
+    ringTone() {
+      try {
+        const c = getCtx()
+        const playRing = (startTime: number) => {
+          // Two-tone ring like a phone
+          ;[440, 480].forEach(freq => {
+            const osc = c.createOscillator()
+            const gain = c.createGain()
+            osc.type = 'sine'
+            osc.frequency.value = freq
+            gain.gain.setValueAtTime(0.08, startTime)
+            gain.gain.setValueAtTime(0, startTime + 0.8)
+            gain.gain.setValueAtTime(0.08, startTime + 1.2)
+            gain.gain.setValueAtTime(0, startTime + 2.0)
+            osc.connect(gain).connect(c.destination)
+            osc.start(startTime)
+            osc.stop(startTime + 2.5)
+          })
+        }
+        // Ring twice
+        playRing(c.currentTime)
+        playRing(c.currentTime + 3)
+      } catch { /* */ }
+    },
+
+    // Connected call tone — warm confirmation
+    callConnected() {
+      try {
+        const c = getCtx()
+        ;[523.25, 659.25].forEach((freq, i) => {
+          const osc = c.createOscillator()
+          const gain = c.createGain()
+          osc.type = 'sine'
+          osc.frequency.value = freq
+          gain.gain.setValueAtTime(0, c.currentTime + i * 0.15)
+          gain.gain.linearRampToValueAtTime(0.15, c.currentTime + i * 0.15 + 0.05)
+          gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + i * 0.15 + 0.4)
+          osc.connect(gain).connect(c.destination)
+          osc.start(c.currentTime + i * 0.15)
+          osc.stop(c.currentTime + i * 0.15 + 0.4)
+        })
+      } catch { /* */ }
+    },
+
+    // Hangup tone
+    hangup() {
+      try {
+        const c = getCtx()
+        const osc = c.createOscillator()
+        const gain = c.createGain()
+        osc.type = 'sine'
+        osc.frequency.value = 480
+        gain.gain.setValueAtTime(0.1, c.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.5)
+        osc.frequency.linearRampToValueAtTime(320, c.currentTime + 0.3)
+        osc.connect(gain).connect(c.destination)
+        osc.start(c.currentTime)
+        osc.stop(c.currentTime + 0.5)
+      } catch { /* */ }
+    },
+
     cleanup() {
       if (ctx) ctx.close().catch(() => {})
     }
@@ -189,6 +251,9 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
     setSayHiTarget(c)
     setSayHiActive(true)
     setSayHiTimer(60)
+    // Ring → then connected tone after 2s
+    soundRef.current.ringTone()
+    setTimeout(() => soundRef.current.callConnected(), 2500)
   }, [])
 
   // Derived
@@ -304,7 +369,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
             </div>
 
             <button
-              onClick={() => { setSayHiActive(false); setSayHiTarget(null) }}
+              onClick={() => { soundRef.current.hangup(); setSayHiActive(false); setSayHiTarget(null); setSayHiTimer(60) }}
               className="px-8 py-3 rounded-full text-sm font-semibold bg-[#FF3B30] text-white hover:scale-105 active:scale-95 transition-all"
             >
               End Call

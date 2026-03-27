@@ -144,27 +144,48 @@ export default function SessionLobby({ onNavigate }: Props) {
     try {
       const ctx = new AudioContext()
       audioRef.current = ctx
+
+      // Master gain for overall volume control
+      const master = ctx.createGain()
+      master.gain.value = 0.8
+      master.connect(ctx.destination)
+
       // Create a warm ambient pad using oscillators
-      const createPad = (freq: number, vol: number) => {
+      const createPad = (freq: number, vol: number, type: OscillatorType = 'sine') => {
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
         const filter = ctx.createBiquadFilter()
-        osc.type = 'sine'
+        osc.type = type
         osc.frequency.value = freq
         filter.type = 'lowpass'
-        filter.frequency.value = 800
+        filter.frequency.value = 1200
+        filter.Q.value = 0.5
         gain.gain.value = 0
-        gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 3)
-        osc.connect(filter).connect(gain).connect(ctx.destination)
+        gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + 2)
+        osc.connect(filter).connect(gain).connect(master)
         osc.start()
         return { osc, gain }
       }
-      // Soft chord: Cmaj7 — warm, anticipatory
-      createPad(130.81, 0.04) // C3
-      createPad(164.81, 0.03) // E3
-      createPad(196.00, 0.025) // G3
-      createPad(246.94, 0.02) // B3
-    } catch { /* Audio not available */ }
+
+      // Rich ambient chord: Cmaj7 — warm, anticipatory
+      createPad(130.81, 0.12, 'sine')     // C3 — foundation
+      createPad(164.81, 0.08, 'sine')     // E3
+      createPad(196.00, 0.07, 'sine')     // G3
+      createPad(246.94, 0.05, 'sine')     // B3
+      createPad(261.63, 0.04, 'triangle') // C4 — shimmer
+      createPad(329.63, 0.03, 'triangle') // E4 — high shimmer
+
+      // Subtle LFO for movement (pulsing feel)
+      const lfo = ctx.createOscillator()
+      const lfoGain = ctx.createGain()
+      lfo.type = 'sine'
+      lfo.frequency.value = 0.15 // Very slow pulse
+      lfoGain.gain.value = 0.02
+      lfo.connect(lfoGain).connect(master.gain)
+      lfo.start()
+    } catch {
+      /* Audio not available */
+    }
   }, [])
 
   const fg = fgSequence[fgIdx]
@@ -230,7 +251,7 @@ export default function SessionLobby({ onNavigate }: Props) {
   const bgSponsor = sponsors[bgIdx]
 
   return (
-    <div className="fixed inset-0 bg-[#0a090d] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-[#0a090d] flex flex-col overflow-hidden" onClick={startAmbient}>
 
       {/* ═══ LAYER 1: Full-bleed sponsor background (always visible) ═══ */}
       <div className="absolute inset-0">
