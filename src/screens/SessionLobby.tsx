@@ -281,10 +281,12 @@ export default function SessionLobby({ onNavigate }: Props) {
     return () => clearTimeout(t)
   }, [preCountdown, onNavigate])
 
-  // New random quote every second (synced with countdown tick)
+  // New random quote every 2 seconds (5 quotes across 10s)
   useEffect(() => {
     if (preCountdown === null) return
-    setHypeIdx(Math.floor(Math.random() * hypeQuotes.length))
+    if (preCountdown % 2 === 0) {
+      setHypeIdx(Math.floor(Math.random() * hypeQuotes.length))
+    }
   }, [preCountdown])
 
   const startPreCountdown = useCallback(() => {
@@ -300,16 +302,16 @@ export default function SessionLobby({ onNavigate }: Props) {
   if (preCountdown !== null && preCountdown > 0) {
     const progress = ((10 - preCountdown) / 10) * 100
     return (
-      <div className="fixed inset-0 bg-[#0a090d] flex flex-col items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-[#0a090d] flex flex-col items-center justify-center overflow-hidden px-6">
         {/* Animated background pulse */}
         <div className="absolute inset-0" style={{
           background: `radial-gradient(circle at center, rgba(224,64,160,${0.05 + (preCountdown <= 3 ? 0.08 : 0)}) 0%, transparent 60%)`,
           animation: 'countdown-pulse 1s ease-in-out infinite',
         }} />
 
-        {/* Progress ring */}
-        <div className="relative mb-8">
-          <svg className="w-48 h-48 -rotate-90" viewBox="0 0 200 200">
+        {/* Progress ring — scales down on mobile */}
+        <div className="relative mb-6 sm:mb-8">
+          <svg className="w-36 h-36 sm:w-48 sm:h-48 -rotate-90" viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(224,64,160,0.1)" strokeWidth="4" />
             <circle cx="100" cy="100" r="90" fill="none" stroke="#E040A0" strokeWidth="4" strokeLinecap="round"
               strokeDasharray="565.5" strokeDashoffset={565.5 - (progress / 100) * 565.5}
@@ -318,7 +320,7 @@ export default function SessionLobby({ onNavigate }: Props) {
 
           {/* Big countdown number */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-7xl font-bold font-display text-white" style={{
+            <span className="text-6xl sm:text-7xl font-bold font-display text-white" style={{
               animation: 'number-pop 1s ease-out',
               textShadow: '0 0 40px rgba(224,64,160,0.4)',
             }} key={preCountdown}>
@@ -328,19 +330,19 @@ export default function SessionLobby({ onNavigate }: Props) {
         </div>
 
         {/* Label */}
-        <p className="text-sm uppercase tracking-[0.3em] text-[#E040A0] font-semibold mb-6">
+        <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-[#E040A0] font-semibold mb-4 sm:mb-6">
           {preCountdown <= 3 ? 'GET READY' : 'STARTING IN'}
         </p>
 
         {/* Hype quote */}
-        <div className="h-8 flex items-center justify-center" key={hypeIdx}>
-          <p className="text-lg text-white/60 font-medium animate-fade-in" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <div className="h-8 flex items-center justify-center px-4" key={hypeIdx}>
+          <p className="text-base sm:text-lg text-white/60 font-medium text-center animate-fade-in" style={{ fontFamily: "'DM Sans', sans-serif" }}>
             {hypeQuotes[hypeIdx]}
           </p>
         </div>
 
         {/* Bottom participant count */}
-        <div className="absolute bottom-10 flex items-center gap-2">
+        <div className="absolute bottom-8 sm:bottom-10 flex items-center gap-2">
           <div className="w-2 h-2 bg-[#30D158] rounded-full animate-pulse" />
           <span className="text-xs text-white/40">{joined} people are ready</span>
         </div>
