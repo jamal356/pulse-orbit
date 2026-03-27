@@ -736,7 +736,7 @@ export default function SessionLobby({ onNavigate }: Props) {
                   style={{
                     width: idx < fgIdx ? '100%' : idx === fgIdx ? `${fgProgress}%` : '0%',
                     background: seg.type === 'sponsor'
-                      ? (sponsors[seg.sponsorIdx ?? 0].accent || 'rgba(255,255,255,0.4)')
+                      ? 'rgba(224,64,160,0.5)'
                       : '#E040A0',
                     transitionDuration: idx === fgIdx ? '50ms' : '300ms',
                   }}
