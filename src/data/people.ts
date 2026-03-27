@@ -7,6 +7,8 @@ export const photos = {
   user: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
 }
 
+export type Gender = 'male' | 'female'
+
 export interface Candidate {
   name: string
   age: number
@@ -14,7 +16,24 @@ export interface Candidate {
   photo: string
   bio: string
   tags: string[]
+  gender: Gender
 }
+
+/* ── Gender-based color tokens ────────────────────────────── */
+export const genderColors = {
+  female: {
+    primary: '#E040A0',
+    rgb: '224,64,160',
+  },
+  male: {
+    primary: '#2DD4BF',
+    rgb: '45,212,191',
+  },
+} as const
+
+/** The demo user is male */
+export const USER_GENDER: Gender = 'male'
+export const USER_COLOR = genderColors.male
 
 export const candidates: Candidate[] = [
   {
@@ -24,6 +43,7 @@ export const candidates: Candidate[] = [
     photo: photos.sofia,
     bio: 'Interior designer who believes great spaces tell stories',
     tags: ['Creative', 'Foodie', 'Travel'],
+    gender: 'female',
   },
   {
     name: 'Layla',
@@ -32,6 +52,7 @@ export const candidates: Candidate[] = [
     photo: photos.layla,
     bio: 'Runs a wellness brand, obsessed with breathwork',
     tags: ['Wellness', 'Entrepreneur', 'Music'],
+    gender: 'female',
   },
   {
     name: 'Amira',
@@ -40,6 +61,7 @@ export const candidates: Candidate[] = [
     photo: photos.amira,
     bio: 'Art curator by day, salsa dancer by night',
     tags: ['Art', 'Dance', 'Coffee'],
+    gender: 'female',
   },
   {
     name: 'Nour',
@@ -48,6 +70,7 @@ export const candidates: Candidate[] = [
     photo: photos.nour,
     bio: 'Product manager at a fintech startup, weekend hiker',
     tags: ['Tech', 'Hiking', 'Podcasts'],
+    gender: 'female',
   },
   {
     name: 'Yasmine',
@@ -56,6 +79,7 @@ export const candidates: Candidate[] = [
     photo: photos.yasmine,
     bio: 'Fashion buyer who collects vintage cameras',
     tags: ['Fashion', 'Photography', 'Travel'],
+    gender: 'female',
   },
 ]
 

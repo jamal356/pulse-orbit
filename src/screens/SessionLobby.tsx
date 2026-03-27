@@ -102,10 +102,27 @@ for (let i = 0; i < profiles.length; i++) {
   fgSequence.push({ type: 'sponsor', sponsorIdx: i % sponsors.length })
 }
 
+const hypeQuotes = [
+  "Bring your A game 🔥",
+  "First impressions matter — be you",
+  "Eye contact wins hearts 💫",
+  "Confidence is your superpower",
+  "Ask the unexpected question",
+  "Laugh first, judge never 😄",
+  "Energy is everything ⚡",
+  "Be curious, not impressive",
+  "Smile — it's contagious ✨",
+  "This is your moment",
+]
+
 export default function SessionLobby({ onNavigate }: Props) {
   const [countdown, setCountdown] = useState(120)
   const [visible, setVisible] = useState(false)
   const [joined, setJoined] = useState(3)
+
+  // Pre-session 10s countdown
+  const [preCountdown, setPreCountdown] = useState<number | null>(null)
+  const [hypeIdx, setHypeIdx] = useState(0)
 
   // Background: which sponsor image fills the screen
   const [bgIdx, setBgIdx] = useState(0)
@@ -246,9 +263,93 @@ export default function SessionLobby({ onNavigate }: Props) {
     }
   }, [fgIdx, fgDuration])
 
+  // ── Pre-session countdown logic ──
+  useEffect(() => {
+    if (preCountdown === null) return
+    if (preCountdown <= 0) { onNavigate(); return }
+    const t = setTimeout(() => setPreCountdown(p => (p ?? 1) - 1), 1000)
+    return () => clearTimeout(t)
+  }, [preCountdown, onNavigate])
+
+  // Rotate hype quotes every 2 seconds during countdown
+  useEffect(() => {
+    if (preCountdown === null) return
+    const t = setInterval(() => setHypeIdx(p => (p + 1) % hypeQuotes.length), 2000)
+    return () => clearInterval(t)
+  }, [preCountdown])
+
+  const startPreCountdown = useCallback(() => {
+    setHypeIdx(Math.floor(Math.random() * hypeQuotes.length))
+    setPreCountdown(10)
+  }, [])
+
   const minutes = Math.floor(countdown / 60)
   const seconds = countdown % 60
   const bgSponsor = sponsors[bgIdx]
+
+  // ── PRE-SESSION COUNTDOWN OVERLAY ──
+  if (preCountdown !== null && preCountdown > 0) {
+    const progress = ((10 - preCountdown) / 10) * 100
+    return (
+      <div className="fixed inset-0 bg-[#0a090d] flex flex-col items-center justify-center overflow-hidden">
+        {/* Animated background pulse */}
+        <div className="absolute inset-0" style={{
+          background: `radial-gradient(circle at center, rgba(224,64,160,${0.05 + (preCountdown <= 3 ? 0.08 : 0)}) 0%, transparent 60%)`,
+          animation: 'countdown-pulse 1s ease-in-out infinite',
+        }} />
+
+        {/* Progress ring */}
+        <div className="relative mb-8">
+          <svg className="w-48 h-48 -rotate-90" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(224,64,160,0.1)" strokeWidth="4" />
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#E040A0" strokeWidth="4" strokeLinecap="round"
+              strokeDasharray="565.5" strokeDashoffset={565.5 - (progress / 100) * 565.5}
+              className="transition-all duration-1000 ease-linear" />
+          </svg>
+
+          {/* Big countdown number */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-7xl font-bold font-display text-white" style={{
+              animation: 'number-pop 1s ease-out',
+              textShadow: '0 0 40px rgba(224,64,160,0.4)',
+            }} key={preCountdown}>
+              {preCountdown}
+            </span>
+          </div>
+        </div>
+
+        {/* Label */}
+        <p className="text-sm uppercase tracking-[0.3em] text-[#E040A0] font-semibold mb-6">
+          {preCountdown <= 3 ? 'GET READY' : 'STARTING IN'}
+        </p>
+
+        {/* Hype quote */}
+        <div className="h-8 flex items-center justify-center" key={hypeIdx}>
+          <p className="text-lg text-white/60 font-medium animate-fade-in" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+            {hypeQuotes[hypeIdx]}
+          </p>
+        </div>
+
+        {/* Bottom participant count */}
+        <div className="absolute bottom-10 flex items-center gap-2">
+          <div className="w-2 h-2 bg-[#30D158] rounded-full animate-pulse" />
+          <span className="text-xs text-white/40">{joined} people are ready</span>
+        </div>
+
+        <style>{`
+          @keyframes countdown-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+          }
+          @keyframes number-pop {
+            0% { transform: scale(1.4); opacity: 0.3; }
+            50% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+        `}</style>
+      </div>
+    )
+  }
 
   return (
     <div className="fixed inset-0 bg-[#0a090d] flex flex-col overflow-hidden" onClick={startAmbient}>
@@ -496,7 +597,7 @@ export default function SessionLobby({ onNavigate }: Props) {
 
           {/* Ready button */}
           <button
-            onClick={onNavigate}
+            onClick={startPreCountdown}
             className="group px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 bg-[#E040A0] shadow-lg shadow-[rgba(224,64,160,0.25)]"
           >
             <span className="text-white flex items-center gap-2">

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { photos, candidates, conversationStarters } from '../data/people'
+import { photos, candidates, conversationStarters, USER_COLOR } from '../data/people'
 import BackgroundOrbs from '../components/BackgroundOrbs'
 
 interface Props {
@@ -347,11 +347,11 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
                       : 'hover:scale-105'
                   }`}
                   style={{
-                    backgroundColor: userExtended ? 'rgba(224,64,160,0.15)' : 'rgba(224,64,160,0.12)',
+                    backgroundColor: userExtended ? `rgba(${USER_COLOR.rgb},0.15)` : `rgba(${USER_COLOR.rgb},0.12)`,
                   }}
                 >
                   <span className="text-base">⏳</span>
-                  <span className="text-[0.7rem] font-semibold text-[#E040A0]">
+                  <span className="text-[0.7rem] font-semibold" style={{ color: USER_COLOR.primary }}>
                     {userExtended ? 'Waiting...' : '+2 min'}
                   </span>
                 </button>
@@ -400,7 +400,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
             <div className="absolute top-14 left-4 z-20 animate-fade-in">
               <div className="glass-tile rounded-lg px-3 py-1.5 flex items-center gap-1.5">
                 <span className="text-sm" style={{ animation: 'spark-pulse 1.5s ease-in-out infinite' }}>✨</span>
-                <span className="text-[0.6rem] text-white/40">Spark sent</span>
+                <span className="text-[0.6rem]" style={{ color: `rgba(${USER_COLOR.rgb},0.6)` }}>Spark sent</span>
               </div>
             </div>
           )}
@@ -431,10 +431,10 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           </div>
 
           {/* User PiP */}
-          <div className="absolute bottom-4 right-4 z-20 w-[110px] h-[150px] md:w-[140px] md:h-[190px] overflow-hidden shadow-2xl" style={{ borderRadius: '20px', border: '2px solid rgba(224, 64, 160, 0.3)' }}>
+          <div className="absolute bottom-4 right-4 z-20 w-[110px] h-[150px] md:w-[140px] md:h-[190px] overflow-hidden shadow-2xl" style={{ borderRadius: '20px', border: `2px solid rgba(${USER_COLOR.rgb}, 0.4)` }}>
             <img src={photos.user} alt="You" className="object-cover w-full h-full" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-            <div className="absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[11px] font-medium glass-button text-[#F5F5F7]">You</div>
+            <div className="absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[11px] font-medium glass-button" style={{ color: USER_COLOR.primary }}>You</div>
           </div>
 
           {/* Question display */}
@@ -475,10 +475,10 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
                 sparkRevealed
                   ? 'bg-[#E040A0]/30 ring-2 ring-[#E040A0]'
                   : userSparked
-                    ? 'bg-[rgba(224,64,160,0.15)] border border-[rgba(224,64,160,0.30)]'
+                    ? 'border'
                     : 'glass-button'
               }`}
-              style={sparkRevealed ? { boxShadow: '0 0 20px rgba(224,64,160,0.4)' } : undefined}
+              style={sparkRevealed ? { boxShadow: '0 0 20px rgba(224,64,160,0.4)' } : userSparked ? { background: `rgba(${USER_COLOR.rgb},0.15)`, borderColor: `rgba(${USER_COLOR.rgb},0.30)` } : undefined}
             >
               <span className={`text-lg ${sparkRevealed ? '' : ''}`} style={sparkRevealed ? { animation: 'spark-pulse 0.8s ease-in-out infinite' } : undefined}>
                 {sparkRevealed ? '💖' : '✨'}
