@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react'
-import { candidates } from '../data/people'
+import { candidates, conversationStarters } from '../data/people'
 import { sponsors } from '../data/sponsors'
 
 /*
   WETRANSFER-STYLE SPONSOR TAKEOVER
 
   The ad IS the screen. Full-bleed premium imagery.
-  Pulse session info overlaid minimally — the user is
+  Pulse session info overlaid minimally â the user is
   waiting anyway, so the brand gets undivided attention.
 
   Rules:
   - Image must be full bleed, high quality, atmospheric
   - Brand info: logo-sized name + tagline + single CTA
   - Pulse countdown: small, elegant, non-competing
-  - Skip appears after 5s — non-negotiable
+  - Skip appears after 5s â non-negotiable
   - Different sponsor per transition (rotates)
-  - "Presented by" label — transparent, not deceptive
+  - "Presented by" label â transparent, not deceptive
 */
 
 interface Props {
@@ -28,6 +28,8 @@ const TOTAL = 15
 export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
   const nextPerson = candidates[dateIndex] || candidates[0]
   const sponsor = sponsors[(dateIndex - 1) % sponsors.length] || sponsors[0]
+  // Pick a conversation starter hint based on the person's tags
+  const starterHint = conversationStarters[(dateIndex * 2 + 1) % conversationStarters.length]
 
   const [count, setCount] = useState(TOTAL)
   const [showSkip, setShowSkip] = useState(false)
@@ -36,6 +38,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
   const [showBrand, setShowBrand] = useState(false)
   const [showCta, setShowCta] = useState(false)
   const [showPulseBar, setShowPulseBar] = useState(false)
+  const [showIceBreaker, setShowIceBreaker] = useState(false)
 
   // Lock body scroll
   useEffect(() => {
@@ -49,12 +52,13 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
     }
   }, [])
 
-  // Staggered reveal — cinematic entry
+  // Staggered reveal â cinematic entry
   useEffect(() => {
     setTimeout(() => setShowContent(true), 400)
     setTimeout(() => setShowBrand(true), 900)
     setTimeout(() => setShowCta(true), 1400)
     setTimeout(() => setShowPulseBar(true), 1800)
+    setTimeout(() => setShowIceBreaker(true), 3000)
   }, [])
 
   // Countdown
@@ -100,7 +104,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.30) 100%)' }} />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(0,0,0,0.50) 0%, transparent 50%)' }} />
 
-      {/* ====== LAYER 2: TOP BAR — Pulse branding + countdown ====== */}
+      {/* ====== LAYER 2: TOP BAR â Pulse branding + countdown ====== */}
       <div
         className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-5 md:px-8 py-4"
         style={{
@@ -109,7 +113,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
           transition: 'all 600ms ease-out',
         }}
       >
-        {/* Pulse logo — subtle, not competing */}
+        {/* Pulse logo â subtle, not competing */}
         <div className="flex items-center gap-3">
           <span className="text-base font-display font-semibold text-white/50">Pulse</span>
           <svg width="40" height="10" viewBox="0 0 120 24" fill="none" className="opacity-25">
@@ -200,7 +204,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
             onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.8)')}
             onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
           >
-            Skip →
+            Skip â
           </button>
         </div>
 
@@ -217,7 +221,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
             className="rounded-2xl px-4 py-3 flex items-center gap-3"
             style={{ backgroundColor: 'rgba(0,0,0,0.40)', backdropFilter: 'blur(30px)', border: '0.5px solid rgba(255,255,255,0.08)' }}
           >
-            {/* Next person preview — rich teaser */}
+            {/* Next person preview â rich teaser */}
             <img
               src={nextPerson.photo}
               alt={nextPerson.name}
@@ -228,14 +232,28 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
               <p className="text-xs text-white/80 font-medium">
                 Up next: <span className="text-[#E040A0]">{nextPerson.name}</span>, {nextPerson.age}
               </p>
-              <p className="text-[0.65rem] text-white/35 mb-1">{nextPerson.location} · {nextPerson.bio}</p>
-              <div className="flex gap-1">
+              <p className="text-[0.65rem] text-white/35 mb-1">{nextPerson.location} Â· {nextPerson.bio}</p>
+              <div className="flex gap-1 flex-wrap">
                 {nextPerson.tags.slice(0, 3).map(tag => (
                   <span key={tag} className="text-[0.5rem] px-1.5 py-0.5 rounded-full"
                     style={{ background: 'rgba(224,64,160,0.10)', color: '#E040A0', border: '0.5px solid rgba(224,64,160,0.15)' }}>
                     {tag}
                   </span>
                 ))}
+              </div>
+              {/* Ice breaker hint â fades in after 3s */}
+              <div
+                className="mt-1.5 flex items-center gap-1"
+                style={{
+                  opacity: showIceBreaker ? 1 : 0,
+                  transform: showIceBreaker ? 'translateY(0)' : 'translateY(4px)',
+                  transition: 'all 600ms ease-out',
+                }}
+              >
+                <svg className="w-2.5 h-2.5 text-[#FF9F0A]/50 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <p className="text-[0.55rem] text-white/25 italic truncate">Try asking: "{starterHint.slice(0, 50)}..."</p>
               </div>
             </div>
 
