@@ -343,8 +343,8 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
       {/* Second Chance notification toast */}
       {secondChanceNotif && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
-          <div className="glass-tile rounded-2xl px-5 py-3 flex items-center gap-3" style={{ boxShadow: '0 8px 32px rgba(200,62,136,0.25)' }}>
-            <span className="text-lg">{'\u{1F525}'}</span>
+          <div className="glass-tile rounded-2xl px-5 py-3 flex items-center gap-3" style={{ boxShadow: '0 8px 32px rgba(45,212,191,0.25)' }}>
+            <span className="text-lg">{'\u{1F504}'}</span>
             <div>
               <p className="text-sm font-semibold text-white">Second Chance sent!</p>
               <p className="text-xs text-[#98989D]">{secondChanceNotif} will be notified you changed your mind</p>
@@ -605,7 +605,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-semibold text-white">{c.name}, {c.age}</p>
                           {match && <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[rgba(200,62,136,0.12)] text-[#C83E88] font-bold">Match</span>}
-                          {usedSecondChance && <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-[rgba(255,159,10,0.12)] text-[#FF9F0A] font-bold">2nd Chance</span>}
+                          {usedSecondChance && <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-[rgba(45,212,191,0.12)] text-[#2DD4BF] font-bold">2nd Chance</span>}
                         </div>
                         <p className="text-xs text-[#7A7A80]">{c.location}</p>
                       </div>
@@ -638,7 +638,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                           <button
                             onClick={(e) => { e.stopPropagation(); handleSecondChance(c.name) }}
                             className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold hover:scale-105 active:scale-95 transition-all"
-                            style={{ background: 'rgba(255,159,10,0.10)', border: '1px solid rgba(255,159,10,0.25)', color: '#FF9F0A' }}
+                            style={{ background: 'rgba(45,212,191,0.10)', border: '1px solid rgba(45,212,191,0.25)', color: '#2DD4BF' }}
                           >
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                             2nd Chance
@@ -703,8 +703,8 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                           {/* Actions — secondary actions only (primary Say Hi + Match Card are at card level) */}
                           <div className="space-y-2">
                             {usedSecondChance && !match && (
-                              <div className="rounded-xl py-3 px-4 text-center" style={{ backgroundColor: 'rgba(255,159,10,0.06)', border: '1px solid rgba(255,159,10,0.12)' }}>
-                                <p className="text-xs text-[#FF9F0A]">{'\u{1F525}'} You used your Second Chance &mdash; {c.name} has been notified</p>
+                              <div className="rounded-xl py-3 px-4 text-center" style={{ backgroundColor: 'rgba(45,212,191,0.06)', border: '1px solid rgba(45,212,191,0.12)' }}>
+                                <p className="text-xs text-[#2DD4BF]">{'\u{1F525}'} You used your Second Chance &mdash; {c.name} has been notified</p>
                                 <p className="text-[0.65rem] text-[#7A7A80] mt-0.5">They have 24 hours to rewatch and decide</p>
                               </div>
                             )}

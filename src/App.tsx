@@ -235,44 +235,42 @@ export default function App() {
       )}
 
       {/* ═══ AURA FAB — floating bottom-right on ALL post-login screens ═══
-           Design: Aura is a living presence, not a button. She breathes.
-           Position: bottom-right, above the demo nav, always reachable.
-           Visual: Glass pill with her signature gradient orb + name.
-           Interaction: hover expands slightly, press scales down. */}
+           Aura — top-right, docked into the header zone.
+           Compact glass pill. Never collides with bottom CTAs.
+           On light screens (home): darker glass. On dark: subtle translucent.
+           ──────────────────────────────────────────────────────── */}
       {!['waitlist', 'marketing', 'login'].includes(screen) && !showAura && (
         <button
           onClick={() => setShowAura(true)}
           className="fixed z-[90] group"
-          style={{ bottom: '1.25rem', left: '1.25rem' }}
+          style={{ top: '0.85rem', right: '0.85rem' }}
           title="Ask Aura">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300
+          <div className="flex items-center gap-1.5 pl-1.5 pr-2.5 py-1.5 rounded-full transition-all duration-300
                           group-hover:scale-105 group-active:scale-95"
             style={{
-              background: 'rgba(30,27,24,0.6)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(200,62,136,0.15)',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.2), 0 0 0 0.5px rgba(200,62,136,0.1)',
+              background: screen === 'home' ? 'rgba(42,37,40,0.75)' : 'rgba(30,27,24,0.55)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(200,62,136,0.12)',
+              boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
             }}>
-            {/* Aura orb — her signature identity */}
-            <div className="relative w-8 h-8 rounded-full flex items-center justify-center shrink-0">
-              {/* Outer glow ring */}
+            {/* Aura orb — compact */}
+            <div className="relative w-6 h-6 rounded-full flex items-center justify-center shrink-0">
               <div className="absolute inset-0 rounded-full"
                 style={{
                   background: 'conic-gradient(from 0deg, #C83E88, #8040E0, #C83E88)',
-                  opacity: 0.4,
+                  opacity: 0.35,
                   animation: 'aura-ring-spin 6s linear infinite',
-                  filter: 'blur(3px)',
+                  filter: 'blur(2px)',
                 }} />
-              {/* Core orb */}
-              <div className="relative w-6 h-6 rounded-full"
+              <div className="relative rounded-full"
                 style={{
+                  width: '18px', height: '18px',
                   background: 'radial-gradient(circle at 35% 35%, #E040A0, #8040E0 70%, #5020C0)',
-                  boxShadow: '0 0 12px rgba(200,62,136,0.4)',
+                  boxShadow: '0 0 8px rgba(200,62,136,0.35)',
                 }}>
-                {/* Inner light — the "soul" */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-2.5 h-2.5 rounded-full"
+                  <div className="w-2 h-2 rounded-full"
                     style={{
                       background: 'radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,200,230,0.4))',
                       animation: 'aura-breathe 3s ease-in-out infinite',
@@ -280,9 +278,8 @@ export default function App() {
                 </div>
               </div>
             </div>
-            {/* Label */}
-            <span className="text-[0.65rem] font-semibold text-white/50 pr-1 group-hover:text-white/70 transition-colors"
-              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.05em' }}>
+            <span className="text-[0.6rem] font-semibold text-white/60 group-hover:text-white/80 transition-colors"
+              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.04em' }}>
               Aura
             </span>
           </div>

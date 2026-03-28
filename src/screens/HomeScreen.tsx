@@ -96,10 +96,22 @@ const heroSlides: HeroSlide[] = [
   },
 ]
 
-// Carousel profiles — "New near you"
+// Extended carousel profiles — Netflix fills the row edge-to-edge
+const extraProfiles: Candidate[] = [
+  { name: 'Hana', age: 24, location: 'Business Bay', gender: 'female', photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=3840&q=95', bio: 'Biotech researcher who paints on weekends', tags: ['Science', 'Art', 'Wine'] },
+  { name: 'Dalia', age: 27, location: 'Al Barsha', gender: 'female', photo: 'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=3840&q=95', bio: 'Yoga instructor with a startup on the side', tags: ['Wellness', 'Startup', 'Tea'] },
+  { name: 'Rania', age: 30, location: 'Palm Jumeirah', gender: 'female', photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=3840&q=95', bio: 'Chef who believes food is the first language', tags: ['Cooking', 'Travel', 'Jazz'] },
+  { name: 'Farah', age: 26, location: 'DIFC, Dubai', gender: 'female', photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=3840&q=95', bio: 'Corporate lawyer who secretly writes poetry', tags: ['Writing', 'Law', 'Coffee'] },
+  { name: 'Salma', age: 28, location: 'Dubai Hills', gender: 'female', photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=3840&q=95', bio: 'Fashion photographer based between Dubai and Paris', tags: ['Fashion', 'Photography', 'Film'] },
+  { name: 'Leena', age: 25, location: 'JLT, Dubai', gender: 'female', photo: 'https://images.unsplash.com/photo-1521146764736-56c929d59c83?w=3840&q=95', bio: 'UX designer obsessed with behavioral psychology', tags: ['Design', 'Psychology', 'Running'] },
+  { name: 'Mira', age: 32, location: 'Sharjah', gender: 'female', photo: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=3840&q=95', bio: 'Gallery owner with a thing for brutalist architecture', tags: ['Art', 'Architecture', 'Wine'] },
+  { name: 'Tala', age: 23, location: 'Ajman', gender: 'female', photo: 'https://images.unsplash.com/photo-1464863979621-258859e62245?w=3840&q=95', bio: 'Marine biologist who free-dives on weekends', tags: ['Ocean', 'Science', 'Hiking'] },
+]
+
 const nearbyProfiles: Candidate[] = [
   ...heroProfiles,
-  ...candidates.slice(0, 4),
+  ...candidates,
+  ...extraProfiles,
 ]
 
 function createHomeSounds() {
