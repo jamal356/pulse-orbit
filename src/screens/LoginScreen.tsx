@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import BackgroundOrbs from '../components/BackgroundOrbs'
 
 interface Props {
   onComplete: () => void
@@ -140,35 +139,34 @@ export default function LoginScreen({ onComplete }: Props) {
   // ── PHONE ENTRY ──
   if (phase === 'phone') {
     return (
-      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
-        <BackgroundOrbs />
+      <div className="fixed inset-0 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
         <div className={`relative z-10 w-full max-w-md mx-auto px-6 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold font-display text-[#E040A0] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <h1 className="text-4xl font-bold font-display text-[#C83E88] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               Pulse
             </h1>
-            <p className="text-sm text-[#98989D]">Live speed dating. Real chemistry.</p>
+            <p className="text-sm text-[#8A7E78]">Live speed dating. Real chemistry.</p>
           </div>
 
-          <div className="glass-tile rounded-3xl p-6" style={{ border: '1px solid rgba(224,64,160,0.12)' }}>
-            <p className="text-xs uppercase tracking-[0.2em] text-[#7A7A80] font-semibold mb-4 text-center">Sign in with your phone</p>
+          <div className="glass-tile rounded-3xl p-6" style={{ border: '1px solid rgba(42,37,40,0.08)' }}>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#8A7E78] font-semibold mb-4 text-center">Sign in with your phone</p>
 
             <div className="relative mb-4">
-              <div className="glass-button rounded-2xl px-4 py-4 flex items-center gap-3">
+              <div className="glass-button rounded-2xl px-4 py-4 flex items-center gap-3" style={{ background: 'rgba(42,37,40,0.03)' }}>
                 <span className="text-lg">🇦🇪</span>
-                <span className="text-white font-mono text-base tracking-wide">{phone || '+971 __ ___ ____'}</span>
-                {!phone && <div className="w-0.5 h-5 bg-[#E040A0] animate-pulse" />}
+                <span className="text-[#2A2528] font-mono text-base tracking-wide">{phone || '+971 __ ___ ____'}</span>
+                {!phone && <div className="w-0.5 h-5 bg-[#C83E88] animate-pulse" />}
               </div>
             </div>
 
             <button onClick={handlePhoneSubmit}
               disabled={!phone}
               className={`w-full py-4 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-all ${phone ? 'hover:scale-[1.02] active:scale-[0.98]' : 'opacity-40'}`}
-              style={{ background: phone ? 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)' : 'rgba(224,64,160,0.2)', boxShadow: phone ? '0 4px 20px rgba(224,64,160,0.35)' : 'none' }}>
+              style={{ background: phone ? 'linear-gradient(135deg, #C83E88 0%, #B83278 100%)' : 'rgba(200,62,136,0.2)', boxShadow: phone ? '0 4px 20px rgba(200,62,136,0.35)' : 'none' }}>
               Send Code
             </button>
 
-            <p className="text-center text-[0.6rem] text-[#7A7A80] mt-4 leading-relaxed">
+            <p className="text-center text-[0.6rem] text-[#8A7E78] mt-4 leading-relaxed">
               By continuing, you agree to Pulse's Terms of Service and Privacy Policy.
               Standard message rates may apply.
             </p>
@@ -181,16 +179,15 @@ export default function LoginScreen({ onComplete }: Props) {
   // ── OTP VERIFICATION ──
   if (phase === 'otp') {
     return (
-      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
-        <BackgroundOrbs />
+      <div className="fixed inset-0 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
         <div className="relative z-10 w-full max-w-md mx-auto px-6 animate-fade-in">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(224,64,160,0.12)' }}>
+            <div className="w-14 h-14 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(200,62,136,0.12)' }}>
               <span className="text-2xl">📱</span>
             </div>
-            <h2 className="text-xl font-bold text-white mb-1">Verify your number</h2>
-            <p className="text-sm text-[#98989D]">
-              We sent a code to <span className="text-white font-mono">{phone}</span>
+            <h2 className="text-xl font-bold text-[#2A2528] mb-1">Verify your number</h2>
+            <p className="text-sm text-[#8A7E78]">
+              We sent a code to <span className="text-[#2A2528] font-mono">{phone}</span>
             </p>
           </div>
 
@@ -199,11 +196,11 @@ export default function LoginScreen({ onComplete }: Props) {
               <div key={i}
                 ref={el => { otpRefs.current[i] = el as unknown as HTMLInputElement }}
                 className={`w-14 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold font-mono transition-all duration-300 ${
-                  i === otpFocusIndex && !digit ? 'ring-2 ring-[#E040A0]' : ''
-                } ${digit ? 'text-white' : 'text-[#7A7A80]'}`}
+                  i === otpFocusIndex && !digit ? 'ring-2 ring-[#C83E88]' : ''
+                } ${digit ? 'text-[#2A2528]' : 'text-[#8A7E78]'}`}
                 style={{
-                  background: digit ? 'rgba(224,64,160,0.10)' : 'rgba(255,255,255,0.05)',
-                  border: `1.5px solid ${digit ? 'rgba(224,64,160,0.30)' : 'rgba(255,255,255,0.08)'}`,
+                  background: digit ? 'rgba(200,62,136,0.10)' : 'rgba(42,37,40,0.03)',
+                  border: `1.5px solid ${digit ? 'rgba(200,62,136,0.30)' : 'rgba(42,37,40,0.08)'}`,
                 }}>
                 {digit || '·'}
               </div>
@@ -213,16 +210,16 @@ export default function LoginScreen({ onComplete }: Props) {
           {verifying && (
             <div className="text-center animate-fade-in">
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full bg-[#E040A0] animate-pulse" />
-                <div className="w-2 h-2 rounded-full bg-[#E040A0] animate-pulse" style={{ animationDelay: '0.15s' }} />
-                <div className="w-2 h-2 rounded-full bg-[#E040A0] animate-pulse" style={{ animationDelay: '0.3s' }} />
+                <div className="w-2 h-2 rounded-full bg-[#C83E88] animate-pulse" />
+                <div className="w-2 h-2 rounded-full bg-[#C83E88] animate-pulse" style={{ animationDelay: '0.15s' }} />
+                <div className="w-2 h-2 rounded-full bg-[#C83E88] animate-pulse" style={{ animationDelay: '0.3s' }} />
               </div>
-              <p className="text-sm text-[#E040A0] font-semibold">Verifying...</p>
+              <p className="text-sm text-[#C83E88] font-semibold">Verifying...</p>
             </div>
           )}
 
-          <p className="text-center text-xs text-[#7A7A80] mt-6">
-            Didn't receive a code? <span className="text-[#E040A0]">Resend</span>
+          <p className="text-center text-xs text-[#8A7E78] mt-6">
+            Didn't receive a code? <span className="text-[#C83E88]">Resend</span>
           </p>
         </div>
       </div>
@@ -232,19 +229,18 @@ export default function LoginScreen({ onComplete }: Props) {
   // ── PROFILE SETUP ──
   if (phase === 'profile') {
     return (
-      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
-        <BackgroundOrbs />
+      <div className="fixed inset-0 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
         <div className="relative z-10 w-full max-w-md mx-auto px-6 animate-fade-in">
           <div className="text-center mb-8">
-            <h2 className="text-xl font-bold text-white mb-1">Quick profile setup</h2>
-            <p className="text-sm text-[#98989D]">Just the basics — we'll keep it simple</p>
+            <h2 className="text-xl font-bold text-[#2A2528] mb-1">Quick profile setup</h2>
+            <p className="text-sm text-[#8A7E78]">Just the basics — we'll keep it simple</p>
           </div>
 
-          <div className="glass-tile rounded-3xl p-6 space-y-4" style={{ border: '1px solid rgba(224,64,160,0.12)' }}>
+          <div className="glass-tile rounded-3xl p-6 space-y-4" style={{ border: '1px solid rgba(42,37,40,0.08)' }}>
             {/* Photo placeholder */}
             <div className="flex justify-center mb-2">
               <div className="w-20 h-20 rounded-full flex items-center justify-center relative overflow-hidden"
-                style={{ background: 'rgba(224,64,160,0.08)', border: '2px dashed rgba(224,64,160,0.25)' }}>
+                style={{ background: 'rgba(200,62,136,0.08)', border: '2px dashed rgba(200,62,136,0.25)' }}>
                 {profileName ? (
                   <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="Profile" className="w-full h-full object-cover rounded-full" />
                 ) : (
@@ -254,29 +250,29 @@ export default function LoginScreen({ onComplete }: Props) {
             </div>
 
             {/* Name */}
-            <div className={`glass-button rounded-2xl px-4 py-3.5 flex items-center gap-3 transition-all duration-500 ${profileName ? 'ring-1 ring-[#E040A0]/30' : ''}`}>
-              <span className="text-sm text-[#7A7A80]">Name</span>
-              <span className={`font-semibold flex-1 text-right transition-all duration-500 ${profileName ? 'text-white' : 'text-[#7A7A80]'}`}>
+            <div className={`glass-button rounded-2xl px-4 py-3.5 flex items-center gap-3 transition-all duration-500 ${profileName ? 'ring-1 ring-[#C83E88]/30' : ''}`} style={{ background: 'rgba(42,37,40,0.03)' }}>
+              <span className="text-sm text-[#8A7E78]">Name</span>
+              <span className={`font-semibold flex-1 text-right transition-all duration-500 ${profileName ? 'text-[#2A2528]' : 'text-[#8A7E78]'}`}>
                 {profileName || '—'}
               </span>
             </div>
 
             {/* Age */}
-            <div className={`glass-button rounded-2xl px-4 py-3.5 flex items-center gap-3 transition-all duration-500 ${profileAge ? 'ring-1 ring-[#E040A0]/30' : ''}`}>
-              <span className="text-sm text-[#7A7A80]">Age</span>
-              <span className={`font-semibold flex-1 text-right transition-all duration-500 ${profileAge ? 'text-white' : 'text-[#7A7A80]'}`}>
+            <div className={`glass-button rounded-2xl px-4 py-3.5 flex items-center gap-3 transition-all duration-500 ${profileAge ? 'ring-1 ring-[#C83E88]/30' : ''}`} style={{ background: 'rgba(42,37,40,0.03)' }}>
+              <span className="text-sm text-[#8A7E78]">Age</span>
+              <span className={`font-semibold flex-1 text-right transition-all duration-500 ${profileAge ? 'text-[#2A2528]' : 'text-[#8A7E78]'}`}>
                 {profileAge || '—'}
               </span>
             </div>
 
             {/* Gender */}
             <div className="flex gap-3">
-              <div className={`flex-1 glass-button rounded-2xl py-3.5 text-center text-sm font-semibold transition-all duration-500 ${profileGender === 'male' ? 'ring-2 text-[#2DD4BF]' : 'text-[#7A7A80]'}`}
-                style={profileGender === 'male' ? { borderColor: '#2DD4BF', boxShadow: '0 0 15px rgba(45,212,191,0.2)' } : {}}>
+              <div className={`flex-1 glass-button rounded-2xl py-3.5 text-center text-sm font-semibold transition-all duration-500 ${profileGender === 'male' ? 'ring-2 text-[#2DD4BF]' : 'text-[#8A7E78]'}`}
+                style={{background: 'rgba(42,37,40,0.03)', ...( profileGender === 'male' ? { borderColor: '#2DD4BF', boxShadow: '0 0 15px rgba(45,212,191,0.2)' } : {})}}>
                 Male
               </div>
-              <div className={`flex-1 glass-button rounded-2xl py-3.5 text-center text-sm font-semibold transition-all duration-500 ${profileGender === 'female' ? 'ring-2 text-[#E040A0]' : 'text-[#7A7A80]'}`}
-                style={profileGender === 'female' ? { borderColor: '#E040A0', boxShadow: '0 0 15px rgba(224,64,160,0.2)' } : {}}>
+              <div className={`flex-1 glass-button rounded-2xl py-3.5 text-center text-sm font-semibold transition-all duration-500 ${profileGender === 'female' ? 'ring-2 text-[#C83E88]' : 'text-[#8A7E78]'}`}
+                style={{background: 'rgba(42,37,40,0.03)', ...(profileGender === 'female' ? { borderColor: '#C83E88', boxShadow: '0 0 15px rgba(200,62,136,0.2)' } : {})}}>
                 Female
               </div>
             </div>
@@ -295,8 +291,7 @@ export default function LoginScreen({ onComplete }: Props) {
 
   // ── WELCOME ──
   return (
-    <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
-      <BackgroundOrbs />
+    <div className="fixed inset-0 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
       <div className="relative z-10 text-center animate-scale-in">
         <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
           style={{ background: 'rgba(48,209,88,0.12)', border: '2px solid rgba(48,209,88,0.30)' }}>
@@ -304,13 +299,13 @@ export default function LoginScreen({ onComplete }: Props) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2 font-display" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+        <h2 className="text-2xl font-bold text-[#2A2528] mb-2 font-display" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
           Welcome to Pulse, {profileName}
         </h2>
-        <p className="text-sm text-[#98989D] mb-2">Your profile is ready. Time to meet someone new.</p>
+        <p className="text-sm text-[#8A7E78] mb-2">Your profile is ready. Time to meet someone new.</p>
         <div className="flex items-center justify-center gap-2 mt-4">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] animate-pulse" />
-          <span className="text-xs text-[#E040A0]/70">Finding people near you...</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88] animate-pulse" />
+          <span className="text-xs text-[#C83E88]/70">Finding people near you...</span>
         </div>
       </div>
     </div>

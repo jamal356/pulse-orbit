@@ -467,18 +467,18 @@ export default function SessionLobby({ onNavigate }: Props) {
   if (preCountdown !== null && preCountdown > 0) {
     const progress = ((10 - preCountdown) / 10) * 100
     return (
-      <div className="fixed inset-0 bg-[#0a090d] flex flex-col items-center justify-center overflow-hidden px-6">
+      <div className="fixed inset-0 bg-[#1E1B18] flex flex-col items-center justify-center overflow-hidden px-6">
         {/* Animated background pulse */}
         <div className="absolute inset-0" style={{
-          background: `radial-gradient(circle at center, rgba(224,64,160,${0.05 + (preCountdown <= 3 ? 0.08 : 0)}) 0%, transparent 60%)`,
+          background: `radial-gradient(circle at center, rgba(200,62,136,${0.05 + (preCountdown <= 3 ? 0.08 : 0)}) 0%, transparent 60%)`,
           animation: 'countdown-pulse 1s ease-in-out infinite',
         }} />
 
         {/* Progress ring — scales down on mobile */}
         <div className="relative mb-6 sm:mb-8">
           <svg className="w-36 h-36 sm:w-48 sm:h-48 -rotate-90" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(224,64,160,0.1)" strokeWidth="4" />
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#E040A0" strokeWidth="4" strokeLinecap="round"
+            <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(200,62,136,0.1)" strokeWidth="4" />
+            <circle cx="100" cy="100" r="90" fill="none" stroke="#C83E88" strokeWidth="4" strokeLinecap="round"
               strokeDasharray="565.5" strokeDashoffset={565.5 - (progress / 100) * 565.5}
               className="transition-all duration-1000 ease-linear" />
           </svg>
@@ -487,7 +487,7 @@ export default function SessionLobby({ onNavigate }: Props) {
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-6xl sm:text-7xl font-bold font-display text-white" style={{
               animation: 'number-pop 1s ease-out',
-              textShadow: '0 0 40px rgba(224,64,160,0.4)',
+              textShadow: '0 0 40px rgba(200,62,136,0.4)',
             }} key={preCountdown}>
               {preCountdown}
             </span>
@@ -495,7 +495,7 @@ export default function SessionLobby({ onNavigate }: Props) {
         </div>
 
         {/* Label */}
-        <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-[#E040A0] font-semibold mb-4 sm:mb-6">
+        <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-[#C83E88] font-semibold mb-4 sm:mb-6">
           {preCountdown <= 3 ? 'GET READY' : 'STARTING IN'}
         </p>
 
@@ -528,7 +528,7 @@ export default function SessionLobby({ onNavigate }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-[#0a090d] flex flex-col overflow-hidden" onClick={startAmbient}>
+    <div className="fixed inset-0 bg-[#1E1B18] flex flex-col overflow-hidden" onClick={startAmbient}>
 
       {/* ═══ LAYER 1: Full-bleed sponsor background (always visible) ═══ */}
       <div className="absolute inset-0">
@@ -548,8 +548,8 @@ export default function SessionLobby({ onNavigate }: Props) {
         </div>
 
         {/* Gradient overlays — always present */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #0a090d 0%, rgba(10,9,13,0.8) 25%, rgba(10,9,13,0.3) 50%, transparent 70%)' }} />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(10,9,13,0.85) 0%, rgba(10,9,13,0.4) 40%, transparent 65%)' }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #1E1B18 0%, rgba(30,27,24,0.8) 25%, rgba(30,27,24,0.3) 50%, transparent 70%)' }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(30,27,24,0.85) 0%, rgba(30,27,24,0.4) 40%, transparent 65%)' }} />
       </div>
 
       {/* ═══ LAYER 2: Foreground content (left-aligned Netflix overlay) ═══ */}
@@ -557,13 +557,13 @@ export default function SessionLobby({ onNavigate }: Props) {
 
         {/* ─── Top bar ─── */}
         <header className="relative z-20 px-6 sm:px-10 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold font-display text-[#E040A0]">Pulse</h1>
+          <h1 className="text-xl font-bold font-display text-[#C83E88]">Pulse</h1>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-[#E040A0] rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-[#C83E88] rounded-full animate-pulse" />
               <span className="text-xs text-white/50">{joined}/10 joined</span>
             </div>
-            <div className="glass-button rounded-full px-4 py-1.5 text-sm font-mono text-[#E040A0] font-bold">
+            <div className="glass-button rounded-full px-4 py-1.5 text-sm font-mono text-[#C83E88] font-bold">
               {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </div>
           </div>
@@ -585,12 +585,12 @@ export default function SessionLobby({ onNavigate }: Props) {
               <div className="flex items-center gap-6 sm:gap-8 md:gap-12">
                 {/* Photo */}
                 <div className="relative flex-shrink-0 w-[180px] sm:w-[220px] md:w-[280px] lg:w-[320px] aspect-[3/4] rounded-xl overflow-hidden"
-                  style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 100px rgba(224,64,160,0.05)' }}>
+                  style={{ boxShadow: '0 30px 80px rgba(0,0,0,0.6), 0 0 100px rgba(200,62,136,0.05)' }}>
                   <img src={profiles[fg.profileIdx].image} alt="" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,9,13,0.6) 0%, transparent 50%)' }} />
+                  <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(30,27,24,0.6) 0%, transparent 50%)' }} />
                   <div className="absolute top-3 left-3">
                     <span className="text-[0.5rem] tracking-[0.18em] uppercase px-2 py-0.5 rounded"
-                      style={{ background: 'rgba(224,64,160,0.2)', color: '#E040A0', backdropFilter: 'blur(8px)' }}>
+                      style={{ background: 'rgba(200,62,136,0.2)', color: '#C83E88', backdropFilter: 'blur(8px)' }}>
                       Tonight's lineup
                     </span>
                   </div>
@@ -609,7 +609,7 @@ export default function SessionLobby({ onNavigate }: Props) {
                   <div className="flex flex-wrap gap-2">
                     {profiles[fg.profileIdx].tags.map(tag => (
                       <span key={tag} className="text-[0.6rem] sm:text-[0.65rem] px-3 py-1 rounded-full"
-                        style={{ background: 'rgba(224,64,160,0.1)', color: '#E040A0', border: '1px solid rgba(224,64,160,0.15)' }}>
+                        style={{ background: 'rgba(200,62,136,0.1)', color: '#C83E88', border: '1px solid rgba(200,62,136,0.15)' }}>
                         {tag}
                       </span>
                     ))}
@@ -668,7 +668,7 @@ export default function SessionLobby({ onNavigate }: Props) {
               >
                 <div className="mb-4">
                   <span className="text-[0.55rem] tracking-[0.25em] uppercase px-2.5 py-1 rounded"
-                    style={{ background: 'rgba(224,64,160,0.08)', color: '#E040A0' }}>
+                    style={{ background: 'rgba(200,62,136,0.08)', color: '#C83E88' }}>
                     Pulse
                   </span>
                 </div>
@@ -702,7 +702,7 @@ export default function SessionLobby({ onNavigate }: Props) {
             <div className="flex items-center justify-between mb-2">
               <span className="text-[0.55rem] tracking-[0.15em] uppercase text-white/30">While you wait...</span>
               {totAnswered > 0 && (
-                <span className="text-[0.55rem] text-[#E040A0]/60">{totAnswered} answered</span>
+                <span className="text-[0.55rem] text-[#C83E88]/60">{totAnswered} answered</span>
               )}
             </div>
 
@@ -724,7 +724,7 @@ export default function SessionLobby({ onNavigate }: Props) {
 
               {/* Question label */}
               <div className="px-3 pt-2.5 pb-1">
-                <p className="text-[0.6rem] uppercase tracking-wider text-[#E040A0]/60 font-semibold">This or That?</p>
+                <p className="text-[0.6rem] uppercase tracking-wider text-[#C83E88]/60 font-semibold">This or That?</p>
               </div>
 
               {/* Options */}
@@ -735,7 +735,7 @@ export default function SessionLobby({ onNavigate }: Props) {
                   className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all duration-300 active:scale-95 ${
                     !totPick ? 'glass-button' : ''
                   } ${
-                    totPick === 'a' ? 'bg-[#E040A0] text-white scale-105' : totPick === 'b' ? 'opacity-30 scale-95' : 'hover:scale-102'
+                    totPick === 'a' ? 'bg-[#C83E88] text-white scale-105' : totPick === 'b' ? 'opacity-30 scale-95' : 'hover:scale-102'
                   }`}
                 >
                   {totQ.a}
@@ -746,7 +746,7 @@ export default function SessionLobby({ onNavigate }: Props) {
                   className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all duration-300 active:scale-95 ${
                     !totPick ? 'glass-button' : ''
                   } ${
-                    totPick === 'b' ? 'bg-[#E040A0] text-white scale-105' : totPick === 'a' ? 'opacity-30 scale-95' : 'hover:scale-102'
+                    totPick === 'b' ? 'bg-[#C83E88] text-white scale-105' : totPick === 'a' ? 'opacity-30 scale-95' : 'hover:scale-102'
                   }`}
                 >
                   {totQ.b}
@@ -757,7 +757,7 @@ export default function SessionLobby({ onNavigate }: Props) {
               <div className="px-3 pb-2.5 flex justify-center gap-1">
                 {[0, 1, 2, 3, 4].map(i => (
                   <div key={i} className="w-1 h-1 rounded-full transition-colors duration-300"
-                    style={{ background: i < totAnswered ? '#E040A0' : 'rgba(255,255,255,0.1)' }} />
+                    style={{ background: i < totAnswered ? '#C83E88' : 'rgba(255,255,255,0.1)' }} />
                 ))}
               </div>
             </div>
@@ -775,8 +775,8 @@ export default function SessionLobby({ onNavigate }: Props) {
                   style={{
                     width: idx < fgIdx ? '100%' : idx === fgIdx ? `${fgProgress}%` : '0%',
                     background: seg.type === 'sponsor'
-                      ? (seg.sponsorIdx !== undefined && seg.sponsorIdx % 2 === 0 ? (sponsors[seg.sponsorIdx % sponsors.length]?.accent || 'rgba(255,255,255,0.4)') : 'rgba(224,64,160,0.5)')
-                      : '#E040A0',
+                      ? (seg.sponsorIdx !== undefined && seg.sponsorIdx % 2 === 0 ? (sponsors[seg.sponsorIdx % sponsors.length]?.accent || 'rgba(255,255,255,0.4)') : 'rgba(200,62,136,0.5)')
+                      : '#C83E88',
                     transitionDuration: idx === fgIdx ? '50ms' : '300ms',
                   }}
                 />
@@ -798,7 +798,7 @@ export default function SessionLobby({ onNavigate }: Props) {
                   alt={c.name}
                   className="w-8 h-8 rounded-full object-cover transition-all duration-500"
                   style={{
-                    border: '2px solid #0a090d',
+                    border: '2px solid #1E1B18',
                     opacity: i < joined ? 1 : 0.3,
                     zIndex: 5 - i,
                   }}
@@ -811,7 +811,7 @@ export default function SessionLobby({ onNavigate }: Props) {
           {/* Ready button */}
           <button
             onClick={startPreCountdown}
-            className="group px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 bg-[#E040A0] shadow-lg shadow-[rgba(224,64,160,0.25)]"
+            className="group px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 bg-[#C83E88] shadow-lg shadow-[rgba(200,62,136,0.25)]"
           >
             <span className="text-white flex items-center gap-2">
               I'm Ready

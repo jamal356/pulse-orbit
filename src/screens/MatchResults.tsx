@@ -199,7 +199,7 @@ const replayData: Record<string, { questions: string[]; highlights: string[]; du
 // Confetti
 interface ConfettiPiece { id: number; left: number; delay: number; duration: number; color: string; size: number; rotation: number }
 function makeConfetti(count: number): ConfettiPiece[] {
-  const colors = ['#E040A0', '#F050B0', '#FF6EC7', '#6060FF', '#30D158', '#FF9F0A', '#FFD700', '#C82E88', '#B0B0FF']
+  const colors = ['#C83E88', '#F050B0', '#FF6EC7', '#6060FF', '#30D158', '#FF9F0A', '#FFD700', '#C82E88', '#B0B0FF']
   return Array.from({ length: count }, (_, i) => ({
     id: i, left: Math.random() * 100, delay: Math.random() * 1.5, duration: 2.5 + Math.random() * 2,
     color: colors[Math.floor(Math.random() * colors.length)], size: 4 + Math.random() * 6, rotation: Math.random() * 360,
@@ -278,7 +278,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
   }, [phase, ratings, secondChances])
 
   return (
-    <div className="fixed inset-0 bg-[#2A2A2E] overflow-hidden">
+    <div className="fixed inset-0 bg-[#1E1B18] overflow-hidden">
       <BackgroundOrbs />
 
       {/* Confetti */}
@@ -307,7 +307,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
       {/* Second Chance notification toast */}
       {secondChanceNotif && (
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
-          <div className="glass-tile rounded-2xl px-5 py-3 flex items-center gap-3" style={{ boxShadow: '0 8px 32px rgba(224,64,160,0.25)' }}>
+          <div className="glass-tile rounded-2xl px-5 py-3 flex items-center gap-3" style={{ boxShadow: '0 8px 32px rgba(200,62,136,0.25)' }}>
             <span className="text-lg">{'\u{1F525}'}</span>
             <div>
               <p className="text-sm font-semibold text-white">Second Chance sent!</p>
@@ -331,7 +331,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
             {/* Instagram Story Card */}
             <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '9/16', maxHeight: '420px' }}>
               <div className="w-full h-full relative flex flex-col items-center justify-between py-8 px-6" style={{
-                background: 'linear-gradient(165deg, #2A2A2E 0%, #1a1a1e 30%, #E040A0 100%)',
+                background: 'linear-gradient(165deg, #1E1B18 0%, #161412 30%, #C83E88 100%)',
               }}>
                 <div className="text-center">
                   <h4 className="text-3xl font-bold font-display text-white mb-1">Pulse</h4>
@@ -355,7 +355,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                       <span className="text-xs text-white/50">Matched with</span>
                       <div className="flex -space-x-2">
                         {mutualMatches.map(m => (
-                          <img key={m.name} src={m.photo} alt={m.name} className="w-7 h-7 rounded-full object-cover border-2 border-[#E040A0]" />
+                          <img key={m.name} src={m.photo} alt={m.name} className="w-7 h-7 rounded-full object-cover border-2 border-[#C83E88]" />
                         ))}
                       </div>
                     </div>
@@ -387,7 +387,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
 
       {/* Header */}
       <header className="relative z-20 px-5 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-bold font-display text-[#E040A0]">Pulse</h1>
+        <h1 className="text-xl font-bold font-display text-[#C83E88]">Pulse</h1>
         <div className="text-xs text-[#7A7A80]">
           {phase === 'intro' && 'Session Complete'}
           {phase === 'cascade' && 'Revealing...'}
@@ -404,7 +404,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               Time for the truth.
             </h2>
             <p className="text-[#98989D] text-base md:text-lg max-w-md mx-auto mb-2">You met 5 people tonight. You made your choices.</p>
-            <p className="text-[#E040A0] text-lg font-semibold animate-pulse">Did they feel it too?</p>
+            <p className="text-[#C83E88] text-lg font-semibold animate-pulse">Did they feel it too?</p>
           </div>
         </div>
       )}
@@ -430,21 +430,21 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                     >
                       {/* Front — revealed result */}
                       <div
-                        className={`glass-tile rounded-2xl overflow-hidden transition-all duration-500 ${isMatch && revealed ? 'ring-2 ring-[#E040A0]' : ''}`}
+                        className={`glass-tile rounded-2xl overflow-hidden transition-all duration-500 ${isMatch && revealed ? 'ring-2 ring-[#C83E88]' : ''}`}
                         style={{
                           backfaceVisibility: 'hidden',
-                          boxShadow: isMatch && revealed ? '0 0 30px rgba(224,64,160,0.25)' : '0 4px 16px rgba(0,0,0,0.2)',
+                          boxShadow: isMatch && revealed ? '0 0 30px rgba(200,62,136,0.25)' : '0 4px 16px rgba(0,0,0,0.2)',
                         }}
                       >
                         <div className="relative aspect-[3/4] overflow-hidden">
                           <img src={c.photo} alt={c.name} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#2A2A2E] via-transparent to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#1E1B18] via-transparent to-transparent" />
                           <div className="absolute bottom-2 left-3 right-3">
                             <p className="text-sm font-bold text-white font-display">{c.name}, {c.age}</p>
                             <p className="text-[0.6rem] text-white/50">{c.location}</p>
                           </div>
                           {isMatch && revealed && (
-                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-[#E040A0] text-[0.55rem] font-bold text-white animate-scale-in">
+                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-[#C83E88] text-[0.55rem] font-bold text-white animate-scale-in">
                               MATCH
                             </div>
                           )}
@@ -454,13 +454,13 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                             <span className="text-[0.55rem] text-[#7A7A80] uppercase">You</span>
                             <span className="text-sm">{effRating === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
                           </div>
-                          <div className="h-px" style={{ background: 'rgba(224,64,160,0.10)' }} />
+                          <div className="h-px" style={{ background: 'rgba(200,62,136,0.10)' }} />
                           <div className="flex items-center justify-between">
                             <span className="text-[0.55rem] text-[#7A7A80] uppercase">Them</span>
                             <span className="text-sm">{theirs === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
                           </div>
                           {isMatch && (
-                            <p className="text-center text-[0.6rem] font-bold text-[#E040A0] pt-1 animate-pulse">{'\u{1F4AB}'} Chemistry confirmed</p>
+                            <p className="text-center text-[0.6rem] font-bold text-[#C83E88] pt-1 animate-pulse">{'\u{1F4AB}'} Chemistry confirmed</p>
                           )}
                         </div>
                       </div>
@@ -471,17 +471,17 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                         style={{
                           backfaceVisibility: 'hidden',
                           transform: 'rotateY(180deg)',
-                          background: 'linear-gradient(135deg, rgba(224,64,160,0.08) 0%, rgba(224,64,160,0.02) 100%)',
-                          border: '1px solid rgba(224,64,160,0.15)',
+                          background: 'linear-gradient(135deg, rgba(200,62,136,0.08) 0%, rgba(200,62,136,0.02) 100%)',
+                          border: '1px solid rgba(200,62,136,0.15)',
                         }}
                       >
                         <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
-                          style={{ background: 'rgba(224,64,160,0.10)' }}>
-                          <svg className="w-6 h-6 text-[#E040A0]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                          style={{ background: 'rgba(200,62,136,0.10)' }}>
+                          <svg className="w-6 h-6 text-[#C83E88]/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                           </svg>
                         </div>
-                        <p className="text-[0.65rem] text-[#E040A0]/50 font-medium">?</p>
+                        <p className="text-[0.65rem] text-[#C83E88]/50 font-medium">?</p>
                       </div>
                     </div>
                   </div>
@@ -491,10 +491,10 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
 
             {/* Countdown text */}
             {!revealedCards[0] && (
-              <p className="text-center mt-6 text-sm text-[#E040A0] animate-pulse font-medium">Revealing results...</p>
+              <p className="text-center mt-6 text-sm text-[#C83E88] animate-pulse font-medium">Revealing results...</p>
             )}
             {revealedCards.every(Boolean) && mutualMatches.length > 0 && (
-              <p className="text-center mt-6 text-lg font-display text-[#E040A0] animate-scale-in" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontStyle: 'italic' }}>
+              <p className="text-center mt-6 text-lg font-display text-[#C83E88] animate-scale-in" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontStyle: 'italic' }}>
                 {mutualMatches.length} mutual {mutualMatches.length === 1 ? 'match' : 'matches'} tonight
               </p>
             )}
@@ -528,7 +528,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               ].map((s, i) => (
                 <div key={i} className="glass-tile rounded-2xl p-4 text-center animate-slide-up" style={{ animationDelay: `${i * 0.1}s`, animationFillMode: 'backwards' }}>
                   <span className="text-lg">{s.icon}</span>
-                  <p className="text-2xl font-bold font-display mt-1" style={{ color: s.label === 'You Liked' ? USER_COLOR.primary : '#E040A0' }}>{s.value}</p>
+                  <p className="text-2xl font-bold font-display mt-1" style={{ color: s.label === 'You Liked' ? USER_COLOR.primary : '#C83E88' }}>{s.value}</p>
                   <p className="text-[0.65rem] text-[#7A7A80] uppercase tracking-wider mt-0.5">{s.label}</p>
                 </div>
               ))}
@@ -562,13 +562,13 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                 const isReplayOpen = replayOpen === c.name
 
                 return (
-                  <div key={c.name} className={`glass-tile rounded-2xl overflow-hidden transition-all duration-300 animate-slide-up ${match ? 'ring-1 ring-[rgba(224,64,160,0.30)]' : ''}`} style={{ animationDelay: `${0.3 + i * 0.08}s`, animationFillMode: 'backwards', boxShadow: match ? '0 4px 16px rgba(224,64,160,0.10)' : undefined }}>
+                  <div key={c.name} className={`glass-tile rounded-2xl overflow-hidden transition-all duration-300 animate-slide-up ${match ? 'ring-1 ring-[rgba(200,62,136,0.30)]' : ''}`} style={{ animationDelay: `${0.3 + i * 0.08}s`, animationFillMode: 'backwards', boxShadow: match ? '0 4px 16px rgba(200,62,136,0.10)' : undefined }}>
                     <div className="p-4 flex items-center gap-3">
-                      <img src={c.photo} alt={c.name} className="w-12 h-12 rounded-full object-cover shrink-0" style={{ border: match ? '2px solid #E040A0' : '2px solid rgba(255,255,255,0.1)' }} />
+                      <img src={c.photo} alt={c.name} className="w-12 h-12 rounded-full object-cover shrink-0" style={{ border: match ? '2px solid #C83E88' : '2px solid rgba(255,255,255,0.1)' }} />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-semibold text-white">{c.name}, {c.age}</p>
-                          {match && <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[rgba(224,64,160,0.12)] text-[#E040A0] font-bold">Match</span>}
+                          {match && <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[rgba(200,62,136,0.12)] text-[#C83E88] font-bold">Match</span>}
                           {usedSecondChance && <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-[rgba(255,159,10,0.12)] text-[#FF9F0A] font-bold">2nd Chance</span>}
                         </div>
                         <p className="text-xs text-[#7A7A80]">{c.location}</p>
@@ -580,7 +580,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                           <button
                             onClick={(e) => { e.stopPropagation(); handleSpeedDate(c) }}
                             className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-white hover:scale-105 active:scale-95 transition-all"
-                            style={{ background: 'linear-gradient(135deg, #E040A0, #C030A0)', boxShadow: '0 2px 12px rgba(224,64,160,0.35)' }}
+                            style={{ background: 'linear-gradient(135deg, #C83E88, #C030A0)', boxShadow: '0 2px 12px rgba(200,62,136,0.35)' }}
                           >
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -592,7 +592,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                           <button
                             onClick={(e) => { e.stopPropagation(); setMatchCardTarget(c) }}
                             className="w-9 h-9 rounded-full flex items-center justify-center hover:scale-110 active:scale-90 transition-transform"
-                            style={{ background: 'rgba(224,64,160,0.12)', border: '1px solid rgba(224,64,160,0.20)' }}
+                            style={{ background: 'rgba(200,62,136,0.12)', border: '1px solid rgba(200,62,136,0.20)' }}
                             title="View Match Card"
                           >
                             <span className="text-sm">💖</span>
@@ -615,15 +615,15 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                     </div>
 
                     {isReplayOpen && replay && (
-                      <div className="px-4 pb-4 animate-slide-up" style={{ animationDuration: '0.3s', borderTop: '1px solid rgba(224,64,160,0.08)' }}>
+                      <div className="px-4 pb-4 animate-slide-up" style={{ animationDuration: '0.3s', borderTop: '1px solid rgba(200,62,136,0.08)' }}>
                         <div className="pt-3 space-y-4">
                           {/* Replay video */}
                           <div className="rounded-xl overflow-hidden glass-button">
                             <div className="aspect-video relative flex items-center justify-center">
                               <img src={c.photo} alt={c.name} className="absolute inset-0 w-full h-full object-cover opacity-30" style={{ filter: 'blur(8px)' }} />
                               <div className="relative z-10 flex flex-col items-center gap-2">
-                                <button className="w-14 h-14 rounded-full bg-[#E040A0]/20 border border-[#E040A0]/30 flex items-center justify-center hover:scale-110 transition-transform">
-                                  <svg className="w-6 h-6 ml-0.5 text-[#E040A0]" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                <button className="w-14 h-14 rounded-full bg-[#C83E88]/20 border border-[#C83E88]/30 flex items-center justify-center hover:scale-110 transition-transform">
+                                  <svg className="w-6 h-6 ml-0.5 text-[#C83E88]" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                 </button>
                                 <p className="text-xs text-white/50">Rewatch {replay.duration} conversation</p>
                               </div>
@@ -647,7 +647,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                             <div className="space-y-1.5">
                               {replay.highlights.map((h, hi) => (
                                 <div key={hi} className="flex items-start gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] mt-1.5 shrink-0" />
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88] mt-1.5 shrink-0" />
                                   <p className="text-sm text-[#E0E0E5]">{h}</p>
                                 </div>
                               ))}
@@ -687,8 +687,8 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
             <div className="lg:w-[380px] lg:shrink-0 lg:sticky lg:top-16 mt-8 lg:mt-0 space-y-5">
 
               {/* 🔥 NEXT SESSION CTA — high urgency */}
-              <div className="glass-tile rounded-2xl p-6 text-center" style={{ border: '1px solid rgba(224,64,160,0.20)', boxShadow: '0 0 30px rgba(224,64,160,0.08)' }}>
-                <div className="w-14 h-14 rounded-full bg-[#E040A0]/15 flex items-center justify-center mx-auto mb-3">
+              <div className="glass-tile rounded-2xl p-6 text-center" style={{ border: '1px solid rgba(200,62,136,0.20)', boxShadow: '0 0 30px rgba(200,62,136,0.08)' }}>
+                <div className="w-14 h-14 rounded-full bg-[#C83E88]/15 flex items-center justify-center mx-auto mb-3">
                   <span className="text-2xl">🔥</span>
                 </div>
                 <h3 className="text-lg font-bold text-white mb-1 font-display">Ride the Momentum</h3>
@@ -696,12 +696,12 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                 <div className="glass-tile rounded-xl p-3 mb-4">
                   <div className="flex items-center justify-center gap-3">
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-[#E040A0] font-mono">14:52</p>
+                      <p className="text-2xl font-bold text-[#C83E88] font-mono">14:52</p>
                       <p className="text-[0.6rem] text-[#7A7A80] uppercase tracking-wider">Until next session</p>
                     </div>
                   </div>
                 </div>
-                <button className="w-full py-3.5 rounded-full bg-[#E040A0] text-white text-sm font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all mb-2" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>
+                <button className="w-full py-3.5 rounded-full bg-[#C83E88] text-white text-sm font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all mb-2" style={{ boxShadow: '0 4px 20px rgba(200,62,136,0.3)' }}>
                   Jump In &mdash; AED 75
                 </button>
                 <p className="text-[0.65rem] text-[#7A7A80]">5 new people, fresh connections</p>
@@ -747,16 +747,16 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               </div>
 
               {/* Pulse brand quote */}
-              <div className="glass-tile rounded-2xl p-4 text-center" style={{ border: '1px solid rgba(224,64,160,0.08)' }}>
+              <div className="glass-tile rounded-2xl p-4 text-center" style={{ border: '1px solid rgba(200,62,136,0.08)' }}>
                 <p className="text-sm text-white/70 leading-relaxed" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>
                   &ldquo;The best connections happen when you stop scrolling and start showing up.&rdquo;
                 </p>
-                <p className="text-[0.6rem] text-[#E040A0] uppercase tracking-[0.25em] mt-2 font-semibold">Pulse</p>
+                <p className="text-[0.6rem] text-[#C83E88] uppercase tracking-[0.25em] mt-2 font-semibold">Pulse</p>
               </div>
 
               {/* Investor insight — collapsed into right column */}
               <div className="glass-tile rounded-2xl p-5">
-                <h3 className="text-xs tracking-[0.2em] uppercase text-[#E040A0] font-semibold mb-3">What Just Happened</h3>
+                <h3 className="text-xs tracking-[0.2em] uppercase text-[#C83E88] font-semibold mb-3">What Just Happened</h3>
                 <div className="space-y-2">
                   {[
                     { metric: '25 minutes total', insight: 'vs. 3+ hours of texting' },
@@ -765,7 +765,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                     { metric: 'Social loop', insight: 'Every sharecard = free ad' },
                   ].map((item, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] mt-1.5 shrink-0" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88] mt-1.5 shrink-0" />
                       <p className="text-xs"><span className="font-semibold text-white">{item.metric}</span> <span className="text-[#7A7A80]">&mdash; {item.insight}</span></p>
                     </div>
                   ))}
@@ -775,7 +775,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               {/* Bottom actions */}
               <div className="space-y-3">
                 {onContinue ? (
-                  <button onClick={onContinue} className="w-full py-4 rounded-full bg-[#E040A0] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all lg:hidden" style={{ boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>Continue →</button>
+                  <button onClick={onContinue} className="w-full py-4 rounded-full bg-[#C83E88] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all lg:hidden" style={{ boxShadow: '0 4px 20px rgba(200,62,136,0.3)' }}>Continue →</button>
                 ) : null}
                 <button onClick={onRestart} className="w-full py-3 rounded-full glass-button text-sm font-semibold text-[#98989D] hover:text-white transition-colors">&larr; Replay demo</button>
               </div>
@@ -787,21 +787,21 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               INVESTOR CLOSER — Full-width. Below everything.
               Steve Jobs pitching the board. No apologies.
               ════════════════════════════════════════════════════════ */}
-          <div className="relative mt-16 mb-8" style={{ borderTop: '1px solid rgba(224,64,160,0.15)' }}>
+          <div className="relative mt-16 mb-8" style={{ borderTop: '1px solid rgba(200,62,136,0.15)' }}>
             {/* Ambient glow */}
             <div className="absolute inset-0 pointer-events-none" style={{
-              background: 'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(224,64,160,0.10) 0%, transparent 60%)',
+              background: 'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(200,62,136,0.10) 0%, transparent 60%)',
             }} />
 
             <div className="max-w-5xl mx-auto px-6 pt-16 pb-8 relative z-10">
 
               {/* ── THE HOOK ── */}
               <div className="text-center mb-16">
-                <p className="text-xs uppercase tracking-[0.4em] text-[#E040A0] font-semibold mb-8">Seed Round &middot; Open Now</p>
+                <p className="text-xs uppercase tracking-[0.4em] text-[#C83E88] font-semibold mb-8">Seed Round &middot; Open Now</p>
 
                 <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
                   You just used a product that<br />
-                  <span style={{ color: '#E040A0' }}>doesn&rsquo;t exist yet.</span>
+                  <span style={{ color: '#C83E88' }}>doesn&rsquo;t exist yet.</span>
                 </h2>
 
                 <p className="text-lg md:text-xl text-[#B0B0B8] max-w-2xl mx-auto leading-relaxed">
@@ -819,7 +819,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                 ].map((s, i) => (
                   <div key={i} className="glass-tile rounded-2xl p-5 text-center animate-slide-up" style={{ animationDelay: `${0.8 + i * 0.12}s`, animationFillMode: 'backwards' }}>
                     <p className="text-2xl md:text-3xl font-bold font-display text-white">{s.value}</p>
-                    <p className="text-xs text-[#E040A0] font-semibold mt-2 uppercase tracking-wider">{s.label}</p>
+                    <p className="text-xs text-[#C83E88] font-semibold mt-2 uppercase tracking-wider">{s.label}</p>
                     <p className="text-[0.65rem] text-[#7A7A80] mt-1">{s.sub}</p>
                   </div>
                 ))}
@@ -837,7 +837,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                     { icon: '📱', title: 'AI photo enhancement', desc: 'Users upload photos, AI generates professional-quality profile pictures. Free basic tier drives platform quality. Premium packs at AED 25\u201349.' },
                     { icon: '📊', title: 'Sharecard & content virality', desc: 'Every session generates branded content. Organic reach on Instagram, WhatsApp, X. Users market the product. CAC approaches zero at scale.' },
                   ].map((item, i) => (
-                    <div key={i} className={`glass-tile rounded-2xl p-5 animate-slide-up ${item.highlight ? 'md:col-span-2' : ''}`} style={{ animationDelay: `${1.2 + i * 0.08}s`, animationFillMode: 'backwards', border: item.highlight ? '1px solid rgba(224,64,160,0.20)' : undefined }}>
+                    <div key={i} className={`glass-tile rounded-2xl p-5 animate-slide-up ${item.highlight ? 'md:col-span-2' : ''}`} style={{ animationDelay: `${1.2 + i * 0.08}s`, animationFillMode: 'backwards', border: item.highlight ? '1px solid rgba(200,62,136,0.20)' : undefined }}>
                       <div className="flex items-start gap-3">
                         <span className="text-xl mt-0.5">{item.icon}</span>
                         <div>
@@ -853,7 +853,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               {/* ── THE DATA MOAT ── */}
               <div className="max-w-4xl mx-auto mb-16">
                 <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">The Data Moat</h3>
-                <div className="glass-tile rounded-2xl p-6 md:p-8" style={{ border: '1px solid rgba(224,64,160,0.15)', background: 'linear-gradient(160deg, rgba(224,64,160,0.04) 0%, rgba(0,0,0,0.1) 100%)' }}>
+                <div className="glass-tile rounded-2xl p-6 md:p-8" style={{ border: '1px solid rgba(200,62,136,0.15)', background: 'linear-gradient(160deg, rgba(200,62,136,0.04) 0%, rgba(0,0,0,0.1) 100%)' }}>
                   <p className="text-base md:text-lg text-white font-medium mb-4 text-center" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     Every 5-minute date generates more signal than 10,000 swipes.
                   </p>
@@ -867,7 +867,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                       { title: 'Licensable insight layer', desc: 'Anonymized behavioral data on real-world chemistry becomes a B2B product. Dating platforms, matchmaking services, and relationship researchers have nothing like this. New revenue vertical.' },
                     ].map((item, i) => (
                       <div key={i} className="animate-slide-up" style={{ animationDelay: `${1.6 + i * 0.1}s`, animationFillMode: 'backwards' }}>
-                        <p className="text-sm font-bold text-[#E040A0] mb-2">{item.title}</p>
+                        <p className="text-sm font-bold text-[#C83E88] mb-2">{item.title}</p>
                         <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
                       </div>
                     ))}
@@ -880,9 +880,9 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                 <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Go-To-Market</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
-                    { phase: '01', title: 'Dubai Pilot', desc: 'Controlled launch. 500 curated users, influencer seeding, exclusive venue partnerships. Prove retention and unit economics.', color: '#E040A0' },
-                    { phase: '02', title: 'Content Detonation', desc: 'Every session generates Instagram stories, TikToks, tweets. Dubai is the world\u2019s social media stage. We don\u2019t buy reach \u2014 users create it.', color: '#E040A0' },
-                    { phase: '03', title: 'Global Wave', desc: 'Once viral content hits, we open waitlists city by city. London, Riyadh, Mumbai, NYC. The product travels because the content travels.', color: '#E040A0' },
+                    { phase: '01', title: 'Dubai Pilot', desc: 'Controlled launch. 500 curated users, influencer seeding, exclusive venue partnerships. Prove retention and unit economics.', color: '#C83E88' },
+                    { phase: '02', title: 'Content Detonation', desc: 'Every session generates Instagram stories, TikToks, tweets. Dubai is the world\u2019s social media stage. We don\u2019t buy reach \u2014 users create it.', color: '#C83E88' },
+                    { phase: '03', title: 'Global Wave', desc: 'Once viral content hits, we open waitlists city by city. London, Riyadh, Mumbai, NYC. The product travels because the content travels.', color: '#C83E88' },
                   ].map((item, i) => (
                     <div key={i} className="glass-tile rounded-2xl p-5 animate-slide-up" style={{ animationDelay: `${1.8 + i * 0.1}s`, animationFillMode: 'backwards' }}>
                       <p className="text-2xl font-bold font-display mb-2" style={{ color: item.color, opacity: 0.4 }}>{item.phase}</p>
@@ -907,10 +907,10 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                       <div key={i}>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-sm text-white font-medium">{item.label}</span>
-                          <span className="text-sm font-bold text-[#E040A0]">{item.pct}%</span>
+                          <span className="text-sm font-bold text-[#C83E88]">{item.pct}%</span>
                         </div>
-                        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(224,64,160,0.08)' }}>
-                          <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${item.pct}%`, background: 'linear-gradient(90deg, #E040A0, #C030A0)', animationDelay: `${1.5 + i * 0.15}s` }} />
+                        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(200,62,136,0.08)' }}>
+                          <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${item.pct}%`, background: 'linear-gradient(90deg, #C83E88, #C030A0)', animationDelay: `${1.5 + i * 0.15}s` }} />
                         </div>
                         <p className="text-[0.65rem] text-[#7A7A80] mt-1">{item.detail}</p>
                       </div>
@@ -930,10 +930,10 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
 
                 <a href="mailto:jamal@hakadian.com?subject=Pulse%20%E2%80%94%20Investment%20Inquiry" className="inline-block px-12 py-4 rounded-full text-base font-bold text-white text-center hover:scale-[1.03] active:scale-[0.98] transition-all mb-3"
                   style={{
-                    background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 50%, #E040A0 100%)',
+                    background: 'linear-gradient(135deg, #C83E88 0%, #C030A0 50%, #C83E88 100%)',
                     backgroundSize: '200% 100%',
                     animation: 'shimmer-btn 3s ease-in-out infinite',
-                    boxShadow: '0 6px 30px rgba(224,64,160,0.4), 0 0 80px rgba(224,64,160,0.12)',
+                    boxShadow: '0 6px 30px rgba(200,62,136,0.4), 0 0 80px rgba(200,62,136,0.12)',
                   }}>
                   jamal@hakadian.com
                 </a>

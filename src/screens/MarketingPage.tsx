@@ -30,7 +30,7 @@ function HeartbeatLine({ visible }: { visible: boolean }) {
     >
       <path
         d="M0 12h42l5-10 5 20 5-20 5 10h78"
-        stroke="#E040A0" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"
+        stroke="#C83E88" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"
         strokeDasharray="200" strokeDashoffset={visible ? '0' : '200'}
         style={{ transition: 'stroke-dashoffset 2s ease-out' }}
       />
@@ -57,13 +57,13 @@ function Stat({ value, label, delay, visible }: {
           fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontSize: 'clamp(2.5rem, 6vw, 4rem)',
           fontWeight: 600,
-          color: '#E040A0',
+          color: '#C83E88',
           lineHeight: 1,
         }}
       >
         {value}
       </p>
-      <p className="mt-2 text-xs sm:text-sm tracking-wide" style={{ color: 'rgba(255,255,255,0.40)' }}>
+      <p className="mt-2 text-xs sm:text-sm tracking-wide" style={{ color: '#A89E98' }}>
         {label}
       </p>
     </div>
@@ -105,7 +105,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
   return (
     <div
       className="min-h-screen relative overflow-x-hidden"
-      style={{ background: 'linear-gradient(170deg, #1C1A22 0%, #16141C 40%, #12111A 100%)' }}
+      style={{ background: 'linear-gradient(170deg, #FAF7F2 0%, #F2EDE6 40%, #FAF7F2 100%)' }}
     >
       {/* ─── Ambient ─── */}
       <div className="fixed inset-0 pointer-events-none">
@@ -113,7 +113,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
           className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
             width: '1000px', height: '700px',
-            background: 'radial-gradient(ellipse, rgba(224,64,160,0.05) 0%, rgba(160,50,180,0.02) 40%, transparent 70%)',
+            background: 'radial-gradient(ellipse, rgba(200,62,136,0.06) 0%, transparent 40%, transparent 70%)',
           }}
         />
       </div>
@@ -135,7 +135,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   color: heroPhase >= (i + 1)
-                    ? (word === 'Repeat.' ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.55)')
+                    ? (word === 'Repeat.' ? 'transparent' : '#8A7E78')
                     : 'transparent',
                   transform: heroPhase >= (i + 1) ? 'translateY(0)' : 'translateY(6px)',
                 }}
@@ -162,12 +162,12 @@ export default function MarketingPage({ onStartDemo }: Props) {
                 fontWeight: 300,
                 fontStyle: 'italic',
                 lineHeight: 1.05,
-                color: 'rgba(255,255,255,0.92)',
+                color: '#2A2528',
               }}
             >
               $9.6 billion.
               <br />
-              <span style={{ color: '#E040A0' }}>By design.</span>
+              <span style={{ color: '#C83E88' }}>By design.</span>
             </h1>
           </div>
 
@@ -186,7 +186,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
             <div className="mt-6">
               <span
                 className="text-[clamp(0.75rem,1.8vw,0.95rem)] tracking-[0.35em] uppercase"
-                style={{ fontFamily: "'DM Sans', sans-serif", color: 'rgba(255,255,255,0.50)' }}
+                style={{ fontFamily: "'DM Sans', sans-serif", color: '#8A7E78' }}
               >
                 Pulse
               </span>
@@ -197,9 +197,9 @@ export default function MarketingPage({ onStartDemo }: Props) {
                 onClick={onStartDemo}
                 className="group px-10 py-4 rounded-full text-base font-semibold transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
                 style={{
-                  background: '#E040A0',
+                  background: '#C83E88',
                   color: 'white',
-                  boxShadow: '0 4px 30px rgba(224,64,160,0.30)',
+                  boxShadow: '0 4px 30px rgba(200,62,136,0.30)',
                 }}
               >
                 <span className="flex items-center gap-2.5">
@@ -207,7 +207,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 </span>
               </button>
-              <p className="mt-4 text-[11px] tracking-[0.15em] uppercase" style={{ color: 'rgba(255,255,255,0.20)' }}>
+              <p className="mt-4 text-[11px] tracking-[0.15em] uppercase" style={{ color: '#DDD5CC' }}>
                 Interactive walkthrough · 2 minutes
               </p>
             </div>
@@ -233,7 +233,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
                 fontWeight: 300,
                 fontStyle: 'italic',
                 lineHeight: 1.35,
-                color: 'rgba(255,255,255,0.55)',
+                color: '#8A7E78',
                 opacity: tension.visible ? 1 : 0,
                 transform: tension.visible ? 'translateY(0)' : 'translateY(12px)',
                 transitionDelay: `${item.delay}ms`,
@@ -251,7 +251,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
               fontSize: 'clamp(1.4rem, 4vw, 2.2rem)',
               fontWeight: 400,
               lineHeight: 1.35,
-              color: 'rgba(255,255,255,0.85)',
+              color: '#2A2528',
               opacity: tension.visible ? 1 : 0,
               transform: tension.visible ? 'translateY(0)' : 'translateY(12px)',
               transitionDelay: '700ms',
@@ -273,14 +273,14 @@ export default function MarketingPage({ onStartDemo }: Props) {
               fontWeight: 300,
               fontStyle: 'italic',
               lineHeight: 1.05,
-              color: 'rgba(255,255,255,0.92)',
+              color: '#2A2528',
               opacity: shift.visible ? 1 : 0,
               transform: shift.visible ? 'translateY(0)' : 'translateY(16px)',
             }}
           >
             What if you knew
             <br />
-            <span style={{ color: '#E040A0' }}>in five minutes?</span>
+            <span style={{ color: '#C83E88' }}>in five minutes?</span>
           </h2>
 
           <div className="h-10" />
@@ -288,7 +288,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
           <p
             className="text-sm sm:text-base leading-relaxed max-w-lg mx-auto transition-all duration-[1.8s] ease-out"
             style={{
-              color: 'rgba(255,255,255,0.40)',
+              color: '#A89E98',
               opacity: shift.visible ? 1 : 0,
               transitionDelay: '400ms',
             }}
@@ -313,8 +313,8 @@ export default function MarketingPage({ onStartDemo }: Props) {
               { num: '03', text: 'Mutual matches revealed' },
             ].map((s, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-[11px] tracking-wider font-medium" style={{ color: 'rgba(224,64,160,0.6)' }}>{s.num}</span>
-                <span className="text-sm tracking-wide" style={{ color: 'rgba(255,255,255,0.50)' }}>{s.text}</span>
+                <span className="text-[11px] tracking-wider font-medium" style={{ color: 'rgba(200,62,136,0.6)' }}>{s.num}</span>
+                <span className="text-sm tracking-wide" style={{ color: '#8A7E78' }}>{s.text}</span>
               </div>
             ))}
           </div>
@@ -324,17 +324,19 @@ export default function MarketingPage({ onStartDemo }: Props) {
           {/* Second CTA */}
           <button
             onClick={onStartDemo}
-            className="px-8 py-3 rounded-full text-sm tracking-wide transition-all duration-500 glass-button"
+            className="px-8 py-3 rounded-full text-sm tracking-wide transition-all duration-500"
             style={{
-              color: 'rgba(255,255,255,0.60)',
+              color: '#4A4548',
+              border: '1px solid rgba(200,62,136,0.20)',
+              background: 'rgba(200,62,136,0.08)',
               opacity: shift.visible ? 1 : 0,
               transitionDelay: '800ms',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.9)'
+              e.currentTarget.style.color = '#2A2528'
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.60)'
+              e.currentTarget.style.color = '#4A4548'
             }}
           >
             Try it yourself →
@@ -354,13 +356,13 @@ export default function MarketingPage({ onStartDemo }: Props) {
               fontSize: 'clamp(1.3rem, 3.5vw, 1.8rem)',
               fontWeight: 300,
               fontStyle: 'italic',
-              color: 'rgba(255,255,255,0.45)',
+              color: '#8A7E78',
               opacity: proof.visible ? 1 : 0,
             }}
           >
             Western apps don't fit the culture. Arranged introductions don't fit the generation.
             <br />
-            <span style={{ color: 'rgba(255,255,255,0.70)' }}>Pulse sits in the gap.</span>
+            <span style={{ color: '#4A4548' }}>Pulse sits in the gap.</span>
           </p>
 
           {/* Four numbers — clean, no cards */}
@@ -384,13 +386,13 @@ export default function MarketingPage({ onStartDemo }: Props) {
               fontSize: 'clamp(1.8rem, 5vw, 2.8rem)',
               fontWeight: 300,
               fontStyle: 'italic',
-              color: 'rgba(255,255,255,0.85)',
+              color: '#2A2528',
               opacity: model.visible ? 1 : 0,
             }}
           >
             Three revenue streams.
             <br />
-            <span style={{ color: 'rgba(255,255,255,0.40)' }}>Day one.</span>
+            <span style={{ color: '#A89E98' }}>Day one.</span>
           </h3>
 
           {/* Revenue lines */}
@@ -403,7 +405,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
               key={i}
               className="flex items-baseline gap-6 py-6 transition-all duration-[1.5s] ease-out"
               style={{
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                borderBottom: '1px solid rgba(42,37,40,0.08)',
                 opacity: model.visible ? 1 : 0,
                 transform: model.visible ? 'translateY(0)' : 'translateY(10px)',
                 transitionDelay: `${200 + i * 150}ms`,
@@ -414,15 +416,15 @@ export default function MarketingPage({ onStartDemo }: Props) {
                 style={{
                   fontFamily: "'Cormorant Garamond', Georgia, serif",
                   fontWeight: 600,
-                  color: '#E040A0',
+                  color: '#C83E88',
                   width: '70px',
                 }}
               >
                 {r.pct}
               </span>
               <div>
-                <p className="text-sm sm:text-base font-medium" style={{ color: 'rgba(255,255,255,0.80)' }}>{r.title}</p>
-                <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.30)' }}>{r.desc}</p>
+                <p className="text-sm sm:text-base font-medium" style={{ color: '#3A3538' }}>{r.title}</p>
+                <p className="text-xs sm:text-sm mt-0.5" style={{ color: '#C2B8AE' }}>{r.desc}</p>
               </div>
             </div>
           ))}
@@ -437,17 +439,17 @@ export default function MarketingPage({ onStartDemo }: Props) {
           >
             <div className="inline-flex items-center gap-8 sm:gap-12">
               <div className="text-center">
-                <p className="text-2xl font-display" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, color: 'rgba(255,255,255,0.80)' }}>
+                <p className="text-2xl font-display" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, color: '#3A3538' }}>
                   AED 750
                 </p>
-                <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Revenue / session</p>
+                <p className="text-[11px] mt-1" style={{ color: '#C2B8AE' }}>Revenue / session</p>
               </div>
-              <div style={{ color: 'rgba(255,255,255,0.15)' }}>→</div>
+              <div style={{ color: '#DDD5CC' }}>→</div>
               <div className="text-center">
-                <p className="text-2xl font-display" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, color: '#E040A0' }}>
+                <p className="text-2xl font-display" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, color: '#C83E88' }}>
                   ~89%
                 </p>
-                <p className="text-[11px] mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>Gross margin</p>
+                <p className="text-[11px] mt-1" style={{ color: '#C2B8AE' }}>Gross margin</p>
               </div>
             </div>
           </div>
@@ -460,7 +462,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
               transitionDelay: '1000ms',
             }}
           >
-            <p className="text-[11px] tracking-[0.25em] uppercase mb-6" style={{ color: 'rgba(255,255,255,0.20)' }}>
+            <p className="text-[11px] tracking-[0.25em] uppercase mb-6" style={{ color: '#DDD5CC' }}>
               Expansion
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
@@ -475,7 +477,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
                   key={i}
                   className="text-sm tracking-wide"
                   style={{
-                    color: c.active ? 'rgba(224,64,160,0.8)' : 'rgba(255,255,255,0.20)',
+                    color: c.active ? 'rgba(200,62,136,0.8)' : '#DDD5CC',
                   }}
                 >
                   {c.city} <span className="text-[10px] ml-1" style={{ opacity: 0.6 }}>{c.when}</span>
@@ -497,7 +499,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
               fontWeight: 300,
               fontStyle: 'italic',
               lineHeight: 1.05,
-              color: 'rgba(255,255,255,0.90)',
+              color: '#2A2528',
               opacity: close.visible ? 1 : 0,
               transform: close.visible ? 'translateY(0)' : 'translateY(12px)',
             }}
@@ -508,7 +510,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
           <p
             className="text-sm sm:text-base mb-10 transition-all duration-[1.8s] ease-out"
             style={{
-              color: 'rgba(255,255,255,0.35)',
+              color: '#A89E98',
               opacity: close.visible ? 1 : 0,
               transitionDelay: '300ms',
             }}
@@ -522,9 +524,9 @@ export default function MarketingPage({ onStartDemo }: Props) {
             onClick={onStartDemo}
             className="group px-10 py-4 rounded-full text-base font-semibold transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
             style={{
-              background: '#E040A0',
+              background: '#C83E88',
               color: 'white',
-              boxShadow: '0 4px 30px rgba(224,64,160,0.30)',
+              boxShadow: '0 4px 30px rgba(200,62,136,0.30)',
               opacity: close.visible ? 1 : 0,
               transitionDelay: '500ms',
             }}
@@ -538,17 +540,17 @@ export default function MarketingPage({ onStartDemo }: Props) {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="px-6 py-8" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <footer className="px-6 py-8" style={{ borderTop: '1px solid rgba(42,37,40,0.06)' }}>
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-[11px] tracking-wider" style={{ color: 'rgba(255,255,255,0.15)' }}>
+          <span className="text-[11px] tracking-wider" style={{ color: '#DDD5CC' }}>
             Pulse · Dubai 2026
           </span>
           <a
             href="mailto:jamal@hakadian.com"
             className="text-[11px] tracking-wider transition-colors duration-500"
-            style={{ color: 'rgba(255,255,255,0.15)' }}
-            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.40)'}
-            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.15)'}
+            style={{ color: '#DDD5CC' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#A89E98'}
+            onMouseLeave={e => e.currentTarget.style.color = '#DDD5CC'}
           >
             jamal@hakadian.com
           </a>

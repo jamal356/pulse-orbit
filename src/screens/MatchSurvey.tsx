@@ -23,7 +23,7 @@ const vibeOptions = [
   { emoji: '\u{1F60A}', label: 'Warm', color: '#FF9F0A' },
   { emoji: '\u{1F914}', label: 'Interesting', color: '#6060FF' },
   { emoji: '\u{1F602}', label: 'Fun', color: '#30D158' },
-  { emoji: '\u{1F32A}\u{FE0F}', label: 'Intense', color: '#E040A0' },
+  { emoji: '\u{1F32A}\u{FE0F}', label: 'Intense', color: '#C83E88' },
   { emoji: '\u{1F636}', label: 'Awkward', color: '#7A7A80' },
 ]
 
@@ -76,7 +76,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
 
   const handleRate = useCallback((r: 'like' | 'pass', e: React.MouseEvent) => {
     setRating(r)
-    triggerRipple(e, r === 'like' ? '#E040A0' : '#6060FF')
+    triggerRipple(e, r === 'like' ? '#C83E88' : '#6060FF')
     setTimeout(() => advancePhase('vibe'), 500)
   }, [advancePhase, triggerRipple])
 
@@ -88,7 +88,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
 
   const handleIntent = useCallback((intent: string, e: React.MouseEvent) => {
     setSelectedIntent(intent)
-    triggerRipple(e, '#E040A0')
+    triggerRipple(e, '#C83E88')
     advancePhase('done')
     setTimeout(() => {
       if (rating) onRate(person.name, rating)
@@ -144,7 +144,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
           className="h-full transition-all duration-700 ease-out"
           style={{
             width: `${progress * 100}%`,
-            background: 'linear-gradient(90deg, #E040A0, #FF6EC7, #E040A0)',
+            background: 'linear-gradient(90deg, #C83E88, #FF6EC7, #C83E88)',
             boxShadow: '0 0 12px rgba(224,64,160,0.5)',
           }}
         />
@@ -175,7 +175,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
               <div
                 className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
                 style={{
-                  background: rating === 'like' ? '#E040A0' : '#3A3A3E',
+                  background: rating === 'like' ? '#C83E88' : '#3A3A3E',
                   border: '1.5px solid rgba(0,0,0,0.4)',
                   animation: 'scale-pop 0.3s ease-out',
                 }}
@@ -199,7 +199,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
               key={i}
               className="w-1.5 h-1.5 rounded-full transition-all duration-300"
               style={{
-                backgroundColor: i <= dateIndex ? '#E040A0' : 'rgba(224,64,160,0.15)',
+                backgroundColor: i <= dateIndex ? '#C83E88' : 'rgba(224,64,160,0.15)',
                 boxShadow: i === dateIndex ? '0 0 6px rgba(224,64,160,0.4)' : 'none',
               }}
             />
@@ -229,7 +229,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                 }}
               >
                 <div className="glass-tile backdrop-blur-xl inline-flex items-center gap-2 px-4 py-2 rounded-full">
-                  <svg className="w-3 h-3 text-[#E040A0]/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-3 h-3 text-[#C83E88]/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   <p className="text-[0.65rem] text-white/50 italic" style={{ fontFamily: "'Cormorant Garamond', serif" }}>{whisper}</p>
@@ -274,7 +274,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                   }}
                 >
                   <span className="text-4xl transition-transform duration-200 group-hover:scale-110">{'\u{1F525}'}</span>
-                  <span className="text-sm font-medium text-[#E040A0]/90" style={{ fontFamily: "'DM Sans', sans-serif" }}>I felt it</span>
+                  <span className="text-sm font-medium text-[#C83E88]/90" style={{ fontFamily: "'DM Sans', sans-serif" }}>I felt it</span>
                 </button>
               </div>
             </>
@@ -386,7 +386,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                       className="text-sm font-medium"
                       style={{
                         fontFamily: "'DM Sans', sans-serif",
-                        color: selectedIntent === opt.value ? '#E040A0' : 'rgba(255,255,255,0.5)',
+                        color: selectedIntent === opt.value ? '#C83E88' : 'rgba(255,255,255,0.5)',
                       }}
                     >
                       {opt.label}
@@ -407,7 +407,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                   animation: 'pulse-glow 1.5s ease-in-out infinite',
                 }}
               >
-                <svg className="w-7 h-7 text-[#E040A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-7 h-7 text-[#C83E88]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" style={{ animation: 'draw-check 0.5s ease-out forwards' }} />
                 </svg>
               </div>

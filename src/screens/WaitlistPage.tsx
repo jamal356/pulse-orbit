@@ -498,31 +498,25 @@ export default function WaitlistPage() {
             <div className="mt-16 w-full transition-all duration-[2.5s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(16px)' }}>
               <p className="text-[10px] tracking-[0.25em] uppercase mb-8" style={{ color: P.textFaint }}>
-                What happens next
+                Your journey begins
               </p>
               <div className="flex items-start justify-between gap-4">
                 {[
-                  { num: '01', label: 'Review', desc: 'We review your profile' },
-                  { num: '02', label: 'Match', desc: 'We find your people' },
-                  { num: '03', label: 'Invite', desc: 'You get early access' },
+                  { num: '01', label: 'Selected', desc: 'You caught our eye' },
+                  { num: '02', label: 'Curated', desc: 'We\'re building your room' },
+                  { num: '03', label: 'Unlocked', desc: 'Your first Spark awaits' },
                 ].map((item, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center text-center gap-2.5">
                     <span className="text-[10px] tracking-[0.2em] font-medium" style={{ color: P.accent }}>
                       {item.num}
                     </span>
                     <span className="text-[13px] tracking-wide font-medium"
-                      style={{ fontFamily: "'DM Sans', sans-serif", color: P.text }}>
+                      style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: P.text, fontStyle: 'italic' }}>
                       {item.label}
                     </span>
                     <span className="text-[11px] leading-relaxed" style={{ color: P.textSoft }}>
                       {item.desc}
                     </span>
-                    {/* Connector line between steps */}
-                    {i < 2 && (
-                      <div className="absolute" style={{
-                        width: '1px', height: '1px', /* visual connector handled by spacing */
-                      }} />
-                    )}
                   </div>
                 ))}
               </div>

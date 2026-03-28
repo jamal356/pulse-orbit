@@ -95,7 +95,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
   const barWidth = (count / TOTAL) * 100
 
   return (
-    <div className="fixed inset-0 overflow-hidden" style={{ backgroundColor: '#0A0A0A' }}>
+    <div className="fixed inset-0 overflow-hidden" style={{ backgroundColor: '#1E1B18' }}>
 
       {/* ====== FULL-BLEED CINEMATIC BACKDROP ====== */}
       <img
@@ -120,11 +120,11 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
         <div className="flex items-center gap-3">
           <span className="text-base font-display font-semibold text-white/40">Pulse</span>
           <svg width="40" height="10" viewBox="0 0 120 24" fill="none" className="opacity-20">
-            <path d="M0 12h30l5-10 5 20 5-20 5 10h70" stroke="#E040A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M0 12h30l5-10 5 20 5-20 5 10h70" stroke="#C83E88" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
         <div className="glass-button flex items-center gap-2 rounded-full px-4 py-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0] animate-pulse" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88] animate-pulse" />
           <span className="text-xs font-mono text-white/70 tabular-nums">{count}s</span>
         </div>
       </div>
@@ -239,17 +239,17 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
               src={nextPerson.photo}
               alt={nextPerson.name}
               className="w-10 h-10 rounded-full object-cover shrink-0"
-              style={{ border: '1.5px solid #E040A0', boxShadow: '0 0 8px rgba(224,64,160,0.3)' }}
+              style={{ border: '1.5px solid #C83E88', boxShadow: '0 0 8px rgba(200,62,136,0.3)' }}
             />
             <div className="flex-1 min-w-0">
               <p className="text-xs text-white/80 font-medium">
-                Up next: <span className="text-[#E040A0]">{nextPerson.name}</span>, {nextPerson.age}
+                Up next: <span className="text-[#C83E88]">{nextPerson.name}</span>, {nextPerson.age}
               </p>
               <p className="text-[0.65rem] text-white/35 mb-1">{nextPerson.location} &middot; {nextPerson.bio}</p>
               <div className="flex gap-1 flex-wrap">
                 {nextPerson.tags.slice(0, 3).map(tag => (
                   <span key={tag} className="text-[0.5rem] px-1.5 py-0.5 rounded-full"
-                    style={{ background: 'rgba(224,64,160,0.10)', color: '#E040A0', border: '0.5px solid rgba(224,64,160,0.15)' }}>
+                    style={{ background: 'rgba(200,62,136,0.10)', color: '#C83E88', border: '0.5px solid rgba(200,62,136,0.15)' }}>
                     {tag}
                   </span>
                 ))}
@@ -281,8 +281,8 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
                       width: 6,
                       height: 6,
                       borderRadius: '50%',
-                      background: completed ? '#E040A0' : current ? '#E040A0' : 'rgba(255,255,255,0.15)',
-                      boxShadow: (completed || current) ? '0 0 6px rgba(224,64,160,0.5)' : 'none',
+                      background: completed ? '#C83E88' : current ? '#C83E88' : 'rgba(255,255,255,0.15)',
+                      boxShadow: (completed || current) ? '0 0 6px rgba(200,62,136,0.5)' : 'none',
                       animation: current ? 'dot-pulse 1.2s ease-in-out infinite' : 'none',
                     }}
                   />
@@ -293,7 +293,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
             {/* Progress bar */}
             <div className="w-16 md:w-24 h-1 rounded-full overflow-hidden shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
               <div
-                className="h-full rounded-full bg-[#E040A0]"
+                className="h-full rounded-full bg-[#C83E88]"
                 style={{ width: `${barWidth}%`, transition: 'width 1s linear' }}
               />
             </div>

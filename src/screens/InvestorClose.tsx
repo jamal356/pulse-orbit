@@ -32,7 +32,7 @@ function HeartbeatLine({ visible }: { visible: boolean }) {
     >
       <path
         d="M0 10h30l4-8 4 16 4-16 4 8h54"
-        stroke="#E040A0" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"
+        stroke="#C83E88" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"
         strokeDasharray="160" strokeDashoffset={visible ? '0' : '160'}
         style={{ transition: 'stroke-dashoffset 2s ease-out' }}
       />
@@ -78,12 +78,12 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
   return (
     <div
       className="min-h-screen relative overflow-x-hidden"
-      style={{ background: 'linear-gradient(170deg, #1C1A22 0%, #16141C 40%, #12111A 100%)' }}
+      style={{ background: 'linear-gradient(170deg, #FAF7F2 0%, #F2EDE6 40%, #FAF7F2 100%)' }}
     >
       {/* Ambient glow */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{ width: '900px', height: '600px', background: 'radial-gradient(ellipse, rgba(224,64,160,0.04) 0%, transparent 70%)' }}
+          style={{ width: '900px', height: '600px', background: 'radial-gradient(ellipse, rgba(200,62,136,0.04) 0%, transparent 70%)' }}
         />
       </div>
 
@@ -94,18 +94,18 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           style={{
             fontFamily: serif, fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
             fontWeight: 300, fontStyle: 'italic',
-            color: 'rgba(255,255,255,0.85)',
+            color: '#2A2528',
             opacity: phase >= 1 ? 1 : 0,
             transform: phase >= 1 ? 'translateY(0)' : 'translateY(12px)',
           }}
         >
-          That was <span style={{ color: '#E040A0' }}>one session</span>.
+          That was <span style={{ color: '#C83E88' }}>one session</span>.
         </p>
         <p
           className="mt-3 transition-all duration-[2s] ease-out"
           style={{
             fontFamily: sans, fontSize: '0.85rem',
-            color: 'rgba(255,255,255,0.30)', letterSpacing: '0.08em',
+            color: '#8A7E78', letterSpacing: '0.08em',
             opacity: phase >= 2 ? 1 : 0,
           }}
         >
@@ -129,7 +129,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 src={photos.user}
                 alt="Your profile"
                 className="w-16 h-16 rounded-full object-cover"
-                style={{ border: '2px solid rgba(224,64,160,0.4)' }}
+                style={{ border: '2px solid rgba(200,62,136,0.4)' }}
               />
               <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
                 style={{ background: '#30D158' }}>
@@ -137,17 +137,17 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               </div>
             </div>
             <div>
-              <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: 'rgba(255,255,255,0.90)' }}>
+              <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#2A2528' }}>
                 Omar, 30
               </p>
-              <p style={{ fontFamily: sans, fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)' }}>
+              <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#8A7E78' }}>
                 Dubai Marina · Joined Mar 2026
               </p>
             </div>
           </div>
 
           {/* Stats row */}
-          <div className="px-6 py-4 flex justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="px-6 py-4 flex justify-between" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
             {[
               { value: '4', label: 'Sessions' },
               { value: '6', label: 'Matches' },
@@ -155,15 +155,15 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               { value: '30%', label: 'Match rate' },
             ].map(s => (
               <div key={s.label} className="text-center">
-                <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#E040A0' }}>{s.value}</p>
-                <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.30)' }}>{s.label}</p>
+                <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#C83E88' }}>{s.value}</p>
+                <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7E78' }}>{s.label}</p>
               </div>
             ))}
           </div>
 
           {/* Tonight's matches */}
-          <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '12px' }}>
+          <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
+            <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78', marginBottom: '12px' }}>
               Tonight's matches
             </p>
             <div className="flex gap-3">
@@ -171,7 +171,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 <div key={m.name} className="flex flex-col items-center gap-1.5">
                   <div className="relative">
                     <img src={m.photo} alt={m.name} className="w-12 h-12 rounded-full object-cover"
-                      style={{ border: '2px solid rgba(224,64,160,0.5)' }} />
+                      style={{ border: '2px solid rgba(200,62,136,0.5)' }} />
                     <div className="absolute -top-1 -right-1 text-[10px]">💗</div>
                   </div>
                   <p style={{ fontFamily: sans, fontSize: '0.7rem', color: 'rgba(255,255,255,0.60)' }}>{m.name}</p>
@@ -182,10 +182,10 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                   <div key={m.name} className="flex flex-col items-center gap-1.5">
                     <div className="relative">
                       <img src={m.photo} alt={m.name} className="w-12 h-12 rounded-full object-cover"
-                        style={{ border: '2px solid rgba(224,64,160,0.5)' }} />
+                        style={{ border: '2px solid rgba(200,62,136,0.5)' }} />
                       <div className="absolute -top-1 -right-1 text-[10px]">💗</div>
                     </div>
-                    <p style={{ fontFamily: sans, fontSize: '0.7rem', color: 'rgba(255,255,255,0.60)' }}>{m.name}</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#2A2528' }}>{m.name}</p>
                   </div>
                 ))
               )}
@@ -193,26 +193,26 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           </div>
 
           {/* Session history */}
-          <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-            <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '12px' }}>
+          <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
+            <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78', marginBottom: '12px' }}>
               Session history
             </p>
             {pastSessions.map((s, i) => (
               <div key={i} className="flex items-center justify-between py-2.5"
-                style={{ borderBottom: i < pastSessions.length - 1 ? '1px solid rgba(255,255,255,0.03)' : 'none' }}>
+                style={{ borderBottom: i < pastSessions.length - 1 ? '1px solid rgba(42,37,40,0.06)' : 'none' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs"
-                    style={{ background: 'rgba(224,64,160,0.12)', color: '#E040A0', fontFamily: sans }}>
+                    style={{ background: 'rgba(200,62,136,0.12)', color: '#C83E88', fontFamily: sans }}>
                     {s.matches}
                   </div>
                   <div>
-                    <p style={{ fontFamily: sans, fontSize: '0.8rem', color: 'rgba(255,255,255,0.70)' }}>
+                    <p style={{ fontFamily: sans, fontSize: '0.8rem', color: '#2A2528' }}>
                       {s.matches} match{s.matches !== 1 ? 'es' : ''} from {s.dates} dates
                     </p>
-                    <p style={{ fontFamily: sans, fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)' }}>{s.date}</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.65rem', color: '#8A7E78' }}>{s.date}</p>
                   </div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(42,37,40,0.15)" strokeWidth="2">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
               </div>
@@ -220,21 +220,21 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           </div>
 
           {/* Upcoming session */}
-          <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
             <div className="flex items-center justify-between">
               <div>
-                <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)' }}>
+                <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78' }}>
                   Next session
                 </p>
-                <p className="mt-1" style={{ fontFamily: serif, fontSize: '1.1rem', fontWeight: 500, color: 'rgba(255,255,255,0.80)' }}>
+                <p className="mt-1" style={{ fontFamily: serif, fontSize: '1.1rem', fontWeight: 500, color: '#2A2528' }}>
                   Thursday · 9 PM
                 </p>
-                <p style={{ fontFamily: sans, fontSize: '0.7rem', color: 'rgba(255,255,255,0.30)' }}>
+                <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78' }}>
                   3 spots left
                 </p>
               </div>
               <div className="px-4 py-2 rounded-full text-xs font-medium"
-                style={{ background: 'rgba(224,64,160,0.15)', color: '#E040A0', fontFamily: sans }}>
+                style={{ background: 'rgba(200,62,136,0.15)', color: '#C83E88', fontFamily: sans }}>
                 Booked ✓
               </div>
             </div>
@@ -263,10 +263,10 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                   transform: numbers.visible ? 'translateY(0)' : 'translateY(16px)',
                   transitionDelay: `${s.delay}ms`,
                 }}>
-                <p style={{ fontFamily: serif, fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 600, color: '#E040A0', lineHeight: 1 }}>
+                <p style={{ fontFamily: serif, fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 600, color: '#C83E88', lineHeight: 1 }}>
                   {s.value}
                 </p>
-                <p className="mt-2" style={{ fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.35)' }}>
+                <p className="mt-2" style={{ fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.06em', color: '#8A7E78' }}>
                   {s.label}
                 </p>
               </div>
@@ -287,13 +287,13 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           >
             {/* Revenue per session */}
             <div className="text-center mb-12">
-              <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)' }}>
+              <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78' }}>
                 Revenue per session
               </p>
-              <p className="mt-2" style={{ fontFamily: serif, fontSize: 'clamp(2.5rem, 6vw, 3.5rem)', fontWeight: 600, color: 'rgba(255,255,255,0.90)' }}>
+              <p className="mt-2" style={{ fontFamily: serif, fontSize: 'clamp(2.5rem, 6vw, 3.5rem)', fontWeight: 600, color: '#2A2528' }}>
                 AED 750
               </p>
-              <p style={{ fontFamily: sans, fontSize: '0.8rem', color: 'rgba(255,255,255,0.35)' }}>
+              <p style={{ fontFamily: sans, fontSize: '0.8rem', color: '#8A7E78' }}>
                 10 seats × AED 75 · ~89% gross margin
               </p>
             </div>
@@ -306,20 +306,20 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 { pct: '15%', label: 'Sponsored moments', sub: 'Brand takeovers between dates' },
               ].map(r => (
                 <div key={r.label} className="flex items-baseline gap-4"
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '16px' }}>
-                  <span style={{ fontFamily: serif, fontSize: '1.4rem', fontWeight: 600, color: '#E040A0', minWidth: '48px' }}>
+                  style={{ borderBottom: '1px solid rgba(42,37,40,0.06)', paddingBottom: '16px' }}>
+                  <span style={{ fontFamily: serif, fontSize: '1.4rem', fontWeight: 600, color: '#C83E88', minWidth: '48px' }}>
                     {r.pct}
                   </span>
                   <div>
-                    <p style={{ fontFamily: sans, fontSize: '0.85rem', color: 'rgba(255,255,255,0.70)' }}>{r.label}</p>
-                    <p style={{ fontFamily: sans, fontSize: '0.7rem', color: 'rgba(255,255,255,0.25)' }}>{r.sub}</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.85rem', color: '#2A2528' }}>{r.label}</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78' }}>{r.sub}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Expansion */}
-            <p className="mt-12 text-center" style={{ fontFamily: sans, fontSize: '0.75rem', color: 'rgba(255,255,255,0.25)', letterSpacing: '0.04em' }}>
+            <p className="mt-12 text-center" style={{ fontFamily: sans, fontSize: '0.75rem', color: '#8A7E78', letterSpacing: '0.04em' }}>
               Dubai → Riyadh → Doha → Cairo → London
             </p>
           </div>
@@ -343,14 +343,14 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 fontWeight: 300,
                 fontStyle: 'italic',
                 lineHeight: 1.1,
-                color: 'rgba(255,255,255,0.90)',
+                color: '#2A2528',
               }}
             >
               We're opening a{' '}
-              <span style={{ color: '#E040A0' }}>founding round</span>.
+              <span style={{ color: '#C83E88' }}>founding round</span>.
             </p>
 
-            <p className="mt-4" style={{ fontFamily: sans, fontSize: '0.85rem', color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
+            <p className="mt-4" style={{ fontFamily: sans, fontSize: '0.85rem', color: '#8A7E78', lineHeight: 1.6 }}>
               Limited to a small group of founding partners who believe<br />
               dating deserves better than the swipe.
             </p>
@@ -360,9 +360,9 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 href="mailto:jamal@hakadian.com?subject=Pulse%20—%20Founding%20Round"
                 className="inline-flex items-center gap-2.5 px-10 py-4 rounded-full text-base font-semibold transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
                 style={{
-                  background: '#E040A0',
+                  background: '#C83E88',
                   color: 'white',
-                  boxShadow: '0 4px 30px rgba(224,64,160,0.30)',
+                  boxShadow: '0 4px 30px rgba(200,62,136,0.30)',
                   fontFamily: sans,
                   textDecoration: 'none',
                 }}
@@ -371,7 +371,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               </a>
             </div>
 
-            <p className="mt-6" style={{ fontFamily: sans, fontSize: '0.7rem', color: 'rgba(255,255,255,0.18)', letterSpacing: '0.08em' }}>
+            <p className="mt-6" style={{ fontFamily: sans, fontSize: '0.7rem', color: '#DDD5CC', letterSpacing: '0.08em' }}>
               jamal@hakadian.com
             </p>
           </div>
@@ -380,8 +380,8 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           <div className="mt-20">
             <button
               onClick={onRestart}
-              className="text-sm transition-colors hover:text-white"
-              style={{ fontFamily: sans, color: 'rgba(255,255,255,0.20)', background: 'none', border: 'none', cursor: 'pointer' }}
+              className="text-sm transition-colors hover:text-[#2A2528]"
+              style={{ fontFamily: sans, color: '#DDD5CC', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               ← Replay demo
             </button>
@@ -390,8 +390,8 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
       </section>
 
       {/* Footer */}
-      <footer className="relative px-6 py-8 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-        <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.12)' }}>
+      <footer className="relative px-6 py-8 text-center" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
+        <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.1em', color: '#DDD5CC' }}>
           Pulse · Dubai 2026
         </p>
       </footer>

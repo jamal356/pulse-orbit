@@ -113,11 +113,11 @@ export default function AiSupport({ onClose }: Props) {
 
   return (
     <div className={`fixed inset-0 z-[100] flex flex-col transition-all duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
-      style={{ background: 'rgba(13,13,17,0.97)', backdropFilter: 'blur(30px)' }}>
+      style={{ background: 'rgba(250,247,242,0.98)', backdropFilter: 'blur(30px)' }}>
 
       {/* Header — Aura's identity */}
       <header className="shrink-0 px-5 py-4 flex items-center justify-between"
-        style={{ borderBottom: '1px solid rgba(224,64,160,0.06)' }}>
+        style={{ borderBottom: '1px solid rgba(200,62,136,0.06)' }}>
         <div className="flex items-center gap-3">
           {/* Aura's orb — a living, breathing light */}
           <div className="relative w-11 h-11 flex items-center justify-center">
@@ -144,7 +144,7 @@ export default function AiSupport({ onClose }: Props) {
           </div>
 
           <div>
-            <h1 className="text-base font-bold text-white tracking-wide">Aura</h1>
+            <h1 className="text-base font-bold text-[#2A2528] tracking-wide">Aura</h1>
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-[#30D158]" style={{ boxShadow: '0 0 4px rgba(48,209,88,0.5)' }} />
               <span className="text-[0.6rem] text-[#30D158]/80 font-medium">Your Pulse concierge</span>
@@ -153,8 +153,8 @@ export default function AiSupport({ onClose }: Props) {
         </div>
 
         <button onClick={onClose}
-          className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 active:scale-90 transition-all">
-          <svg className="w-5 h-5 text-[#7A7A80]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#2A2528]/5 active:scale-90 transition-all">
+          <svg className="w-5 h-5 text-[#C2B8AE]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -178,13 +178,13 @@ export default function AiSupport({ onClose }: Props) {
             }`}
               style={{
                 background: msg.role === 'user'
-                  ? 'rgba(224,64,160,0.12)'
-                  : 'rgba(255,255,255,0.04)',
+                  ? 'rgba(200,62,136,0.08)'
+                  : 'rgba(42,37,40,0.04)',
                 border: msg.role === 'user'
-                  ? '1px solid rgba(224,64,160,0.15)'
-                  : '1px solid rgba(255,255,255,0.04)',
+                  ? '1px solid rgba(200,62,136,0.12)'
+                  : '1px solid rgba(42,37,40,0.08)',
               }}>
-              <p className="text-[0.82rem] text-white/90 leading-relaxed">{msg.text}</p>
+              <p className="text-[0.82rem] text-[#2A2528] leading-relaxed">{msg.text}</p>
             </div>
           </div>
         ))}
@@ -201,10 +201,10 @@ export default function AiSupport({ onClose }: Props) {
               <div className="w-2 h-2 rounded-full" style={{ background: 'radial-gradient(circle, white, rgba(224,64,160,0.5))' }} />
             </div>
             <div className="rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1.5"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.04)' }}>
-              <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0]" style={{ animation: 'aura-dot 1.4s ease-in-out infinite' }} />
-              <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0]" style={{ animation: 'aura-dot 1.4s ease-in-out 0.2s infinite' }} />
-              <div className="w-1.5 h-1.5 rounded-full bg-[#E040A0]" style={{ animation: 'aura-dot 1.4s ease-in-out 0.4s infinite' }} />
+              style={{ background: 'rgba(42,37,40,0.04)', border: '1px solid rgba(42,37,40,0.08)' }}>
+              <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88]" style={{ animation: 'aura-dot 1.4s ease-in-out infinite' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88]" style={{ animation: 'aura-dot 1.4s ease-in-out 0.2s infinite' }} />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88]" style={{ animation: 'aura-dot 1.4s ease-in-out 0.4s infinite' }} />
             </div>
           </div>
         )}
@@ -217,8 +217,8 @@ export default function AiSupport({ onClose }: Props) {
         <div className="flex gap-2">
           {SUGGESTIONS.map(s => (
             <button key={s}
-              className="shrink-0 px-3.5 py-2 rounded-full text-[0.7rem] font-medium text-white/50 hover:text-white/80 transition-colors whitespace-nowrap"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              className="shrink-0 px-3.5 py-2 rounded-full text-[0.7rem] font-medium text-[#8A7E78] hover:text-[#2A2528] transition-colors whitespace-nowrap"
+              style={{ background: 'rgba(42,37,40,0.04)', border: '1px solid rgba(42,37,40,0.10)' }}>
               {s}
             </button>
           ))}
@@ -226,10 +226,10 @@ export default function AiSupport({ onClose }: Props) {
       </div>
 
       {/* Input */}
-      <div className="shrink-0 px-5 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="shrink-0 px-5 py-4" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
         <div className="flex items-center gap-3 rounded-2xl px-4 py-3"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <span className="text-[0.82rem] text-white/25 flex-1">Ask Aura anything...</span>
+          style={{ background: 'rgba(42,37,40,0.04)', border: '1px solid rgba(42,37,40,0.10)' }}>
+          <span className="text-[0.82rem] text-[#C2B8AE] flex-1">Ask Aura anything...</span>
           <div className="w-8 h-8 rounded-full flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg, #E040A0, #8040E0)' }}>
             <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

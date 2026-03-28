@@ -213,7 +213,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#2A2A2E' }}>
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#1E1B18' }}>
       <BackgroundOrbs />
 
       {/* ── Mutual Spark glow — full border glow when both sparked ── */}
@@ -222,7 +222,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           className="fixed inset-0 pointer-events-none z-40 transition-opacity duration-1000"
           style={{
             opacity: sparkGlow ? 1 : 0.3,
-            boxShadow: 'inset 0 0 80px rgba(224,64,160,0.35), inset 0 0 200px rgba(224,64,160,0.15)',
+            boxShadow: 'inset 0 0 80px rgba(200,62,136,0.35), inset 0 0 200px rgba(200,62,136,0.15)',
           }}
         />
       )}
@@ -232,7 +232,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
         <div
           className="fixed inset-0 pointer-events-none z-40 animate-fade-in"
           style={{
-            background: 'radial-gradient(circle at center, rgba(224,64,160,0.15) 0%, transparent 70%)',
+            background: 'radial-gradient(circle at center, rgba(200,62,136,0.15) 0%, transparent 70%)',
             animation: 'extend-glow 2s ease-out forwards',
           }}
         />
@@ -258,8 +258,8 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
           <div className="animate-scale-in text-center">
             <div className="text-6xl mb-2" style={{ animation: 'spark-pulse 0.8s ease-in-out infinite' }}>✨</div>
-            <p className="text-sm font-semibold text-[#E040A0] tracking-wide animate-fade-in"
-              style={{ animationDelay: '0.3s', animationFillMode: 'backwards', textShadow: '0 0 20px rgba(224,64,160,0.5)' }}>
+            <p className="text-sm font-semibold text-[#C83E88] tracking-wide animate-fade-in"
+              style={{ animationDelay: '0.3s', animationFillMode: 'backwards', textShadow: '0 0 20px rgba(200,62,136,0.5)' }}>
               Mutual Spark!
             </p>
           </div>
@@ -272,7 +272,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           <div className="animate-scale-in text-center">
             <div className="text-5xl mb-2">⏳</div>
             <p className="text-lg font-bold text-white mb-1">+2 Minutes!</p>
-            <p className="text-sm text-[#E040A0]">You both want more time</p>
+            <p className="text-sm text-[#C83E88]">You both want more time</p>
           </div>
         </div>
       )}
@@ -341,11 +341,11 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           className="flex-1 relative overflow-hidden transition-all duration-1000"
           style={{
             border: sparkRevealed
-              ? '3px solid #E040A0'
-              : '3px solid #E040A0',
+              ? '3px solid #C83E88'
+              : '3px solid #C83E88',
             boxShadow: sparkRevealed
-              ? `0 0 0 1.5px #E040A0, 0 0 ${sparkGlow ? '60' : '25'}px rgba(224, 64, 160, ${sparkGlow ? '0.50' : '0.20'})`
-              : '0 0 0 1px #E040A0, 0 0 20px rgba(224, 64, 160, 0.30)',
+              ? `0 0 0 1.5px #C83E88, 0 0 ${sparkGlow ? '60' : '25'}px rgba(200, 62, 136, ${sparkGlow ? '0.50' : '0.20'})`
+              : '0 0 0 1px #C83E88, 0 0 20px rgba(200, 62, 136, 0.30)',
           }}
         >
           <img
@@ -362,7 +362,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
                 Date {dateIndex + 1} of 5
               </div>
               {isExtended && (
-                <div className="glass-button rounded-full px-3 py-1.5 text-xs font-semibold text-[#E040A0] animate-scale-in">
+                <div className="glass-button rounded-full px-3 py-1.5 text-xs font-semibold text-[#C83E88] animate-scale-in">
                   +2 min
                 </div>
               )}
@@ -384,7 +384,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
                   }}
                 >
                   <span className="text-base">⏳</span>
-                  <span className="text-[0.7rem] font-semibold" style={{ color: USER_COLOR.primary }}>
+                  <span className="text-[0.7rem] font-semibold" style={{ color: '#C83E88' }}>
                     {userExtended ? 'Waiting...' : '+2 min'}
                   </span>
                 </button>
@@ -411,11 +411,11 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
               <div className="glass-tile rounded-xl p-2.5 flex items-center gap-2">
                 <div className="w-11 h-11 relative">
                   <svg className="w-11 h-11 -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(224,64,160,0.15)" strokeWidth="5" />
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#E040A0" strokeWidth="5" strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - compatArc} className="transition-all duration-300" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(200,62,136,0.15)" strokeWidth="5" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#C83E88" strokeWidth="5" strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - compatArc} className="transition-all duration-300" />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[11px] font-bold text-[#E040A0]">{compatScore}%</span>
+                    <span className="text-[11px] font-bold text-[#C83E88]">{compatScore}%</span>
                   </div>
                 </div>
                 <div>
@@ -442,7 +442,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           <div className="absolute bottom-4 left-4 z-20 animate-slide-up">
             <div className="glass-tile backdrop-blur-xl rounded-2xl px-4 py-3 max-w-[280px] md:max-w-[340px]">
               <div className="flex items-center gap-2.5 mb-2">
-                <img src={person.photo} alt={person.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-[rgba(224,64,160,0.3)]" />
+                <img src={person.photo} alt={person.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-[rgba(200,62,136,0.3)]" />
                 <div>
                   <p className="font-semibold text-sm text-white">{person.name}, {person.age}</p>
                   <p className="text-[0.7rem] text-[#E0E0E5]">{person.location}</p>
@@ -455,7 +455,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
               <p className="text-[0.75rem] text-[#98989D] mb-2 italic">{person.bio}</p>
               <div className="flex flex-wrap gap-1.5">
                 {person.tags.map(tag => (
-                  <span key={tag} className="text-[0.7rem] px-2.5 py-1 rounded-full font-medium text-[#E040A0] glass-button">
+                  <span key={tag} className="text-[0.7rem] px-2.5 py-1 rounded-full font-medium text-[#C83E88] glass-button">
                     {tag}
                   </span>
                 ))}
@@ -482,12 +482,12 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
         </div>
 
         {/* Bottom control bar */}
-        <div className="relative z-20 glass-strong backdrop-blur-xl px-3 py-2 md:py-3 flex items-center gap-2 md:gap-3" style={{ borderTop: '1px solid rgba(224, 64, 160, 0.1)' }}>
+        <div className="relative z-20 glass-strong backdrop-blur-xl px-3 py-2 md:py-3 flex items-center gap-2 md:gap-3" style={{ borderTop: '1px solid rgba(200, 62, 136, 0.1)' }}>
 
           {/* Timer */}
           <div className={`shrink-0 flex items-center gap-1.5 glass-button rounded-full px-3 py-1.5 transition-colors duration-300 ${timer <= 30 && !isExtended ? 'animate-pulse' : ''}`}>
-            <div className={`w-2 h-2 rounded-full animate-pulse ${timer <= 30 && !isExtended ? 'bg-[#FF9F0A]' : 'bg-[#E040A0]'}`} />
-            <span className={`text-xs font-mono font-semibold ${timer <= 30 && !isExtended ? 'text-[#FF9F0A]' : 'text-[#E040A0]'}`}>
+            <div className={`w-2 h-2 rounded-full animate-pulse ${timer <= 30 && !isExtended ? 'bg-[#FF9F0A]' : 'bg-[#C83E88]'}`} />
+            <span className={`text-xs font-mono font-semibold ${timer <= 30 && !isExtended ? 'text-[#FF9F0A]' : 'text-[#C83E88]'}`}>
               {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
           </div>
@@ -498,7 +498,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
               onClick={handleOneMore}
               className="shrink-0 group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-300 active:scale-95 hover:scale-105"
               style={{
-                background: `linear-gradient(135deg, rgba(${USER_COLOR.rgb},0.20), rgba(224,64,160,0.15))`,
+                background: `linear-gradient(135deg, rgba(${USER_COLOR.rgb},0.20), rgba(200,62,136,0.15))`,
                 border: `1.5px solid rgba(${USER_COLOR.rgb},0.35)`,
                 boxShadow: `0 0 10px rgba(${USER_COLOR.rgb},0.15)`,
               }}
@@ -523,12 +523,12 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
             <div
               className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
                 sparkRevealed
-                  ? 'bg-[#E040A0]/30 ring-2 ring-[#E040A0]'
+                  ? 'bg-[#C83E88]/30 ring-2 ring-[#C83E88]'
                   : userSparked
                     ? 'border'
                     : 'glass-button'
               }`}
-              style={sparkRevealed ? { boxShadow: '0 0 20px rgba(224,64,160,0.4)' } : userSparked ? { background: `rgba(${USER_COLOR.rgb},0.15)`, borderColor: `rgba(${USER_COLOR.rgb},0.30)` } : undefined}
+              style={sparkRevealed ? { boxShadow: '0 0 20px rgba(200,62,136,0.4)' } : userSparked ? { background: `rgba(${USER_COLOR.rgb},0.15)`, borderColor: `rgba(${USER_COLOR.rgb},0.30)` } : undefined}
             >
               <span className={`text-lg ${sparkRevealed ? '' : ''}`} style={sparkRevealed ? { animation: 'spark-pulse 0.8s ease-in-out infinite' } : undefined}>
                 {sparkRevealed ? '💖' : '✨'}
@@ -562,9 +562,9 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
             title="Spin for a question"
           >
             <div
-              className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-105 active:scale-95 bg-[#E040A0] ${isSpinning ? 'animate-spin' : ''}`}
+              className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-105 active:scale-95 bg-[#C83E88] ${isSpinning ? 'animate-spin' : ''}`}
               style={{
-                boxShadow: '0 4px 20px rgba(224, 64, 160, 0.4)',
+                boxShadow: '0 4px 20px rgba(200, 62, 136, 0.4)',
                 animationDuration: isSpinning ? '0.5s' : undefined,
               }}
             >
@@ -579,7 +579,7 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
             title="End Date"
           >
             <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all group-hover:scale-105 active:scale-95 glass-button">
-              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#E040A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#C83E88]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
             </div>
           </button>
         </div>

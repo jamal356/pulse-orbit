@@ -219,7 +219,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
   // ── MATCH REVEAL ──
   if (phase === 'match-reveal') {
     return (
-      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
         <BackgroundOrbs />
         {showConfetti && (
           <div className="fixed inset-0 pointer-events-none z-50">
@@ -240,10 +240,10 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
             <img src={MATCH_CANDIDATE.photo} alt={MATCH_CANDIDATE.name} className="w-24 h-24 rounded-full object-cover"
               style={{ border: `3px solid ${genderColors.female.primary}`, boxShadow: `0 0 30px rgba(${genderColors.female.rgb},0.4)` }} />
           </div>
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-[#2A2528] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
             It's a Match!
           </h2>
-          <p className="text-base text-[#E040A0]">You and {MATCH_CANDIDATE.name} liked each other</p>
+          <p className="text-base text-[#C83E88]">You and {MATCH_CANDIDATE.name} liked each other</p>
         </div>
         <style>{`@keyframes spark-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }`}</style>
       </div>
@@ -253,7 +253,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
   // ── ACCEPT PROMPT — both must click to start the speed date ──
   if (phase === 'accept-prompt' || phase === 'connecting') {
     return (
-      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
         <BackgroundOrbs />
         <div className="relative z-10 w-full max-w-md mx-auto px-6">
           <div className="text-center mb-8 animate-fade-in">
@@ -268,8 +268,8 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
               <img src={MATCH_CANDIDATE.photo} alt={MATCH_CANDIDATE.name} className="w-20 h-20 rounded-full object-cover"
                 style={{ border: `3px solid ${genderColors.female.primary}`, boxShadow: `0 0 25px rgba(${genderColors.female.rgb},0.3)` }} />
             </div>
-            <h2 className="text-xl font-bold text-white mb-1">Skip the chat?</h2>
-            <p className="text-sm text-[#98989D] leading-relaxed max-w-xs mx-auto">
+            <h2 className="text-xl font-bold text-[#2A2528] mb-1">Skip the chat?</h2>
+            <p className="text-sm text-[#8A7E78] leading-relaxed max-w-xs mx-auto">
               Both of you need to accept to start a 1-to-1 speed date. 5 minutes, face to face, right now.
             </p>
           </div>
@@ -278,9 +278,9 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
           <div className="grid grid-cols-2 gap-3 mb-6">
             {/* Your status */}
             <div className={`glass-tile rounded-2xl p-4 text-center transition-all duration-500 ${userAccepted ? 'ring-2' : ''}`}
-              style={userAccepted ? { borderColor: USER_COLOR.primary, boxShadow: `0 0 20px rgba(${USER_COLOR.rgb},0.2)` } : {}}>
+              style={userAccepted ? { borderColor: USER_COLOR.primary, boxShadow: `0 0 20px rgba(${USER_COLOR.rgb},0.2)` } : { background: 'rgba(42,37,40,0.03)', border: '1px solid rgba(42,37,40,0.08)' }}>
               <img src={photos.user} alt="You" className="w-12 h-12 rounded-full object-cover mx-auto mb-2" style={{ border: `2px solid ${USER_COLOR.primary}` }} />
-              <p className="text-sm font-semibold text-white mb-1">You</p>
+              <p className="text-sm font-semibold text-[#2A2528] mb-1">You</p>
               {userAccepted ? (
                 <div className="flex items-center justify-center gap-1 animate-scale-in">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ background: USER_COLOR.primary }}>
@@ -289,21 +289,21 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
                   <span className="text-xs font-semibold" style={{ color: USER_COLOR.primary }}>Ready</span>
                 </div>
               ) : (
-                <p className="text-xs text-[#7A7A80]">Waiting...</p>
+                <p className="text-xs text-[#C2B8AE]">Waiting...</p>
               )}
             </div>
 
             {/* Partner status */}
             <div className={`glass-tile rounded-2xl p-4 text-center transition-all duration-500 ${partnerAccepted ? 'ring-2' : ''}`}
-              style={partnerAccepted ? { borderColor: genderColors.female.primary, boxShadow: `0 0 20px rgba(${genderColors.female.rgb},0.2)` } : {}}>
+              style={partnerAccepted ? { borderColor: genderColors.female.primary, boxShadow: `0 0 20px rgba(${genderColors.female.rgb},0.2)` } : { background: 'rgba(42,37,40,0.03)', border: '1px solid rgba(42,37,40,0.08)' }}>
               <img src={MATCH_CANDIDATE.photo} alt={MATCH_CANDIDATE.name} className="w-12 h-12 rounded-full object-cover mx-auto mb-2" style={{ border: `2px solid ${genderColors.female.primary}` }} />
-              <p className="text-sm font-semibold text-white mb-1">{MATCH_CANDIDATE.name}</p>
+              <p className="text-sm font-semibold text-[#2A2528] mb-1">{MATCH_CANDIDATE.name}</p>
               {partnerAccepted ? (
                 <div className="flex items-center justify-center gap-1 animate-scale-in">
-                  <div className="w-5 h-5 rounded-full bg-[#E040A0] flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-[#C83E88] flex items-center justify-center">
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                   </div>
-                  <span className="text-xs font-semibold text-[#E040A0]">Ready</span>
+                  <span className="text-xs font-semibold text-[#C83E88]">Ready</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-1">
@@ -322,7 +322,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
                 <div className="w-2 h-2 rounded-full bg-[#30D158] animate-pulse" style={{ animationDelay: '0.15s' }} />
                 <div className="w-2 h-2 rounded-full bg-[#30D158] animate-pulse" style={{ animationDelay: '0.3s' }} />
               </div>
-              <p className="text-sm font-semibold text-[#30D158]">Both accepted — connecting your speed date...</p>
+              <p className="text-sm font-semibold text-[#2A2528]">Both accepted — connecting your speed date...</p>
             </div>
           )}
 
@@ -332,19 +332,19 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
               {!userAccepted ? (
                 <button onClick={() => setUserAccepted(true)}
                   className="w-full py-4 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                  style={{ background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(224,64,160,0.35)' }}>
+                  style={{ background: 'linear-gradient(135deg, #C83E88 0%, #B03878 100%)', boxShadow: '0 4px 20px rgba(200,62,136,0.35)' }}>
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                   Start Speed Date
                 </button>
               ) : (
-                <div className="w-full py-4 rounded-2xl text-base font-semibold text-center glass-tile" style={{ color: USER_COLOR.primary }}>
+                <div className="w-full py-4 rounded-2xl text-base font-semibold text-center glass-tile" style={{ color: USER_COLOR.primary, background: 'rgba(42,37,40,0.03)', border: '1px solid rgba(42,37,40,0.08)' }}>
                   Waiting for {MATCH_CANDIDATE.name}...
                 </div>
               )}
               <button onClick={onGroupSession}
-                className="w-full py-3 rounded-2xl text-sm font-semibold glass-button text-[#98989D] hover:text-white transition-colors">
+                className="w-full py-3 rounded-2xl text-sm font-semibold glass-button text-[#8A7E78] hover:text-[#2A2528] transition-colors">
                 Skip — Join The Round Instead
               </button>
             </div>
@@ -356,7 +356,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
 
   // ── BROWSING PHASE — card stack with swipe ──
   return (
-    <div className="fixed inset-0 bg-[#1a1a1e] overflow-hidden">
+    <div className="fixed inset-0 bg-[#FAF7F2] overflow-hidden">
       <BackgroundOrbs />
 
       <div className={`relative z-10 h-full flex flex-col transition-all duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}>
@@ -364,16 +364,16 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
         {/* Header */}
         <header className="px-5 py-3 flex items-center justify-between shrink-0">
           <div>
-            <h1 className="text-xl font-bold font-display text-[#E040A0]">Pulse</h1>
-            <p className="text-[0.6rem] text-[#7A7A80] uppercase tracking-[0.15em]">Discover</p>
+            <h1 className="text-xl font-bold font-display text-[#C83E88]">Pulse</h1>
+            <p className="text-[0.6rem] text-[#C2B8AE] uppercase tracking-[0.15em]">Discover</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="glass-button rounded-full px-3 py-1.5 flex items-center gap-1.5">
+            <div className="glass-button rounded-full px-3 py-1.5 flex items-center gap-1.5" style={{ background: 'rgba(42,37,40,0.03)', border: '1px solid rgba(42,37,40,0.08)' }}>
               <span className="text-xs">❤️</span>
-              <span className="text-xs font-semibold text-[#E040A0]">{likes.length}</span>
+              <span className="text-xs font-semibold text-[#C83E88]">{likes.length}</span>
             </div>
             <button onClick={onGroupSession}
-              className="glass-button rounded-full px-4 py-2 text-xs font-semibold text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
+              className="glass-button rounded-full px-4 py-2 text-xs font-semibold text-[#8A7E78] hover:text-[#2A2528] transition-colors flex items-center gap-1.5" style={{ background: 'rgba(42,37,40,0.03)', border: '1px solid rgba(42,37,40,0.08)' }}>
               <span>🎯</span> The Round
             </button>
           </div>
@@ -384,11 +384,11 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
           {isLastCard ? (
             <div className="text-center animate-fade-in">
               <div className="text-5xl mb-4">🎯</div>
-              <h2 className="text-2xl font-bold text-white mb-2 font-display">Ready for The Round?</h2>
-              <p className="text-sm text-[#98989D] mb-6 max-w-sm">5 new people, 5 minutes each. Discover someone you'd never have swiped on.</p>
+              <h2 className="text-2xl font-bold text-[#2A2528] mb-2 font-display">Ready for The Round?</h2>
+              <p className="text-sm text-[#8A7E78] mb-6 max-w-sm">5 new people, 5 minutes each. Discover someone you'd never have swiped on.</p>
               <button onClick={onGroupSession}
                 className="px-8 py-4 rounded-2xl text-base font-bold text-white hover:scale-[1.02] active:scale-[0.98] transition-all"
-                style={{ background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(224,64,160,0.35)' }}>
+                style={{ background: 'linear-gradient(135deg, #C83E88 0%, #B03878 100%)', boxShadow: '0 4px 20px rgba(200,62,136,0.35)' }}>
                 Join The Round
               </button>
             </div>
@@ -397,7 +397,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
               {/* Next card preview (behind) */}
               {currentIndex + 1 < discoverProfiles.length && (
                 <div className="absolute inset-0 rounded-3xl overflow-hidden scale-[0.95] -translate-y-2 opacity-50 pointer-events-none">
-                  <img src={discoverProfiles[currentIndex + 1].photo} alt="" className="w-full h-full object-cover" />
+                  <img src={discoverProfiles[currentIndex + 1].photo.replace('w=400&q=80', 'w=800&q=90')} alt="" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40" />
                 </div>
               )}
@@ -413,7 +413,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
                   transitionDuration: swipeDirection ? '350ms' : isDragging ? '0ms' : '200ms',
                   aspectRatio: '3/4.5',
                   boxShadow: '0 10px 40px rgba(0,0,0,0.4)',
-                  border: '1px solid rgba(224,64,160,0.15)',
+                  border: '1px solid rgba(200,62,136,0.15)',
                 }}
                 onMouseDown={(e) => handleDragStart(e.clientX)}
                 onMouseMove={(e) => handleDragMove(e.clientX)}
@@ -423,7 +423,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
                 onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
                 onTouchEnd={handleDragEnd}
               >
-                <img src={currentProfile.photo} alt={currentProfile.name}
+                <img src={currentProfile.photo.replace('w=400&q=80', 'w=800&q=90')} alt={currentProfile.name}
                   className="w-full h-full object-cover absolute inset-0 pointer-events-none select-none" draggable={false} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
 
@@ -453,8 +453,8 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
                   <p className="text-sm text-white/80 italic mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>"{currentProfile.bio}"</p>
                   <div className="flex flex-wrap gap-1.5">
                     {currentProfile.tags.map(tag => (
-                      <span key={tag} className="text-[0.7rem] px-3 py-1 rounded-full font-medium text-[#E040A0] backdrop-blur-md"
-                        style={{ background: 'rgba(224,64,160,0.12)', border: '1px solid rgba(224,64,160,0.20)' }}>
+                      <span key={tag} className="text-[0.7rem] px-3 py-1 rounded-full font-medium text-[#C83E88] backdrop-blur-md"
+                        style={{ background: 'rgba(200,62,136,0.12)', border: '1px solid rgba(200,62,136,0.20)' }}>
                         {tag}
                       </span>
                     ))}
@@ -476,8 +476,8 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
 
             <button onClick={() => handleSwipe('right')}
               className="w-20 h-20 rounded-full flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
-              style={{ background: 'linear-gradient(135deg, rgba(224,64,160,0.20), rgba(224,64,160,0.10))', border: '2px solid rgba(224,64,160,0.35)', boxShadow: '0 0 25px rgba(224,64,160,0.15)' }}>
-              <svg className="w-9 h-9 text-[#E040A0]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+              style={{ background: 'linear-gradient(135deg, rgba(200,62,136,0.20), rgba(200,62,136,0.10))', border: '2px solid rgba(200,62,136,0.35)', boxShadow: '0 0 25px rgba(200,62,136,0.15)' }}>
+              <svg className="w-9 h-9 text-[#C83E88]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
             </button>
 
             <button onClick={onGroupSession}
@@ -491,7 +491,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
         {/* Bottom hint */}
         {!isLastCard && (
           <div className="text-center pb-4">
-            <p className="text-[0.6rem] text-[#7A7A80]">
+            <p className="text-[0.6rem] text-[#C2B8AE]">
               Swipe right to like · Swipe left to pass · Or join The Round
             </p>
           </div>

@@ -12,7 +12,7 @@ type SpeedDatePhase = 'intro' | 'live' | 'rating' | 'result' | 'next'
 
 interface ConfettiPiece { id: number; left: number; delay: number; duration: number; color: string; size: number; rotation: number }
 function makeConfetti(count: number): ConfettiPiece[] {
-  const colors = ['#E040A0', '#F050B0', '#FF6EC7', '#6060FF', '#30D158', '#FF9F0A', '#FFD700']
+  const colors = ['#C83E88', '#F050B0', '#FF6EC7', '#6060FF', '#30D158', '#FF9F0A', '#FFD700']
   return Array.from({ length: count }, (_, i) => ({
     id: i, left: Math.random() * 100, delay: Math.random() * 1.5, duration: 2.5 + Math.random() * 2,
     color: colors[Math.floor(Math.random() * colors.length)], size: 4 + Math.random() * 6, rotation: Math.random() * 360,
@@ -203,7 +203,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
   // ── INTRO SCREEN — cinematic "connecting you" moment ──
   if (phase === 'intro') {
     return (
-      <div className="fixed inset-0 bg-[#1a1a1e] flex flex-col items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-[#1E1B18] flex flex-col items-center justify-center overflow-hidden">
         <BackgroundOrbs />
         <div className={`relative z-10 text-center transition-all duration-700 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
           {/* Both photos */}
@@ -214,18 +214,18 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
               <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[0.6rem] font-semibold glass-button" style={{ color: USER_COLOR.primary }}>You</div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#E040A0] animate-pulse" />
-              <div className="w-2 h-2 rounded-full bg-[#E040A0] animate-pulse" style={{ animationDelay: '0.2s' }} />
-              <div className="w-2 h-2 rounded-full bg-[#E040A0] animate-pulse" style={{ animationDelay: '0.4s' }} />
+              <div className="w-2 h-2 rounded-full bg-[#C83E88] animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-[#C83E88] animate-pulse" style={{ animationDelay: '0.2s' }} />
+              <div className="w-2 h-2 rounded-full bg-[#C83E88] animate-pulse" style={{ animationDelay: '0.4s' }} />
             </div>
             <div className="relative">
               <img src={candidate.photo} alt={candidate.name} className="w-20 h-20 rounded-full object-cover"
-                style={{ border: '3px solid #E040A0', boxShadow: '0 0 30px rgba(224,64,160,0.3)' }} />
-              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[0.6rem] font-semibold glass-button text-[#E040A0]">{candidate.name}</div>
+                style={{ border: '3px solid #C83E88', boxShadow: '0 0 30px rgba(200,62,136,0.3)' }} />
+              <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[0.6rem] font-semibold glass-button text-[#C83E88]">{candidate.name}</div>
             </div>
           </div>
 
-          <p className="text-xs uppercase tracking-[0.3em] text-[#E040A0] font-semibold mb-3 animate-pulse">1-to-1 Speed Date</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-[#C83E88] font-semibold mb-3 animate-pulse">1-to-1 Speed Date</p>
           <h2 className="text-2xl md:text-3xl font-display text-white mb-2" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontStyle: 'italic' }}>
             You matched. Now verify the chemistry.
           </h2>
@@ -244,12 +244,12 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
   // ── RATING PHASE — "Did you feel the chemistry?" ──
   if (phase === 'rating') {
     return (
-      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-[#1E1B18] flex items-center justify-center overflow-hidden">
         <BackgroundOrbs />
         <div className="relative z-10 w-full max-w-md mx-auto px-6 text-center animate-fade-in">
           <img src={candidate.photo} alt={candidate.name}
             className="w-24 h-24 rounded-full object-cover mx-auto mb-4"
-            style={{ border: '3px solid rgba(224,64,160,0.4)', boxShadow: '0 0 30px rgba(224,64,160,0.2)' }} />
+            style={{ border: '3px solid rgba(200,62,136,0.4)', boxShadow: '0 0 30px rgba(200,62,136,0.2)' }} />
           <h2 className="text-2xl font-bold text-white mb-1 font-display">{candidate.name}, {candidate.age}</h2>
           <p className="text-sm text-[#98989D] mb-8">Your 1-to-1 speed date just ended</p>
 
@@ -267,15 +267,15 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
               </button>
               <button onClick={() => handleRate('like')}
                 className="flex flex-col items-center gap-2 px-8 py-5 rounded-2xl hover:scale-105 active:scale-95 transition-all"
-                style={{ background: 'rgba(224,64,160,0.08)', border: '1.5px solid rgba(224,64,160,0.25)', boxShadow: '0 0 20px rgba(224,64,160,0.1)' }}>
+                style={{ background: 'rgba(200,62,136,0.08)', border: '1.5px solid rgba(200,62,136,0.25)', boxShadow: '0 0 20px rgba(200,62,136,0.1)' }}>
                 <span className="text-3xl">🔥</span>
-                <span className="text-sm font-semibold text-[#E040A0]">I felt it</span>
+                <span className="text-sm font-semibold text-[#C83E88]">I felt it</span>
               </button>
             </div>
           ) : (
             <div className="animate-scale-in">
               <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-3"
-                style={{ background: userRating === 'like' ? 'rgba(224,64,160,0.15)' : 'rgba(255,59,48,0.10)' }}>
+                style={{ background: userRating === 'like' ? 'rgba(200,62,136,0.15)' : 'rgba(255,59,48,0.10)' }}>
                 <span className="text-3xl">{userRating === 'like' ? '🔥' : '❄️'}</span>
               </div>
               {showResult && (
@@ -285,9 +285,9 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
                       <div className="flex items-center justify-center gap-3 mb-3">
                         <img src={photos.user} alt="You" className="w-10 h-10 rounded-full object-cover" style={{ border: `2px solid ${USER_COLOR.primary}` }} />
                         <span className="text-2xl" style={{ animation: 'spark-pulse 0.8s ease-in-out infinite' }}>💖</span>
-                        <img src={candidate.photo} alt={candidate.name} className="w-10 h-10 rounded-full object-cover" style={{ border: '2px solid #E040A0' }} />
+                        <img src={candidate.photo} alt={candidate.name} className="w-10 h-10 rounded-full object-cover" style={{ border: '2px solid #C83E88' }} />
                       </div>
-                      <p className="text-lg font-bold text-[#E040A0] mb-1">Mutual Match!</p>
+                      <p className="text-lg font-bold text-[#C83E88] mb-1">Mutual Match!</p>
                       <p className="text-sm text-[#98989D]">{candidate.name} felt it too. Connection saved.</p>
                     </>
                   ) : (
@@ -320,13 +320,13 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
   // ── NEXT PHASE — CTA to group session ──
   if (phase === 'next') {
     return (
-      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 bg-[#1E1B18] flex items-center justify-center overflow-hidden">
         <BackgroundOrbs />
         <div className="relative z-10 w-full max-w-lg mx-auto px-6 animate-fade-in">
           {/* Summary card */}
-          <div className="glass-tile rounded-3xl p-8 text-center mb-6" style={{ border: '1px solid rgba(224,64,160,0.15)' }}>
+          <div className="glass-tile rounded-3xl p-8 text-center mb-6" style={{ border: '1px solid rgba(200,62,136,0.15)' }}>
             <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4"
-              style={{ background: 'rgba(224,64,160,0.12)' }}>
+              style={{ background: 'rgba(200,62,136,0.12)' }}>
               <span className="text-3xl">✨</span>
             </div>
             <h2 className="text-2xl font-bold text-white mb-2 font-display">1-to-1 Speed Date Complete</h2>
@@ -337,11 +337,11 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3 mb-6">
               <div className="glass-button rounded-xl p-3">
-                <p className="text-xl font-bold text-[#E040A0] font-display">5m</p>
+                <p className="text-xl font-bold text-[#C83E88] font-display">5m</p>
                 <p className="text-[0.6rem] text-[#7A7A80] uppercase tracking-wider">Date Length</p>
               </div>
               <div className="glass-button rounded-xl p-3">
-                <p className="text-xl font-bold text-[#E040A0] font-display">{compatTarget}%</p>
+                <p className="text-xl font-bold text-[#C83E88] font-display">{compatTarget}%</p>
                 <p className="text-[0.6rem] text-[#7A7A80] uppercase tracking-wider">Chemistry</p>
               </div>
               <div className="glass-button rounded-xl p-3">
@@ -350,11 +350,11 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
               </div>
             </div>
 
-            <div className="h-px mb-6" style={{ background: 'rgba(224,64,160,0.10)' }} />
+            <div className="h-px mb-6" style={{ background: 'rgba(200,62,136,0.10)' }} />
 
             {/* What's next */}
             <div className="text-left mb-6">
-              <p className="text-xs uppercase tracking-[0.25em] text-[#E040A0] font-semibold mb-2">What's next?</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-[#C83E88] font-semibold mb-2">What's next?</p>
               <p className="text-sm text-[#B0B0B8] leading-relaxed">
                 Keep going. Find another Spark, or join <span className="text-white font-semibold">The Round</span> — 5 new people, 5 minutes each. Someone might surprise you.
               </p>
@@ -362,7 +362,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
 
             <button onClick={onComplete}
               className="w-full py-4 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
-              style={{ background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(224,64,160,0.35)' }}>
+              style={{ background: 'linear-gradient(135deg, #C83E88 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(200,62,136,0.35)' }}>
               Continue
             </button>
           </div>
@@ -378,13 +378,13 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
 
   // ── LIVE PHASE — the actual 1-to-1 speed date ──
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#2A2A2E' }}>
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#1E1B18' }}>
       <BackgroundOrbs />
 
       {/* Spark glow */}
       {sparkRevealed && (
         <div className="fixed inset-0 pointer-events-none z-40 transition-opacity duration-1000"
-          style={{ opacity: sparkGlow ? 1 : 0.3, boxShadow: 'inset 0 0 80px rgba(224,64,160,0.35), inset 0 0 200px rgba(224,64,160,0.15)' }} />
+          style={{ opacity: sparkGlow ? 1 : 0.3, boxShadow: 'inset 0 0 80px rgba(200,62,136,0.35), inset 0 0 200px rgba(200,62,136,0.15)' }} />
       )}
 
       {/* Floating emojis */}
@@ -400,8 +400,8 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
           <div className="animate-scale-in text-center">
             <div className="text-6xl mb-2" style={{ animation: 'spark-pulse 0.8s ease-in-out infinite' }}>✨</div>
-            <p className="text-sm font-semibold text-[#E040A0] tracking-wide animate-fade-in"
-              style={{ animationDelay: '0.3s', animationFillMode: 'backwards', textShadow: '0 0 20px rgba(224,64,160,0.5)' }}>
+            <p className="text-sm font-semibold text-[#C83E88] tracking-wide animate-fade-in"
+              style={{ animationDelay: '0.3s', animationFillMode: 'backwards', textShadow: '0 0 20px rgba(200,62,136,0.5)' }}>
               Mutual Spark!
             </p>
           </div>
@@ -428,7 +428,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in">
           <div className="glass-tile rounded-3xl p-6 max-w-sm mx-4 w-full animate-scale-in" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
             <div className="text-center mb-5">
-              <div className="w-14 h-14 rounded-full bg-[#E040A0]/15 flex items-center justify-center mx-auto mb-3">
+              <div className="w-14 h-14 rounded-full bg-[#C83E88]/15 flex items-center justify-center mx-auto mb-3">
                 <span className="text-2xl">👋</span>
               </div>
               <h3 className="text-lg font-bold text-white mb-1">End this speed date?</h3>
@@ -439,7 +439,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
             <div className="space-y-2.5">
               <button onClick={handleEndDate}
                 className="w-full py-3.5 rounded-xl text-sm font-semibold text-white active:scale-[0.98] transition-transform"
-                style={{ background: 'linear-gradient(135deg, #E040A0, #C030A0)' }}>
+                style={{ background: 'linear-gradient(135deg, #C83E88, #C030A0)' }}>
                 End Date
               </button>
               <button onClick={() => setShowEndConfirm(false)}
@@ -457,10 +457,10 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
         {/* Video panel */}
         <div className="flex-1 relative overflow-hidden transition-all duration-1000"
           style={{
-            border: sparkRevealed ? '3px solid #E040A0' : '3px solid #E040A0',
+            border: sparkRevealed ? '3px solid #C83E88' : '3px solid #C83E88',
             boxShadow: sparkRevealed
-              ? `0 0 0 1.5px #E040A0, 0 0 ${sparkGlow ? '60' : '25'}px rgba(224, 64, 160, ${sparkGlow ? '0.50' : '0.20'})`
-              : '0 0 0 1px #E040A0, 0 0 20px rgba(224, 64, 160, 0.30)',
+              ? `0 0 0 1.5px #C83E88, 0 0 ${sparkGlow ? '60' : '25'}px rgba(224, 64, 160, ${sparkGlow ? '0.50' : '0.20'})`
+              : '0 0 0 1px #C83E88, 0 0 20px rgba(224, 64, 160, 0.30)',
           }}>
           <img src={candidate.photo} alt={`${candidate.name}, ${candidate.age}`}
             className="object-cover w-full h-full absolute inset-0" />
@@ -470,7 +470,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
           <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="glass-button rounded-full px-4 py-1.5 text-xs font-semibold flex items-center gap-2">
-                <span className="text-[#E040A0]">♥</span>
+                <span className="text-[#C83E88]">♥</span>
                 <span className="text-[#E0E0E5]">1-to-1 Speed Date</span>
               </div>
               <div className="glass-button rounded-full px-3 py-1.5 text-xs font-semibold text-[#30D158] flex items-center gap-1.5 animate-fade-in">
@@ -486,11 +486,11 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
               <div className="glass-tile rounded-xl p-2.5 flex items-center gap-2">
                 <div className="w-11 h-11 relative">
                   <svg className="w-11 h-11 -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(224,64,160,0.15)" strokeWidth="5" />
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#E040A0" strokeWidth="5" strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - compatArc} className="transition-all duration-300" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(200,62,136,0.15)" strokeWidth="5" />
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#C83E88" strokeWidth="5" strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - compatArc} className="transition-all duration-300" />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[11px] font-bold text-[#E040A0]">{compatScore}%</span>
+                    <span className="text-[11px] font-bold text-[#C83E88]">{compatScore}%</span>
                   </div>
                 </div>
                 <div>
@@ -517,7 +517,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
           <div className="absolute bottom-4 left-4 z-20 animate-slide-up">
             <div className="glass-tile backdrop-blur-xl rounded-2xl px-4 py-3 max-w-[280px] md:max-w-[340px]">
               <div className="flex items-center gap-2.5 mb-2">
-                <img src={candidate.photo} alt={candidate.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-[rgba(224,64,160,0.3)]" />
+                <img src={candidate.photo} alt={candidate.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-[rgba(200,62,136,0.3)]" />
                 <div>
                   <p className="font-semibold text-sm text-white">{candidate.name}, {candidate.age}</p>
                   <p className="text-[0.7rem] text-[#E0E0E5]">{candidate.location}</p>
@@ -530,7 +530,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
               <p className="text-[0.75rem] text-[#98989D] mb-2 italic">{candidate.bio}</p>
               <div className="flex flex-wrap gap-1.5">
                 {candidate.tags.map(tag => (
-                  <span key={tag} className="text-[0.7rem] px-2.5 py-1 rounded-full font-medium text-[#E040A0] glass-button">
+                  <span key={tag} className="text-[0.7rem] px-2.5 py-1 rounded-full font-medium text-[#C83E88] glass-button">
                     {tag}
                   </span>
                 ))}
@@ -563,8 +563,8 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
 
           {/* Timer */}
           <div className={`shrink-0 flex items-center gap-1.5 glass-button rounded-full px-3 py-1.5 transition-colors duration-300 ${timer <= 30 ? 'animate-pulse' : ''}`}>
-            <div className={`w-2 h-2 rounded-full animate-pulse ${timer <= 30 ? 'bg-[#FF9F0A]' : 'bg-[#E040A0]'}`} />
-            <span className={`text-xs font-mono font-semibold ${timer <= 30 ? 'text-[#FF9F0A]' : 'text-[#E040A0]'}`}>
+            <div className={`w-2 h-2 rounded-full animate-pulse ${timer <= 30 ? 'bg-[#FF9F0A]' : 'bg-[#C83E88]'}`} />
+            <span className={`text-xs font-mono font-semibold ${timer <= 30 ? 'text-[#FF9F0A]' : 'text-[#C83E88]'}`}>
               {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
           </div>
@@ -574,7 +574,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
             <button onClick={handleOneMore}
               className="shrink-0 group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-300 active:scale-95 hover:scale-105"
               style={{
-                background: `linear-gradient(135deg, rgba(${USER_COLOR.rgb},0.20), rgba(224,64,160,0.15))`,
+                background: `linear-gradient(135deg, rgba(${USER_COLOR.rgb},0.20), rgba(200,62,136,0.15))`,
                 border: `1.5px solid rgba(${USER_COLOR.rgb},0.35)`,
                 boxShadow: `0 0 10px rgba(${USER_COLOR.rgb},0.15)`,
               }}
@@ -589,9 +589,9 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
             className={`shrink-0 relative transition-all duration-300 ${userSparked ? 'opacity-60 scale-95' : 'hover:scale-110 active:scale-90'}`}
             title={userSparked ? 'Spark sent!' : "Send a Spark — if they spark too, you'll both know"}>
             <div className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
-              sparkRevealed ? 'bg-[#E040A0]/30 ring-2 ring-[#E040A0]' : userSparked ? 'border' : 'glass-button'
+              sparkRevealed ? 'bg-[#C83E88]/30 ring-2 ring-[#C83E88]' : userSparked ? 'border' : 'glass-button'
             }`}
-              style={sparkRevealed ? { boxShadow: '0 0 20px rgba(224,64,160,0.4)' } : userSparked ? { background: `rgba(${USER_COLOR.rgb},0.15)`, borderColor: `rgba(${USER_COLOR.rgb},0.30)` } : undefined}>
+              style={sparkRevealed ? { boxShadow: '0 0 20px rgba(200,62,136,0.4)' } : userSparked ? { background: `rgba(${USER_COLOR.rgb},0.15)`, borderColor: `rgba(${USER_COLOR.rgb},0.30)` } : undefined}>
               <span className="text-lg" style={sparkRevealed ? { animation: 'spark-pulse 0.8s ease-in-out infinite' } : undefined}>
                 {sparkRevealed ? '💖' : '✨'}
               </span>
@@ -616,7 +616,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
           {/* Spin for question */}
           <button onClick={spinForQuestion} disabled={isSpinning}
             className="shrink-0 group relative" title="Spin for a question">
-            <div className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-105 active:scale-95 bg-[#E040A0] ${isSpinning ? 'animate-spin' : ''}`}
+            <div className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-105 active:scale-95 bg-[#C83E88] ${isSpinning ? 'animate-spin' : ''}`}
               style={{ boxShadow: '0 4px 20px rgba(224, 64, 160, 0.4)', animationDuration: isSpinning ? '0.5s' : undefined }}>
               <svg className="w-6 h-6 md:w-7 md:h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -628,7 +628,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
           <button onClick={() => setShowEndConfirm(true)}
             className="shrink-0 group relative" title="End Date">
             <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all group-hover:scale-105 active:scale-95 glass-button">
-              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#E040A0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#C83E88]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </div>
