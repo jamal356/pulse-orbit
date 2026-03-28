@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import MarketingPage from './screens/MarketingPage'
 import WaitlistPage from './screens/WaitlistPage'
+import LoginScreen from './screens/LoginScreen'
 import Discover from './screens/Discover'
 import SessionLobby from './screens/SessionLobby'
 import LiveSession from './screens/LiveSession'
@@ -8,17 +9,19 @@ import TransitionScreen from './screens/TransitionScreen'
 import MatchSurvey from './screens/MatchSurvey'
 import MatchResults from './screens/MatchResults'
 import SpeedDate from './screens/SpeedDate'
+import AiSupport from './screens/AiSupport'
 import InvestorClose from './screens/InvestorClose'
 import type { Candidate } from './data/people'
 
-type Screen = 'waitlist' | 'marketing' | 'discover' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'close'
+type Screen = 'waitlist' | 'marketing' | 'login' | 'discover' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'close'
 
 /* ─── Demo Nav ─────────────────────────────────────────────
-   Ordered screen sequence for quick forward/back during demos.
-   Shows both paths: discover (1-to-1) → speeddate, then group flow.
-   Skips transition & survey (they're mid-flow filler).
+   Full journey: waitlist → pitch → login → discover → 1-to-1 → group → dates → results → close
+   The flywheel: after group results, matches can do 1-to-1 speed dates.
+   After 1-to-1 from discover, user flows to group session.
+   Each mode feeds the other.
    ──────────────────────────────────────────────────────────── */
-const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'discover', 'speeddate', 'lobby', 'session', 'survey', 'results', 'close']
+const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'login', 'discover', 'speeddate', 'lobby', 'session', 'survey', 'results', 'close']
 
 /* ─── Route Logic ────────────────────────────────────────────
    Default landing:
@@ -32,7 +35,7 @@ const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'discover', 'speeddate'
 function getInitialScreen(): Screen {
   const hash = window.location.hash.replace('#', '')
   if (hash === 'demo' || hash === 'marketing') return 'marketing'
-  if (['discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) return hash as Screen
+  if (['login', 'discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) return hash as Screen
   return 'waitlist'
 }
 
@@ -42,6 +45,7 @@ export default function App() {
   const [currentDateIndex, setCurrentDateIndex] = useState(0)
   const [ratings, setRatings] = useState<Record<string, 'like' | 'pass'>>({})
   const [speedDateTarget, setSpeedDateTarget] = useState<Candidate | null>(null)
+  const [showAiSupport, setShowAiSupport] = useState(false)
 
   const navigateTo = useCallback((next: Screen) => {
     setTransitioning(true)
@@ -76,10 +80,17 @@ export default function App() {
     navigateTo('close')
   }, [navigateTo])
 
-  /* ─── DUAL PATH HANDLERS ─────────────────────────────────────
-     Path 1: Discover → Match → Both Accept → 1-to-1 Speed Date → Lobby (group)
-     Path 2: Discover → Skip → Lobby → Group 5×5 Session
-     Both paths converge at the group lobby after the speed date.
+  /* ─── FLYWHEEL HANDLERS ──────────────────────────────────────
+     The two paths feed each other:
+
+     Path 1: Discover → Match → Both Accept → 1-to-1 Speed Date → Group Lobby
+     Path 2: Discover → Skip → Group Lobby → 5×5 Session → Results
+     Flywheel: Results → Speed Date with match → back to Discover or Close
+
+     Each mode generates value for the other:
+     - 1-to-1 users who don't match flow into group (retention)
+     - Group matches get offered 1-to-1 (upsell to premium)
+     - Both create engagement loops that keep users on platform
      ──────────────────────────────────────────────────────────── */
 
   // 1-to-1 Speed Date from discover match
@@ -88,7 +99,7 @@ export default function App() {
     navigateTo('speeddate')
   }, [navigateTo])
 
-  // 1-to-1 Speed Date from match results (post-group session)
+  // 1-to-1 Speed Date from match results (post-group session) — THE FLYWHEEL
   const handleResultsSpeedDate = useCallback((candidate: Candidate) => {
     setSpeedDateTarget(candidate)
     navigateTo('speeddate')
@@ -105,6 +116,11 @@ export default function App() {
     navigateTo('lobby')
   }, [navigateTo])
 
+  // Login complete → go to discover
+  const handleLoginComplete = useCallback(() => {
+    navigateTo('discover')
+  }, [navigateTo])
+
   const handleRestart = useCallback(() => {
     setCurrentDateIndex(0)
     setRatings({})
@@ -118,7 +134,7 @@ export default function App() {
       const hash = window.location.hash.replace('#', '')
       if (hash === 'demo' || hash === 'marketing') { setScreen('marketing'); return }
       if (hash === 'waitlist') { setScreen('waitlist'); return }
-      if (['discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) {
+      if (['login', 'discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) {
         setScreen(hash as Screen)
       }
     }
@@ -147,7 +163,10 @@ export default function App() {
         <WaitlistPage />
       )}
       {screen === 'marketing' && (
-        <MarketingPage onStartDemo={() => navigateTo('discover')} />
+        <MarketingPage onStartDemo={() => navigateTo('login')} />
+      )}
+      {screen === 'login' && (
+        <LoginScreen onComplete={handleLoginComplete} />
       )}
       {screen === 'discover' && (
         <Discover
@@ -195,6 +214,25 @@ export default function App() {
           ratings={ratings}
           onRestart={handleRestart}
         />
+      )}
+
+      {/* AI Support overlay */}
+      {showAiSupport && (
+        <AiSupport onClose={() => setShowAiSupport(false)} />
+      )}
+
+      {/* AI Support FAB — visible on all screens except waitlist and marketing */}
+      {!['waitlist', 'marketing'].includes(screen) && !showAiSupport && (
+        <button
+          onClick={() => setShowAiSupport(true)}
+          className="fixed bottom-16 right-4 z-[90] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 transition-all animate-scale-in"
+          style={{
+            background: 'linear-gradient(135deg, #E040A0, #8040E0)',
+            boxShadow: '0 4px 20px rgba(224,64,160,0.4), 0 0 40px rgba(128,64,224,0.2)',
+          }}
+          title="Pulse AI Support">
+          <span className="text-lg">🤖</span>
+        </button>
       )}
 
       {/* ── Demo nav arrows — discreet, bottom-center ── */}
