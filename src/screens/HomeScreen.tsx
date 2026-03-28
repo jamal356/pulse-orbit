@@ -5,7 +5,7 @@ import type { Candidate } from '../data/people'
 interface Props {
   onQuickMatch: () => void
   onGroupSession: () => void
-  onOpenAura: () => void
+  onOpenAura: () => void    // handled by global FAB now, kept for interface compat
 }
 
 /* ─── HOME SCREEN — True Netflix / Jobs-Ive philosophy ───────
@@ -168,19 +168,6 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
             Pulse
           </h1>
           <div className="flex items-center gap-3">
-            <button onClick={onOpenAura} className="relative group" title="Ask Aura">
-              <div className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110"
-                style={{
-                  background: 'radial-gradient(circle at 30% 30%, rgba(200,62,136,0.2), rgba(128,64,224,0.12), transparent 70%)',
-                  border: '1.5px solid rgba(200,62,136,0.2)',
-                }}>
-                <div className="w-4 h-4 rounded-full animate-pulse"
-                  style={{
-                    background: 'radial-gradient(circle, #C83E88 0%, #8040E0 60%, transparent 100%)',
-                    boxShadow: '0 0 8px rgba(200,62,136,0.5)',
-                  }} />
-              </div>
-            </button>
             <img src={photos.user} alt="You" className="w-8 h-8 rounded-full object-cover"
               style={{ border: `2px solid rgba(${USER_COLOR.rgb},0.35)` }} />
           </div>

@@ -235,34 +235,58 @@ export default function App() {
         <AiSupport onClose={() => setShowAura(false)} />
       )}
 
-      {/* Aura FAB — visible on screens after login (except home which has it in header) */}
-      {!['waitlist', 'marketing', 'login', 'home'].includes(screen) && !showAura && (
+      {/* ═══ AURA FAB — floating bottom-right on ALL post-login screens ═══
+           Design: Aura is a living presence, not a button. She breathes.
+           Position: bottom-right, above the demo nav, always reachable.
+           Visual: Glass pill with her signature gradient orb + name.
+           Interaction: hover expands slightly, press scales down. */}
+      {!['waitlist', 'marketing', 'login'].includes(screen) && !showAura && (
         <button
           onClick={() => setShowAura(true)}
-          className="fixed bottom-16 right-4 z-[90] group"
+          className="fixed z-[90] group"
+          style={{ bottom: '4.5rem', right: '1.25rem' }}
           title="Ask Aura">
-          <div className="relative w-12 h-12 flex items-center justify-center">
-            {/* Ambient glow */}
-            <div className="absolute inset-0 rounded-full opacity-40 group-hover:opacity-70 transition-opacity"
-              style={{
-                background: 'radial-gradient(circle, rgba(224,64,160,0.4), rgba(128,64,224,0.2), transparent 70%)',
-                filter: 'blur(8px)',
-              }} />
-            {/* Orb */}
-            <div className="relative w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
-              style={{
-                background: 'radial-gradient(circle at 35% 35%, #E040A0, #8040E0 60%, #4020A0)',
-                boxShadow: '0 4px 20px rgba(224,64,160,0.35)',
-              }}>
-              <div className="w-3.5 h-3.5 rounded-full"
+          <div className="flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300
+                          group-hover:scale-105 group-active:scale-95"
+            style={{
+              background: 'rgba(30,27,24,0.6)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(200,62,136,0.15)',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.2), 0 0 0 0.5px rgba(200,62,136,0.1)',
+            }}>
+            {/* Aura orb — her signature identity */}
+            <div className="relative w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+              {/* Outer glow ring */}
+              <div className="absolute inset-0 rounded-full"
                 style={{
-                  background: 'radial-gradient(circle, rgba(255,255,255,0.85), rgba(224,64,160,0.5))',
-                  boxShadow: '0 0 8px rgba(255,255,255,0.4)',
-                  animation: 'aura-breathe 3s ease-in-out infinite',
+                  background: 'conic-gradient(from 0deg, #C83E88, #8040E0, #C83E88)',
+                  opacity: 0.4,
+                  animation: 'aura-ring-spin 6s linear infinite',
+                  filter: 'blur(3px)',
                 }} />
+              {/* Core orb */}
+              <div className="relative w-6 h-6 rounded-full"
+                style={{
+                  background: 'radial-gradient(circle at 35% 35%, #E040A0, #8040E0 70%, #5020C0)',
+                  boxShadow: '0 0 12px rgba(200,62,136,0.4)',
+                }}>
+                {/* Inner light — the "soul" */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-2.5 h-2.5 rounded-full"
+                    style={{
+                      background: 'radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,200,230,0.4))',
+                      animation: 'aura-breathe 3s ease-in-out infinite',
+                    }} />
+                </div>
+              </div>
             </div>
+            {/* Label */}
+            <span className="text-[0.65rem] font-semibold text-white/50 pr-1 group-hover:text-white/70 transition-colors"
+              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.05em' }}>
+              Aura
+            </span>
           </div>
-          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 text-[0.5rem] text-[#E040A0]/30 font-semibold">Aura</span>
         </button>
       )}
 
@@ -285,11 +309,15 @@ export default function App() {
         </button>
       </div>
 
-      {/* Aura's global keyframe */}
+      {/* Aura's global keyframes */}
       <style>{`
         @keyframes aura-breathe {
           0%, 100% { transform: scale(1); opacity: 0.8; }
           50% { transform: scale(1.15); opacity: 1; }
+        }
+        @keyframes aura-ring-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>
