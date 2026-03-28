@@ -431,32 +431,42 @@ export default function WaitlistPage() {
       {/* ═══ COMPLETION ═══ */}
       {complete && (
         <section className="relative min-h-screen flex items-center justify-center px-6">
-          <div className="flex flex-col items-center text-center">
-            <div className="mb-8 transition-all duration-[1.5s] ease-out"
+          <div className="flex flex-col items-center text-center max-w-sm w-full">
+
+            {/* Profile photo with warm glow aura */}
+            <div className="mb-10 transition-all duration-[1.5s] ease-out"
               style={{ opacity: completePhase >= 1 ? 1 : 0, transform: completePhase >= 1 ? 'scale(1)' : 'scale(0.5)' }}>
               {form.photo ? (
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-full overflow-hidden"
-                    style={{ border: `2px solid ${P.accentBorder}`, boxShadow: `0 0 40px ${P.accentGlow}` }}>
+                  {/* Warm radial glow behind photo — the user is "glowing" in the system */}
+                  <div className="absolute inset-0 rounded-full"
+                    style={{
+                      width: '160px', height: '160px', top: '-24px', left: '-24px',
+                      background: `radial-gradient(circle, rgba(200,62,136,0.15) 0%, rgba(200,62,136,0.04) 50%, transparent 70%)`,
+                      animation: 'completionGlow 3s ease-in-out infinite',
+                    }} />
+                  <div className="w-28 h-28 rounded-full overflow-hidden relative z-10"
+                    style={{ border: `2.5px solid ${P.accent}`, boxShadow: `0 0 50px rgba(200,62,136,0.12), 0 4px 20px rgba(0,0,0,0.06)` }}>
                     <img src={form.photo} alt="" className="w-full h-full object-cover" />
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center"
-                    style={{ background: P.accent, boxShadow: `0 2px 8px ${P.accentGlow}` }}>
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center z-20"
+                    style={{ background: P.accent, boxShadow: `0 2px 12px rgba(200,62,136,0.3)` }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M5 12l5 5L19 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
                 </div>
               ) : (
-                <div className="w-20 h-20 rounded-full flex items-center justify-center"
-                  style={{ background: P.accentSoft, border: `1px solid ${P.accentBorder}` }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <div className="w-24 h-24 rounded-full flex items-center justify-center"
+                  style={{ background: P.accentSoft, border: `2px solid ${P.accent}` }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12l5 5L19 7" stroke={P.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </div>
               )}
             </div>
 
+            {/* Headline */}
             <h2 className="mb-3 transition-all duration-[1.8s] ease-out"
               style={{
                 fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -473,16 +483,69 @@ export default function WaitlistPage() {
               Your application is in. We'll be in touch before launch.
             </p>
 
-            <div className="mt-10 transition-all duration-[2s] ease-out"
+            {/* Queue badge — premium membership card feel, not a deli ticket */}
+            <div className="mt-8 transition-all duration-[2s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(8px)' }}>
-              <div className="px-6 py-3 rounded-full"
-                style={{ border: `1px solid ${P.border}`, background: P.surface }}>
-                <p className="text-[11px] tracking-[0.2em] uppercase" style={{ color: P.textFaint }}>
-                  You're #{Math.floor(Math.random() * 200 + 180)} in line · {form.city || 'Dubai'}
+              <div className="px-7 py-3 rounded-full"
+                style={{ background: 'rgba(200,62,136,0.06)', border: `1px solid ${P.accentBorder}` }}>
+                <p className="text-[11px] tracking-[0.2em] uppercase font-medium" style={{ color: P.accent }}>
+                  #{Math.floor(Math.random() * 200 + 180)} in line · {form.city || 'Dubai'}
                 </p>
               </div>
             </div>
+
+            {/* What happens next — fills the empty space with purpose */}
+            <div className="mt-16 w-full transition-all duration-[2.5s] ease-out"
+              style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(16px)' }}>
+              <p className="text-[10px] tracking-[0.25em] uppercase mb-8" style={{ color: P.textFaint }}>
+                What happens next
+              </p>
+              <div className="flex items-start justify-between gap-4">
+                {[
+                  { num: '01', label: 'Review', desc: 'We review your profile' },
+                  { num: '02', label: 'Match', desc: 'We find your people' },
+                  { num: '03', label: 'Invite', desc: 'You get early access' },
+                ].map((item, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center text-center gap-2.5">
+                    <span className="text-[10px] tracking-[0.2em] font-medium" style={{ color: P.accent }}>
+                      {item.num}
+                    </span>
+                    <span className="text-[13px] tracking-wide font-medium"
+                      style={{ fontFamily: "'DM Sans', sans-serif", color: P.text }}>
+                      {item.label}
+                    </span>
+                    <span className="text-[11px] leading-relaxed" style={{ color: P.textSoft }}>
+                      {item.desc}
+                    </span>
+                    {/* Connector line between steps */}
+                    {i < 2 && (
+                      <div className="absolute" style={{
+                        width: '1px', height: '1px', /* visual connector handled by spacing */
+                      }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+              {/* Subtle progress line connecting the three steps */}
+              <div className="mt-6 mx-auto" style={{ width: '60%', height: '1px', background: `linear-gradient(90deg, transparent, ${P.accentBorder}, transparent)` }} />
+            </div>
+
+            {/* Share prompt — gives user something to do */}
+            <div className="mt-12 transition-all duration-[3s] ease-out"
+              style={{ opacity: completePhase >= 3 ? 0.7 : 0 }}>
+              <p className="text-[11px] tracking-wide" style={{ color: P.textFaint, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '14px' }}>
+                Know someone who should be here?
+              </p>
+            </div>
           </div>
+
+          {/* CSS animation for the glow pulse */}
+          <style>{`
+            @keyframes completionGlow {
+              0%, 100% { opacity: 0.7; transform: scale(1); }
+              50% { opacity: 1; transform: scale(1.08); }
+            }
+          `}</style>
         </section>
       )}
 
