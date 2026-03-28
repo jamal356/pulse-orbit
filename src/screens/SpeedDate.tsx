@@ -8,6 +8,17 @@ interface Props {
   onComplete: () => void
 }
 
+type SpeedDatePhase = 'intro' | 'live' | 'rating' | 'result' | 'next'
+
+interface ConfettiPiece { id: number; left: number; delay: number; duration: number; color: string; size: number; rotation: number }
+function makeConfetti(count: number): ConfettiPiece[] {
+  const colors = ['#E040A0', '#F050B0', '#FF6EC7', '#6060FF', '#30D158', '#FF9F0A', '#FFD700']
+  return Array.from({ length: count }, (_, i) => ({
+    id: i, left: Math.random() * 100, delay: Math.random() * 1.5, duration: 2.5 + Math.random() * 2,
+    color: colors[Math.floor(Math.random() * colors.length)], size: 4 + Math.random() * 6, rotation: Math.random() * 360,
+  }))
+}
+
 const reactionEmojis = ['😂', '🔥', '❤️', '😍', '👏', '😮']
 
 interface FloatingEmoji {
@@ -26,9 +37,9 @@ const CONVERSATION_TIME = 300   // 5 minutes
 const ONE_MORE_TIME = 60        // +1 minute boost
 
 export default function SpeedDate({ candidate, onComplete }: Props) {
+  const [phase, setPhase] = useState<SpeedDatePhase>('intro')
   const [timer, setTimer] = useState(CONVERSATION_TIME)
   const [visible, setVisible] = useState(false)
-  const [showIntro, setShowIntro] = useState(true)
   const [currentQuestion, setCurrentQuestion] = useState<string | null>(null)
   const [isSpinning, setIsSpinning] = useState(false)
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([])
@@ -36,7 +47,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
 
   // Compatibility
   const [compatScore, setCompatScore] = useState(0)
-  const [compatTarget] = useState(() => Math.floor(Math.random() * 15) + 82) // Higher for mutual matches
+  const [compatTarget] = useState(() => Math.floor(Math.random() * 15) + 82)
   const [showCompat, setShowCompat] = useState(false)
 
   // Spark
@@ -52,19 +63,25 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
   // End date confirmation
   const [showEndConfirm, setShowEndConfirm] = useState(false)
 
-  // Intro sequence — 3 seconds of cinematic warmth before the date starts
+  // Post-date state
+  const [userRating, setUserRating] = useState<'like' | 'pass' | null>(null)
+  const [showResult, setShowResult] = useState(false)
+  const [confetti] = useState(() => makeConfetti(60))
+  const [showConfetti, setShowConfetti] = useState(false)
+
+  // Intro sequence — 3 seconds then live
   useEffect(() => {
     setTimeout(() => setVisible(true), 100)
     const introTimer = setTimeout(() => {
-      setShowIntro(false)
+      setPhase('live')
       setShowCompat(true)
     }, 3000)
     return () => clearTimeout(introTimer)
   }, [])
 
-  // Main countdown — only starts after intro
+  // Main countdown — only runs during live phase
   useEffect(() => {
-    if (showIntro) return
+    if (phase !== 'live') return
     const interval = setInterval(() => {
       setTimer(prev => (prev > 0 ? prev - 1 : 0))
     }, 1000)
@@ -87,7 +104,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
       clearTimeout(partnerSparkTimer)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showIntro])
+  }, [phase])
 
   // Mutual Spark detection
   useEffect(() => {
@@ -157,12 +174,34 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
     setTimeout(() => setOneMoreFlash(false), 2500)
   }, [usedOneMore])
 
+  // End date → go to rating phase
+  const handleEndDate = useCallback(() => {
+    setShowEndConfirm(false)
+    setPhase('rating')
+  }, [])
+
+  // Rate the date → reveal result
+  const handleRate = useCallback((rating: 'like' | 'pass') => {
+    setUserRating(rating)
+    // Brief pause, then reveal their rating
+    setTimeout(() => {
+      setShowResult(true)
+      if (rating === 'like') {
+        // Simulate mutual match for the demo
+        setShowConfetti(true)
+        setTimeout(() => setShowConfetti(false), 4000)
+      }
+      // After result reveal, show next step
+      setTimeout(() => setPhase('next'), rating === 'like' ? 3500 : 2000)
+    }, 800)
+  }, [])
+
   const minutes = Math.floor(timer / 60)
   const seconds = timer % 60
   const compatArc = (compatScore / 100) * 283
 
   // ── INTRO SCREEN — cinematic "connecting you" moment ──
-  if (showIntro) {
+  if (phase === 'intro') {
     return (
       <div className="fixed inset-0 bg-[#1a1a1e] flex flex-col items-center justify-center overflow-hidden">
         <BackgroundOrbs />
@@ -202,6 +241,143 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
     )
   }
 
+  // ── RATING PHASE — "Did you feel the chemistry?" ──
+  if (phase === 'rating') {
+    return (
+      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+        <BackgroundOrbs />
+        <div className="relative z-10 w-full max-w-md mx-auto px-6 text-center animate-fade-in">
+          <img src={candidate.photo} alt={candidate.name}
+            className="w-24 h-24 rounded-full object-cover mx-auto mb-4"
+            style={{ border: '3px solid rgba(224,64,160,0.4)', boxShadow: '0 0 30px rgba(224,64,160,0.2)' }} />
+          <h2 className="text-2xl font-bold text-white mb-1 font-display">{candidate.name}, {candidate.age}</h2>
+          <p className="text-sm text-[#98989D] mb-8">Your 1-to-1 speed date just ended</p>
+
+          <h3 className="text-lg text-white mb-6" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic' }}>
+            Did you feel the chemistry?
+          </h3>
+
+          {!userRating ? (
+            <div className="flex items-center justify-center gap-4">
+              <button onClick={() => handleRate('pass')}
+                className="flex flex-col items-center gap-2 px-8 py-5 rounded-2xl hover:scale-105 active:scale-95 transition-all"
+                style={{ background: 'rgba(255,59,48,0.08)', border: '1.5px solid rgba(255,59,48,0.20)' }}>
+                <span className="text-3xl">❄️</span>
+                <span className="text-sm font-semibold text-[#FF3B30]">Not this time</span>
+              </button>
+              <button onClick={() => handleRate('like')}
+                className="flex flex-col items-center gap-2 px-8 py-5 rounded-2xl hover:scale-105 active:scale-95 transition-all"
+                style={{ background: 'rgba(224,64,160,0.08)', border: '1.5px solid rgba(224,64,160,0.25)', boxShadow: '0 0 20px rgba(224,64,160,0.1)' }}>
+                <span className="text-3xl">🔥</span>
+                <span className="text-sm font-semibold text-[#E040A0]">I felt it</span>
+              </button>
+            </div>
+          ) : (
+            <div className="animate-scale-in">
+              <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-3"
+                style={{ background: userRating === 'like' ? 'rgba(224,64,160,0.15)' : 'rgba(255,59,48,0.10)' }}>
+                <span className="text-3xl">{userRating === 'like' ? '🔥' : '❄️'}</span>
+              </div>
+              {showResult && (
+                <div className="animate-fade-in">
+                  {userRating === 'like' ? (
+                    <>
+                      <div className="flex items-center justify-center gap-3 mb-3">
+                        <img src={photos.user} alt="You" className="w-10 h-10 rounded-full object-cover" style={{ border: `2px solid ${USER_COLOR.primary}` }} />
+                        <span className="text-2xl" style={{ animation: 'spark-pulse 0.8s ease-in-out infinite' }}>💖</span>
+                        <img src={candidate.photo} alt={candidate.name} className="w-10 h-10 rounded-full object-cover" style={{ border: '2px solid #E040A0' }} />
+                      </div>
+                      <p className="text-lg font-bold text-[#E040A0] mb-1">Mutual Match!</p>
+                      <p className="text-sm text-[#98989D]">{candidate.name} felt it too. Connection saved.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-base font-semibold text-white mb-1">Noted.</p>
+                      <p className="text-sm text-[#98989D]">No worries — more connections ahead.</p>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {showConfetti && (
+          <div className="fixed inset-0 pointer-events-none z-50">
+            {confetti.map(p => (
+              <div key={p.id} className="absolute top-0" style={{
+                left: `${p.left}%`, width: `${p.size}px`, height: `${p.size * 1.8}px`,
+                backgroundColor: p.color, borderRadius: '2px', transform: `rotate(${p.rotation}deg)`,
+                animation: `confetti-fall ${p.duration}s ease-out ${p.delay}s forwards`, opacity: 0,
+              }} />
+            ))}
+          </div>
+        )}
+        <style>{`@keyframes spark-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }`}</style>
+      </div>
+    )
+  }
+
+  // ── NEXT PHASE — CTA to group session ──
+  if (phase === 'next') {
+    return (
+      <div className="fixed inset-0 bg-[#1a1a1e] flex items-center justify-center overflow-hidden">
+        <BackgroundOrbs />
+        <div className="relative z-10 w-full max-w-lg mx-auto px-6 animate-fade-in">
+          {/* Summary card */}
+          <div className="glass-tile rounded-3xl p-8 text-center mb-6" style={{ border: '1px solid rgba(224,64,160,0.15)' }}>
+            <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-4"
+              style={{ background: 'rgba(224,64,160,0.12)' }}>
+              <span className="text-3xl">✨</span>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2 font-display">1-to-1 Speed Date Complete</h2>
+            <p className="text-sm text-[#98989D] mb-6 leading-relaxed">
+              That's the power of Pulse — matched, verified, and connected in under 10 minutes. No swiping for weeks. No awkward texts. Just chemistry, face to face.
+            </p>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="glass-button rounded-xl p-3">
+                <p className="text-xl font-bold text-[#E040A0] font-display">5m</p>
+                <p className="text-[0.6rem] text-[#7A7A80] uppercase tracking-wider">Date Length</p>
+              </div>
+              <div className="glass-button rounded-xl p-3">
+                <p className="text-xl font-bold text-[#E040A0] font-display">{compatTarget}%</p>
+                <p className="text-[0.6rem] text-[#7A7A80] uppercase tracking-wider">Chemistry</p>
+              </div>
+              <div className="glass-button rounded-xl p-3">
+                <p className="text-xl font-bold text-[#30D158] font-display">{userRating === 'like' ? '💖' : '—'}</p>
+                <p className="text-[0.6rem] text-[#7A7A80] uppercase tracking-wider">{userRating === 'like' ? 'Matched' : 'No Match'}</p>
+              </div>
+            </div>
+
+            <div className="h-px mb-6" style={{ background: 'rgba(224,64,160,0.10)' }} />
+
+            {/* Path 2 intro */}
+            <div className="text-left mb-6">
+              <p className="text-xs uppercase tracking-[0.25em] text-[#E040A0] font-semibold mb-2">Next: Group Speed Dating</p>
+              <p className="text-sm text-[#B0B0B8] leading-relaxed">
+                Want to meet more people? Join a <span className="text-white font-semibold">5×5 group session</span> — 5 dates, 5 minutes each, 25 minutes total. Same format, bigger pool.
+              </p>
+            </div>
+
+            <button onClick={onComplete}
+              className="w-full py-4 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              style={{ background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(224,64,160,0.35)' }}>
+              <span className="text-lg">👥</span>
+              Join Group Session — 5×5 Speed Dating
+            </button>
+          </div>
+
+          {/* Subtle Pulse branding */}
+          <p className="text-center text-[0.65rem] text-[#7A7A80]">
+            Two paths to connection. Zero time wasted.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // ── LIVE PHASE — the actual 1-to-1 speed date ──
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#2A2A2E' }}>
       <BackgroundOrbs />
@@ -262,10 +438,10 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
               </p>
             </div>
             <div className="space-y-2.5">
-              <button onClick={onComplete}
+              <button onClick={handleEndDate}
                 className="w-full py-3.5 rounded-xl text-sm font-semibold text-white active:scale-[0.98] transition-transform"
                 style={{ background: 'linear-gradient(135deg, #E040A0, #C030A0)' }}>
-                End Date & Return
+                End Date
               </button>
               <button onClick={() => setShowEndConfirm(false)}
                 className="w-full py-3 rounded-xl text-sm font-semibold glass-button text-[#98989D] active:scale-[0.98] transition-transform">

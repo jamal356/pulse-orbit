@@ -149,14 +149,20 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
     }
   }, [userAccepted, partnerAccepted])
 
-  // Both accepted → start connecting → navigate to speed date
+  // Both accepted → transition to connecting phase
   useEffect(() => {
     if (userAccepted && partnerAccepted && phase === 'accept-prompt') {
       setPhase('connecting')
+    }
+  }, [userAccepted, partnerAccepted, phase])
+
+  // Connecting phase → navigate to speed date after animation
+  useEffect(() => {
+    if (phase === 'connecting') {
       const timer = setTimeout(() => onSpeedDate(MATCH_CANDIDATE), 2500)
       return () => clearTimeout(timer)
     }
-  }, [userAccepted, partnerAccepted, phase, onSpeedDate])
+  }, [phase, onSpeedDate])
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
     if (phase !== 'browsing' || isLastCard) return
