@@ -163,7 +163,7 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
 
         {/* ── Top bar — almost invisible, floats over the hero ── */}
         <header className="fixed top-0 left-0 right-0 z-50 px-5 py-3 flex items-center justify-between"
-          style={{ background: 'linear-gradient(to bottom, rgba(250,247,242,0.92) 0%, rgba(250,247,242,0.5) 60%, transparent 100%)' }}>
+          style={{ background: 'linear-gradient(to bottom, rgba(250,247,242,0.7) 0%, rgba(250,247,242,0.2) 50%, transparent 100%)' }}>
           <h1 className="text-2xl font-bold" style={{ fontFamily: "'Cormorant Garamond', serif", color: '#C83E88' }}>
             Pulse
           </h1>
@@ -197,13 +197,14 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
               src={slide.image}
               alt=""
               className="w-full h-full object-cover"
-              style={{ objectPosition: isSpark ? 'center 20%' : 'center 40%' }}
+              style={{ objectPosition: 'center center' }}
             />
-            {/* Gradient: content fades into ivory at bottom */}
+            {/* Gradient: only the bottom 40% fades to ivory for text legibility.
+                The rest of the image is untouched so faces are fully visible. */}
             <div className="absolute inset-0" style={{
               background: isSpark
-                ? 'linear-gradient(to top, #FAF7F2 0%, rgba(250,247,242,0.6) 35%, rgba(250,247,242,0.05) 60%, rgba(250,247,242,0.3) 100%)'
-                : 'linear-gradient(to top, #FAF7F2 0%, rgba(30,27,24,0.3) 40%, rgba(30,27,24,0.5) 70%, rgba(30,27,24,0.4) 100%)',
+                ? 'linear-gradient(to top, #FAF7F2 0%, rgba(250,247,242,0.85) 25%, rgba(250,247,242,0.15) 45%, transparent 60%)'
+                : 'linear-gradient(to top, rgba(30,27,24,0.9) 0%, rgba(30,27,24,0.5) 30%, rgba(30,27,24,0.1) 50%, transparent 65%)',
             }} />
           </div>
 
@@ -216,8 +217,9 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
               <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] px-3 py-1 rounded-full"
                 style={{
                   color: isSpark ? '#C83E88' : `rgba(${USER_COLOR.rgb},1)`,
-                  background: isSpark ? 'rgba(200,62,136,0.08)' : `rgba(${USER_COLOR.rgb},0.1)`,
-                  border: `1px solid ${isSpark ? 'rgba(200,62,136,0.15)' : `rgba(${USER_COLOR.rgb},0.2)`}`,
+                  background: isSpark ? 'rgba(200,62,136,0.12)' : `rgba(${USER_COLOR.rgb},0.15)`,
+                  border: `1px solid ${isSpark ? 'rgba(200,62,136,0.2)' : `rgba(${USER_COLOR.rgb},0.25)`}`,
+                  backdropFilter: 'blur(8px)',
                 }}>
                 {isSpark ? '1-to-1' : 'Group experience'}
               </span>
@@ -226,7 +228,8 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
             {/* Headline */}
             <h2 className="text-4xl font-bold mb-2" style={{
               fontFamily: "'Cormorant Garamond', serif",
-              color: isSpark ? '#2A2528' : 'rgba(255,255,255,0.95)',
+              color: '#2A2528',
+              textShadow: '0 1px 8px rgba(250,247,242,0.8)',
             }}>
               {slide.headline}
             </h2>
@@ -234,14 +237,18 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
             {/* Sub */}
             <p className="text-sm mb-1 italic max-w-[280px]" style={{
               fontFamily: "'Cormorant Garamond', serif",
-              color: isSpark ? '#8A7E78' : 'rgba(255,255,255,0.6)',
+              color: isSpark ? '#6B6360' : 'rgba(255,255,255,0.7)',
+              textShadow: isSpark ? '0 1px 6px rgba(250,247,242,0.7)' : 'none',
             }}>
               {isSpark ? `"${slide.sub}"` : slide.sub}
             </p>
 
             {/* Location (spark only) */}
             {isSpark && slide.profile && (
-              <p className="text-xs text-[#A89E98] flex items-center gap-1.5 mb-5">
+              <p className="text-xs flex items-center gap-1.5 mb-5" style={{
+                color: '#8A7E78',
+                textShadow: '0 1px 4px rgba(250,247,242,0.6)',
+              }}>
                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />

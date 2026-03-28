@@ -463,64 +463,109 @@ export default function SessionLobby({ onNavigate }: Props) {
   const seconds = countdown % 60
   const bgImage = cinematicBackdrops[bgIdx % cinematicBackdrops.length]
 
-  // ── PRE-SESSION COUNTDOWN OVERLAY ──
+  /* ═══════════════════════════════════════════════════════════
+     PRE-SESSION COUNTDOWN — "The Anticipation Moment"
+
+     The user is captive for 10 seconds. Highest-attention
+     moment in the entire product. Every pixel is premium
+     cognitive real estate.
+
+     OLD: Giant countdown number, empty space. Wasted.
+     NEW: Faces of who they're about to meet. Full-bleed
+          portrait grid. Names revealed. Countdown is a thin
+          ambient bar at bottom. Sponsor as elegant strip.
+     ═══════════════════════════════════════════════════════════ */
   if (preCountdown !== null && preCountdown > 0) {
     const progress = ((10 - preCountdown) / 10) * 100
+    // Show the people about to be in the session
+    const sessionPeople = profiles.slice(0, Math.min(5, profiles.length))
+    // Reveal people one by one as countdown progresses
+    const revealed = Math.min(sessionPeople.length, Math.ceil((10 - preCountdown) / 2) + 1)
+
     return (
-      <div className="fixed inset-0 bg-[#1E1B18] flex flex-col items-center justify-center overflow-hidden px-6">
-        {/* Animated background pulse */}
+      <div className="fixed inset-0 bg-[#1E1B18] overflow-hidden">
+
+        {/* Full-bleed portrait grid — the PEOPLE are the content */}
+        <div className="absolute inset-0 grid grid-cols-5" style={{ opacity: 0.85 }}>
+          {sessionPeople.map((person, i) => (
+            <div key={i} className="relative overflow-hidden" style={{
+              opacity: i < revealed ? 1 : 0.15,
+              transition: 'opacity 800ms ease-out',
+            }}>
+              <img
+                src={person.image}
+                alt=""
+                className="w-full h-full object-cover"
+                style={{
+                  filter: i < revealed ? 'brightness(0.55) saturate(0.8)' : 'brightness(0.15) saturate(0)',
+                  transition: 'filter 800ms ease-out',
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Dark gradient overlay for text */}
         <div className="absolute inset-0" style={{
-          background: `radial-gradient(circle at center, rgba(200,62,136,${0.05 + (preCountdown <= 3 ? 0.08 : 0)}) 0%, transparent 60%)`,
-          animation: 'countdown-pulse 1s ease-in-out infinite',
+          background: 'linear-gradient(to top, rgba(30,27,24,0.95) 0%, rgba(30,27,24,0.5) 30%, rgba(30,27,24,0.3) 50%, rgba(30,27,24,0.6) 100%)',
         }} />
 
-        {/* Progress ring — scales down on mobile */}
-        <div className="relative mb-6 sm:mb-8">
-          <svg className="w-36 h-36 sm:w-48 sm:h-48 -rotate-90" viewBox="0 0 200 200">
-            <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(200,62,136,0.1)" strokeWidth="4" />
-            <circle cx="100" cy="100" r="90" fill="none" stroke="#C83E88" strokeWidth="4" strokeLinecap="round"
-              strokeDasharray="565.5" strokeDashoffset={565.5 - (progress / 100) * 565.5}
-              className="transition-all duration-1000 ease-linear" />
-          </svg>
-
-          {/* Big countdown number */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-6xl sm:text-7xl font-bold font-display text-white" style={{
-              animation: 'number-pop 1s ease-out',
-              textShadow: '0 0 40px rgba(200,62,136,0.4)',
-            }} key={preCountdown}>
+        {/* Center content */}
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6">
+          {/* Countdown number — still present but not dominant */}
+          <div className="mb-3" key={preCountdown}>
+            <span className="text-7xl font-bold text-white/15" style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              animation: 'number-pop 0.8s ease-out',
+            }}>
               {preCountdown}
             </span>
           </div>
+
+          {/* Main headline — what matters */}
+          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-2" style={{
+            fontFamily: "'Cormorant Garamond', serif",
+          }}>
+            {preCountdown <= 3 ? 'Here we go' : `${revealed} people in your round`}
+          </h2>
+
+          {/* Hype line */}
+          <div className="h-8 flex items-center justify-center" key={hypeIdx}>
+            <p className="text-sm text-white/40 text-center" style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontStyle: 'italic',
+            }}>
+              {hypeQuotes[hypeIdx]}
+            </p>
+          </div>
         </div>
 
-        {/* Label */}
-        <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-[#C83E88] font-semibold mb-4 sm:mb-6">
-          {preCountdown <= 3 ? 'GET READY' : 'STARTING IN'}
-        </p>
+        {/* Bottom bar — progress + participant count */}
+        <div className="absolute bottom-0 left-0 right-0 z-20 px-6 pb-6">
+          {/* Thin progress bar */}
+          <div className="w-full h-[3px] rounded-full overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-full rounded-full" style={{
+              width: `${progress}%`,
+              background: 'linear-gradient(90deg, #C83E88, rgba(200,62,136,0.6))',
+              transition: 'width 1s linear',
+              boxShadow: '0 0 8px rgba(200,62,136,0.3)',
+            }} />
+          </div>
 
-        {/* Hype quote */}
-        <div className="h-8 flex items-center justify-center px-4" key={hypeIdx}>
-          <p className="text-base sm:text-lg text-white/60 font-medium text-center animate-fade-in" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-            {hypeQuotes[hypeIdx]}
-          </p>
-        </div>
-
-        {/* Bottom participant count */}
-        <div className="absolute bottom-8 sm:bottom-10 flex items-center gap-2">
-          <div className="w-2 h-2 bg-[#30D158] rounded-full animate-pulse" />
-          <span className="text-xs text-white/40">{joined} people are ready</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-[#30D158] rounded-full animate-pulse" />
+              <span className="text-[0.65rem] text-white/30">{joined} people are ready</span>
+            </div>
+            <span className="text-[0.55rem] text-white/15 font-mono">{preCountdown}s</span>
+          </div>
         </div>
 
         <style>{`
-          @keyframes countdown-pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-          }
           @keyframes number-pop {
-            0% { transform: scale(1.4); opacity: 0.3; }
-            50% { transform: scale(0.95); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(1.3); opacity: 0; }
+            50% { transform: scale(0.97); opacity: 0.15; }
+            100% { transform: scale(1); opacity: 0.15; }
           }
         `}</style>
       </div>
