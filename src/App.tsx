@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import MarketingPage from './screens/MarketingPage'
 import WaitlistPage from './screens/WaitlistPage'
 import LoginScreen from './screens/LoginScreen'
+import HomeScreen from './screens/HomeScreen'
 import Discover from './screens/Discover'
 import SessionLobby from './screens/SessionLobby'
 import LiveSession from './screens/LiveSession'
@@ -13,29 +14,27 @@ import AiSupport from './screens/AiSupport'
 import InvestorClose from './screens/InvestorClose'
 import type { Candidate } from './data/people'
 
-type Screen = 'waitlist' | 'marketing' | 'login' | 'discover' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'close'
+type Screen = 'waitlist' | 'marketing' | 'login' | 'home' | 'discover' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'close'
 
 /* ─── Demo Nav ─────────────────────────────────────────────
-   Full journey: waitlist → pitch → login → discover → 1-to-1 → group → dates → results → close
-   The flywheel: after group results, matches can do 1-to-1 speed dates.
-   After 1-to-1 from discover, user flows to group session.
-   Each mode feeds the other.
-   ──────────────────────────────────────────────────────────── */
-const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'login', 'discover', 'speeddate', 'lobby', 'session', 'survey', 'results', 'close']
+   Full journey:
+   waitlist → pitch → login → HOME (Netflix hub) → discover → 1-to-1 → group → dates → results → close
 
-/* ─── Route Logic ────────────────────────────────────────────
-   Default landing:
-   - yoursite.com           → Waitlist (consumer-facing)
-   - yoursite.com/#demo     → Investor demo (full platform walkthrough)
-   - yoursite.com/#waitlist → Waitlist (explicit)
+   The Home screen is the central hub where both paths are visible:
+   - "Quick Match" → Discover (swipe → match → 1-to-1 speed date)
+   - "Group 5×5"  → Lobby → 5×5 session → Results
 
-   When pitching VCs, share the #demo link.
-   When marketing to users, share the clean URL.
+   The flywheel:
+   - After 1-to-1 → Home (choose next action)
+   - After group results → Speed Date with matches OR Home
+   - Each mode feeds the other
    ──────────────────────────────────────────────────────────── */
+const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'login', 'home', 'discover', 'speeddate', 'lobby', 'session', 'survey', 'results', 'close']
+
 function getInitialScreen(): Screen {
   const hash = window.location.hash.replace('#', '')
   if (hash === 'demo' || hash === 'marketing') return 'marketing'
-  if (['login', 'discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) return hash as Screen
+  if (['login', 'home', 'discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) return hash as Screen
   return 'waitlist'
 }
 
@@ -45,7 +44,7 @@ export default function App() {
   const [currentDateIndex, setCurrentDateIndex] = useState(0)
   const [ratings, setRatings] = useState<Record<string, 'like' | 'pass'>>({})
   const [speedDateTarget, setSpeedDateTarget] = useState<Candidate | null>(null)
-  const [showAiSupport, setShowAiSupport] = useState(false)
+  const [showAura, setShowAura] = useState(false)
 
   const navigateTo = useCallback((next: Screen) => {
     setTransitioning(true)
@@ -56,7 +55,7 @@ export default function App() {
     }, 400)
   }, [])
 
-  // After a live date, go to quick rating, then either next date or results
+  // ── Core flow handlers ──
   const handleDateComplete = useCallback(() => {
     navigateTo('survey')
   }, [navigateTo])
@@ -81,46 +80,54 @@ export default function App() {
   }, [navigateTo])
 
   /* ─── FLYWHEEL HANDLERS ──────────────────────────────────────
-     The two paths feed each other:
+     Home is the hub. Both paths start and return here.
 
-     Path 1: Discover → Match → Both Accept → 1-to-1 Speed Date → Group Lobby
-     Path 2: Discover → Skip → Group Lobby → 5×5 Session → Results
-     Flywheel: Results → Speed Date with match → back to Discover or Close
+     Quick Match path: Home → Discover → Match → 1-to-1 Speed Date → Home
+     Group path: Home → Lobby → 5×5 Session → Results → Home (or Speed Date)
 
-     Each mode generates value for the other:
-     - 1-to-1 users who don't match flow into group (retention)
-     - Group matches get offered 1-to-1 (upsell to premium)
-     - Both create engagement loops that keep users on platform
+     The flywheel: group results → speed date with match → home
+     Every endpoint loops back. Users always have a next action.
      ──────────────────────────────────────────────────────────── */
 
-  // 1-to-1 Speed Date from discover match
+  // Home → Discover (swipe to find matches)
+  const handleQuickMatch = useCallback(() => {
+    navigateTo('discover')
+  }, [navigateTo])
+
+  // Home → Group lobby (5×5 session)
+  const handleGroupSession = useCallback(() => {
+    navigateTo('lobby')
+  }, [navigateTo])
+
+  // Discover → 1-to-1 speed date (after mutual match)
   const handleDiscoverSpeedDate = useCallback((candidate: Candidate) => {
     setSpeedDateTarget(candidate)
     navigateTo('speeddate')
   }, [navigateTo])
 
-  // 1-to-1 Speed Date from match results (post-group session) — THE FLYWHEEL
+  // Results → 1-to-1 speed date (post-group flywheel)
   const handleResultsSpeedDate = useCallback((candidate: Candidate) => {
     setSpeedDateTarget(candidate)
     navigateTo('speeddate')
   }, [navigateTo])
 
-  // After 1-to-1 speed date completes → go to group lobby
+  // After 1-to-1 completes → back to Home (not lobby — let them choose)
   const handleSpeedDateComplete = useCallback(() => {
     setSpeedDateTarget(null)
+    navigateTo('home')
+  }, [navigateTo])
+
+  // Discover → skip to group (also on Home)
+  const handleDiscoverToGroup = useCallback(() => {
     navigateTo('lobby')
   }, [navigateTo])
 
-  // Skip swiping, go straight to group session
-  const handleGoToGroupSession = useCallback(() => {
-    navigateTo('lobby')
-  }, [navigateTo])
-
-  // Login complete → go to discover
+  // Login → Home
   const handleLoginComplete = useCallback(() => {
-    navigateTo('discover')
+    navigateTo('home')
   }, [navigateTo])
 
+  // Restart demo
   const handleRestart = useCallback(() => {
     setCurrentDateIndex(0)
     setRatings({})
@@ -128,13 +135,13 @@ export default function App() {
     navigateTo('marketing')
   }, [navigateTo])
 
+  // Hash navigation
   useEffect(() => {
-    // Allow hash navigation for direct linking
     const onHash = () => {
       const hash = window.location.hash.replace('#', '')
       if (hash === 'demo' || hash === 'marketing') { setScreen('marketing'); return }
       if (hash === 'waitlist') { setScreen('waitlist'); return }
-      if (['login', 'discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) {
+      if (['login', 'home', 'discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) {
         setScreen(hash as Screen)
       }
     }
@@ -142,7 +149,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-  // ── Demo nav helpers ──
+  // Demo nav
   const demoIdx = DEMO_SCREENS.indexOf(screen)
   const canGoBack = demoIdx > 0
   const canGoForward = demoIdx < DEMO_SCREENS.length - 1 && demoIdx >= 0
@@ -168,10 +175,17 @@ export default function App() {
       {screen === 'login' && (
         <LoginScreen onComplete={handleLoginComplete} />
       )}
+      {screen === 'home' && (
+        <HomeScreen
+          onQuickMatch={handleQuickMatch}
+          onGroupSession={handleGroupSession}
+          onOpenAura={() => setShowAura(true)}
+        />
+      )}
       {screen === 'discover' && (
         <Discover
           onSpeedDate={handleDiscoverSpeedDate}
-          onGroupSession={handleGoToGroupSession}
+          onGroupSession={handleDiscoverToGroup}
         />
       )}
       {screen === 'lobby' && (
@@ -216,26 +230,43 @@ export default function App() {
         />
       )}
 
-      {/* AI Support overlay */}
-      {showAiSupport && (
-        <AiSupport onClose={() => setShowAiSupport(false)} />
+      {/* Aura overlay */}
+      {showAura && (
+        <AiSupport onClose={() => setShowAura(false)} />
       )}
 
-      {/* AI Support FAB — visible on all screens except waitlist and marketing */}
-      {!['waitlist', 'marketing'].includes(screen) && !showAiSupport && (
+      {/* Aura FAB — visible on screens after login (except home which has it in header) */}
+      {!['waitlist', 'marketing', 'login', 'home'].includes(screen) && !showAura && (
         <button
-          onClick={() => setShowAiSupport(true)}
-          className="fixed bottom-16 right-4 z-[90] w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 transition-all animate-scale-in"
-          style={{
-            background: 'linear-gradient(135deg, #E040A0, #8040E0)',
-            boxShadow: '0 4px 20px rgba(224,64,160,0.4), 0 0 40px rgba(128,64,224,0.2)',
-          }}
-          title="Pulse AI Support">
-          <span className="text-lg">🤖</span>
+          onClick={() => setShowAura(true)}
+          className="fixed bottom-16 right-4 z-[90] group"
+          title="Ask Aura">
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            {/* Ambient glow */}
+            <div className="absolute inset-0 rounded-full opacity-40 group-hover:opacity-70 transition-opacity"
+              style={{
+                background: 'radial-gradient(circle, rgba(224,64,160,0.4), rgba(128,64,224,0.2), transparent 70%)',
+                filter: 'blur(8px)',
+              }} />
+            {/* Orb */}
+            <div className="relative w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 active:scale-90 transition-all"
+              style={{
+                background: 'radial-gradient(circle at 35% 35%, #E040A0, #8040E0 60%, #4020A0)',
+                boxShadow: '0 4px 20px rgba(224,64,160,0.35)',
+              }}>
+              <div className="w-3.5 h-3.5 rounded-full"
+                style={{
+                  background: 'radial-gradient(circle, rgba(255,255,255,0.85), rgba(224,64,160,0.5))',
+                  boxShadow: '0 0 8px rgba(255,255,255,0.4)',
+                  animation: 'aura-breathe 3s ease-in-out infinite',
+                }} />
+            </div>
+          </div>
+          <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 text-[0.5rem] text-[#E040A0]/30 font-semibold">Aura</span>
         </button>
       )}
 
-      {/* ── Demo nav arrows — discreet, bottom-center ── */}
+      {/* Demo nav arrows */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[999] flex items-center gap-1 opacity-20 hover:opacity-80 transition-opacity duration-300">
         <button
           onClick={demoPrev}
@@ -253,6 +284,14 @@ export default function App() {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
         </button>
       </div>
+
+      {/* Aura's global keyframe */}
+      <style>{`
+        @keyframes aura-breathe {
+          0%, 100% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.15); opacity: 1; }
+        }
+      `}</style>
     </div>
   )
 }

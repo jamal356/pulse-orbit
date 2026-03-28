@@ -352,19 +352,18 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
 
             <div className="h-px mb-6" style={{ background: 'rgba(224,64,160,0.10)' }} />
 
-            {/* Path 2 intro */}
+            {/* What's next */}
             <div className="text-left mb-6">
-              <p className="text-xs uppercase tracking-[0.25em] text-[#E040A0] font-semibold mb-2">Next: Group Speed Dating</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-[#E040A0] font-semibold mb-2">What's next?</p>
               <p className="text-sm text-[#B0B0B8] leading-relaxed">
-                Want to meet more people? Join a <span className="text-white font-semibold">5×5 group session</span> — 5 dates, 5 minutes each, 25 minutes total. Same format, bigger pool.
+                Keep the momentum going. Match with more people, or join a <span className="text-white font-semibold">5×5 group session</span> to meet someone you'd never have swiped on.
               </p>
             </div>
 
             <button onClick={onComplete}
               className="w-full py-4 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
               style={{ background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(224,64,160,0.35)' }}>
-              <span className="text-lg">👥</span>
-              Join Group Session — 5×5 Speed Dating
+              Continue
             </button>
           </div>
 
