@@ -52,15 +52,15 @@ export const dark = {
 export const imagery = {
   // Dubai skyline & lifestyle — all Unsplash 4K quality
   heroProfiles: [
-    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=90',    // woman, warm tones
-    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=90',    // woman, studio
-    'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=800&q=90',    // woman, natural
-    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=90',    // man, warm portrait
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=90',    // man, outdoor
+    'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=3840&q=95',    // woman, warm tones
+    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=3840&q=95',    // woman, studio
+    'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=3840&q=95',    // woman, natural
+    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=3840&q=95',    // man, warm portrait
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=3840&q=95',    // man, outdoor
   ],
   // Dubai venue/lifestyle backgrounds — match location names
-  dubaiMarina: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=90',
-  difc: 'https://images.unsplash.com/photo-1546412414-e1885259563a?w=1200&q=90',
-  jumeirah: 'https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=1200&q=90',
-  downtown: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=90',
+  dubaiMarina: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=3840&q=95',
+  difc: 'https://images.unsplash.com/photo-1546412414-e1885259563a?w=3840&q=95',
+  jumeirah: 'https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=3840&q=95',
+  downtown: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=3840&q=95',
 }

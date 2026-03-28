@@ -1,10 +1,10 @@
 export const photos = {
-  sofia: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&q=80',
-  layla: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&q=80',
-  amira: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80',
-  nour: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&q=80',
-  yasmine: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80',
-  user: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80',
+  sofia: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=3840&q=95',
+  layla: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=3840&q=95',
+  amira: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=3840&q=95',
+  nour: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=3840&q=95',
+  yasmine: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=3840&q=95',
+  user: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=3840&q=95',
 }
 
 export type Gender = 'male' | 'female'

@@ -242,7 +242,7 @@ export default function LoginScreen({ onComplete }: Props) {
               <div className="w-20 h-20 rounded-full flex items-center justify-center relative overflow-hidden"
                 style={{ background: 'rgba(200,62,136,0.08)', border: '2px dashed rgba(200,62,136,0.25)' }}>
                 {profileName ? (
-                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80" alt="Profile" className="w-full h-full object-cover rounded-full" />
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=3840&q=95" alt="Profile" className="w-full h-full object-cover rounded-full" />
                 ) : (
                   <span className="text-2xl">📷</span>
                 )}

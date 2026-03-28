@@ -28,7 +28,7 @@ const discoverProfiles: Candidate[] = [
     name: 'Maya',
     age: 27,
     location: 'Dubai Marina',
-    photo: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&q=80',
+    photo: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=3840&q=95',
     bio: 'Documentary filmmaker chasing stories across the Gulf',
     tags: ['Film', 'Travel', 'Sushi'],
     gender: 'female',
@@ -37,7 +37,7 @@ const discoverProfiles: Candidate[] = [
     name: 'Zara',
     age: 30,
     location: 'DIFC, Dubai',
-    photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80',
+    photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=3840&q=95',
     bio: 'Venture capital analyst. Weekend potter. Terrible cook.',
     tags: ['Finance', 'Art', 'Yoga'],
     gender: 'female',
@@ -46,7 +46,7 @@ const discoverProfiles: Candidate[] = [
     name: 'Lina',
     age: 25,
     location: 'Jumeirah, Dubai',
-    photo: 'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=400&q=80',
+    photo: 'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=3840&q=95',
     bio: 'Architect who believes every building should make you feel something',
     tags: ['Design', 'Music', 'Running'],
     gender: 'female',
@@ -397,7 +397,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
               {/* Next card preview (behind) */}
               {currentIndex + 1 < discoverProfiles.length && (
                 <div className="absolute inset-0 rounded-3xl overflow-hidden scale-[0.95] -translate-y-2 opacity-50 pointer-events-none">
-                  <img src={discoverProfiles[currentIndex + 1].photo.replace('w=400&q=80', 'w=800&q=90')} alt="" className="w-full h-full object-cover" />
+                  <img src={discoverProfiles[currentIndex + 1].photo.replace('w=3840&q=95', 'w=3840&q=95')} alt="" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40" />
                 </div>
               )}
@@ -423,7 +423,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
                 onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
                 onTouchEnd={handleDragEnd}
               >
-                <img src={currentProfile.photo.replace('w=400&q=80', 'w=800&q=90')} alt={currentProfile.name}
+                <img src={currentProfile.photo.replace('w=3840&q=95', 'w=3840&q=95')} alt={currentProfile.name}
                   className="w-full h-full object-cover absolute inset-0 pointer-events-none select-none" draggable={false} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
 

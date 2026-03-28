@@ -32,19 +32,19 @@ interface HeroSlide {
 const heroProfiles: Candidate[] = [
   {
     name: 'Zara', age: 30, location: 'DIFC, Dubai', gender: 'female',
-    photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=90',
+    photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=3840&q=95',
     bio: 'Venture capital analyst. Weekend potter. Terrible cook.',
     tags: ['Finance', 'Art', 'Yoga'],
   },
   {
     name: 'Maya', age: 27, location: 'Dubai Marina', gender: 'female',
-    photo: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=90',
+    photo: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=3840&q=95',
     bio: 'Documentary filmmaker chasing stories across the Gulf',
     tags: ['Film', 'Travel', 'Sushi'],
   },
   {
     name: 'Lina', age: 25, location: 'Jumeirah, Dubai', gender: 'female',
-    photo: 'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=800&q=90',
+    photo: 'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=3840&q=95',
     bio: 'Architect who believes every building should make you feel something',
     tags: ['Design', 'Music', 'Running'],
   },
@@ -63,7 +63,7 @@ const heroSlides: HeroSlide[] = [
   // The Round slide — experience-forward
   {
     type: 'round',
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=90',
+    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=3840&q=95',
     headline: 'The Round',
     sub: '5 new people. 5 minutes each. One table.',
     cta: 'Join the next round',
@@ -80,7 +80,7 @@ const heroSlides: HeroSlide[] = [
   // Round variant
   {
     type: 'round',
-    image: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=90',
+    image: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?w=3840&q=95',
     headline: 'The Saturday Table',
     sub: 'Weekend energy, new faces — starts in 8 min',
     cta: 'Reserve your seat',

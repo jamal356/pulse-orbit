@@ -730,7 +730,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               {/* Cinematic sponsor moment */}
               <div className="glass-tile rounded-2xl overflow-hidden relative" style={{ border: '1px solid rgba(201,149,107,0.20)' }}>
                 <div className="absolute inset-0 opacity-25">
-                  <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80" alt="" className="w-full h-full object-cover" />
+                  <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=3840&q=95" alt="" className="w-full h-full object-cover" />
                 </div>
                 <div className="relative z-10 p-5">
                   <div className="flex items-center gap-2 mb-2">
