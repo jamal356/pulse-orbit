@@ -244,39 +244,74 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
     setTimeout(() => setSecondChanceNotif(null), 3000)
   }, [])
 
+  // Track which match we're currently showcasing
+  const [matchQueue, setMatchQueue] = useState<Candidate[]>([])
+  const [matchIndex, setMatchIndex] = useState(0)
+
   /* ─── CASCADE REVEAL ───
-     Intro (1.5s) → all 5 cards flip rapid-fire (300ms apart = 1.5s) → celebrate (2.5s) → summary
-     Total: ~5.5 seconds. Fast, dramatic, no dead air.
+     Intro (1.5s) → all 5 cards flip rapid-fire (300ms apart = 1.5s)
+     → pause (1s) → reveal each match one by one (2s each) → summary
+     Every match gets its own MatchCard moment.
      ─────────────────────── */
   useEffect(() => {
     if (phase === 'intro') {
-      // Play drumroll during intro
       const drumTimer = setTimeout(() => soundRef.current.drumroll(), 200)
       const t = setTimeout(() => setPhase('cascade'), 1500)
       return () => { clearTimeout(t); clearTimeout(drumTimer) }
     }
     if (phase === 'cascade') {
-      let hasMatch = false
-      const timers = candidates.map((c, i) =>
+      // Step 1: Flip ALL cards rapid-fire (no match reveals yet)
+      const flipTimers = candidates.map((_c, i) =>
         setTimeout(() => {
           setRevealedCards(prev => { const next = [...prev]; next[i] = true; return next })
-          // Card flip sound
           soundRef.current.tick()
-          const yours = secondChances[c.name] ? 'like' : (ratings[c.name] || 'pass')
-          const theirs = theirRatings[c.name] || 'pass'
-          if (yours === 'like' && theirs === 'like' && !hasMatch) {
-            hasMatch = true
-            // Match chime!
-            setTimeout(() => soundRef.current.matchChime(), 100)
-            setTimeout(() => { setShowConfetti(true); setTimeout(() => setShowConfetti(false), 4000) }, 200)
-            setTimeout(() => setMatchCardTarget(c), 800)
-          }
         }, 300 * i)
       )
-      const summaryTimer = setTimeout(() => setPhase('summary'), 300 * candidates.length + 2500)
-      return () => { timers.forEach(clearTimeout); clearTimeout(summaryTimer) }
+
+      // Step 2: After all cards flipped, build match queue and start revealing
+      const allFlippedTime = 300 * candidates.length + 800
+      const matchRevealTimer = setTimeout(() => {
+        const matches = candidates.filter(c => {
+          const yours = secondChances[c.name] ? 'like' : (ratings[c.name] || 'pass')
+          const theirs = theirRatings[c.name] || 'pass'
+          return yours === 'like' && theirs === 'like'
+        })
+        if (matches.length > 0) {
+          setMatchQueue(matches)
+          setMatchIndex(0)
+          // Show first match
+          soundRef.current.matchChime()
+          setShowConfetti(true)
+          setTimeout(() => setShowConfetti(false), 4000)
+          setMatchCardTarget(matches[0])
+        } else {
+          // No matches — go straight to summary
+          setTimeout(() => setPhase('summary'), 1500)
+        }
+      }, allFlippedTime)
+
+      return () => { flipTimers.forEach(clearTimeout); clearTimeout(matchRevealTimer) }
     }
   }, [phase, ratings, secondChances])
+
+  // When user closes a MatchCard, show the next match or move to summary
+  const handleMatchCardClose = useCallback(() => {
+    setMatchCardTarget(null)
+    const nextIdx = matchIndex + 1
+    if (nextIdx < matchQueue.length) {
+      // Show next match after a brief pause
+      setTimeout(() => {
+        setMatchIndex(nextIdx)
+        soundRef.current.matchChime()
+        setShowConfetti(true)
+        setTimeout(() => setShowConfetti(false), 4000)
+        setMatchCardTarget(matchQueue[nextIdx])
+      }, 600)
+    } else {
+      // All matches shown — move to summary
+      setTimeout(() => setPhase('summary'), 800)
+    }
+  }, [matchIndex, matchQueue])
 
   return (
     <div className="fixed inset-0 bg-[#1E1B18] overflow-hidden">
@@ -299,7 +334,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
       {matchCardTarget && (
         <MatchCard
           match={matchCardTarget}
-          onClose={() => setMatchCardTarget(null)}
+          onClose={handleMatchCardClose}
         />
       )}
 
@@ -782,166 +817,6 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               </div>
             </div>{/* end right column */}
 
-          </div>
-
-          {/* ════════════════════════════════════════════════════════
-              INVESTOR CLOSER — Full-width. Below everything.
-              Steve Jobs pitching the board. No apologies.
-              ════════════════════════════════════════════════════════ */}
-          <div className="relative mt-16 mb-8" style={{ borderTop: '1px solid rgba(200,62,136,0.15)' }}>
-            {/* Ambient glow */}
-            <div className="absolute inset-0 pointer-events-none" style={{
-              background: 'radial-gradient(ellipse 90% 60% at 50% 0%, rgba(200,62,136,0.10) 0%, transparent 60%)',
-            }} />
-
-            <div className="max-w-5xl mx-auto px-6 pt-16 pb-8 relative z-10">
-
-              {/* ── THE HOOK ── */}
-              <div className="text-center mb-16">
-                <p className="text-xs uppercase tracking-[0.4em] text-[#C83E88] font-semibold mb-8">Seed Round &middot; Open Now</p>
-
-                <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1]" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
-                  You just used a product that<br />
-                  <span style={{ color: '#C83E88' }}>doesn&rsquo;t exist yet.</span>
-                </h2>
-
-                <p className="text-lg md:text-xl text-[#B0B0B8] max-w-2xl mx-auto leading-relaxed">
-                  What you experienced in the last 3 minutes took Tinder 10 years and $3B in revenue to never figure out. We pilot in Dubai. Then we go everywhere &mdash; fast.
-                </p>
-              </div>
-
-              {/* ── THE OPPORTUNITY ── */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 max-w-4xl mx-auto mb-16">
-                {[
-                  { value: '$12B', label: 'Global dating market', sub: '2025, growing 8% YoY' },
-                  { value: '70%', label: 'MENA population under 30', sub: 'No dominant player' },
-                  { value: 'AED 75', label: 'Revenue per user per session', sub: 'Day 1 monetization' },
-                  { value: '$0', label: 'CAC via viral loop', sub: 'Every session = content' },
-                ].map((s, i) => (
-                  <div key={i} className="glass-tile rounded-2xl p-5 text-center animate-slide-up" style={{ animationDelay: `${0.8 + i * 0.12}s`, animationFillMode: 'backwards' }}>
-                    <p className="text-2xl md:text-3xl font-bold font-display text-white">{s.value}</p>
-                    <p className="text-xs text-[#C83E88] font-semibold mt-2 uppercase tracking-wider">{s.label}</p>
-                    <p className="text-[0.65rem] text-[#7A7A80] mt-1">{s.sub}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* ── REVENUE STREAMS ── */}
-              <div className="max-w-4xl mx-auto mb-16">
-                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Seven Revenue Streams From Day One</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {[
-                    { icon: '🎟️', title: 'Session tickets — AED 75/user', desc: 'Core revenue. 10 users per session = AED 750. Two sessions/night, 4 nights/week = AED 24K/month from a single city before scaling.', highlight: true },
-                    { icon: '👑', title: 'Pulse Premium — AED 199/month', desc: 'Unlimited sessions, see who liked you, 10-min dates, priority matching. Targets power users who come back weekly.' },
-                    { icon: '🔄', title: '2nd Chance & One More Thing', desc: 'In-session microtransactions. Retroactive pass-to-like conversions and time extensions. Impulse purchases at peak emotional moments.' },
-                    { icon: '🏢', title: 'Sponsored sessions & venue partnerships', desc: 'Brands sponsor themed sessions ("Porsche Date Night," "The Palm Singles"). Venues bid to host. Media value per session is measurable.' },
-                    { icon: '📱', title: 'AI photo enhancement', desc: 'Users upload photos, AI generates professional-quality profile pictures. Free basic tier drives platform quality. Premium packs at AED 25\u201349.' },
-                    { icon: '📊', title: 'Sharecard & content virality', desc: 'Every session generates branded content. Organic reach on Instagram, WhatsApp, X. Users market the product. CAC approaches zero at scale.' },
-                  ].map((item, i) => (
-                    <div key={i} className={`glass-tile rounded-2xl p-5 animate-slide-up ${item.highlight ? 'md:col-span-2' : ''}`} style={{ animationDelay: `${1.2 + i * 0.08}s`, animationFillMode: 'backwards', border: item.highlight ? '1px solid rgba(200,62,136,0.20)' : undefined }}>
-                      <div className="flex items-start gap-3">
-                        <span className="text-xl mt-0.5">{item.icon}</span>
-                        <div>
-                          <p className="text-sm font-bold text-white mb-1">{item.title}</p>
-                          <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* ── THE DATA MOAT ── */}
-              <div className="max-w-4xl mx-auto mb-16">
-                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">The Data Moat</h3>
-                <div className="glass-tile rounded-2xl p-6 md:p-8" style={{ border: '1px solid rgba(200,62,136,0.15)', background: 'linear-gradient(160deg, rgba(200,62,136,0.04) 0%, rgba(0,0,0,0.1) 100%)' }}>
-                  <p className="text-base md:text-lg text-white font-medium mb-4 text-center" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                    Every 5-minute date generates more signal than 10,000 swipes.
-                  </p>
-                  <p className="text-xs text-[#98989D] text-center max-w-2xl mx-auto mb-6 leading-relaxed">
-                    Swipe apps know who you tap. We know who you actually connect with &mdash; on camera, in real time. That&rsquo;s a fundamentally different dataset.
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                      { title: 'Behavioral matching AI', desc: 'Conversation flow, reaction patterns, mutual engagement signals, spark timing. Train a matching algorithm no competitor can replicate because no competitor has live video interaction data at scale.' },
-                      { title: 'Predictive chemistry scoring', desc: 'Over time, predict match quality before a session starts. Higher match rates = higher retention = higher LTV. The product gets smarter every session.' },
-                      { title: 'Licensable insight layer', desc: 'Anonymized behavioral data on real-world chemistry becomes a B2B product. Dating platforms, matchmaking services, and relationship researchers have nothing like this. New revenue vertical.' },
-                    ].map((item, i) => (
-                      <div key={i} className="animate-slide-up" style={{ animationDelay: `${1.6 + i * 0.1}s`, animationFillMode: 'backwards' }}>
-                        <p className="text-sm font-bold text-[#C83E88] mb-2">{item.title}</p>
-                        <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── THE GO-TO-MARKET ── */}
-              <div className="max-w-4xl mx-auto mb-16">
-                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Go-To-Market</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    { phase: '01', title: 'Dubai Pilot', desc: 'Controlled launch. 500 curated users, influencer seeding, exclusive venue partnerships. Prove retention and unit economics.', color: '#C83E88' },
-                    { phase: '02', title: 'Content Detonation', desc: 'Every session generates Instagram stories, TikToks, tweets. Dubai is the world\u2019s social media stage. We don\u2019t buy reach \u2014 users create it.', color: '#C83E88' },
-                    { phase: '03', title: 'Global Wave', desc: 'Once viral content hits, we open waitlists city by city. London, Riyadh, Mumbai, NYC. The product travels because the content travels.', color: '#C83E88' },
-                  ].map((item, i) => (
-                    <div key={i} className="glass-tile rounded-2xl p-5 animate-slide-up" style={{ animationDelay: `${1.8 + i * 0.1}s`, animationFillMode: 'backwards' }}>
-                      <p className="text-2xl font-bold font-display mb-2" style={{ color: item.color, opacity: 0.4 }}>{item.phase}</p>
-                      <p className="text-sm font-bold text-white mb-2">{item.title}</p>
-                      <p className="text-xs text-[#98989D] leading-relaxed">{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* ── USE OF FUNDS ── */}
-              <div className="max-w-3xl mx-auto mb-16">
-                <h3 className="text-xs uppercase tracking-[0.3em] text-[#7A7A80] font-semibold mb-6 text-center">Use of Funds</h3>
-                <div className="glass-tile rounded-2xl p-6">
-                  <div className="space-y-4">
-                    {[
-                      { pct: 35, label: 'Product & Engineering', detail: 'Real-time video infrastructure, matching algorithm, iOS + Android' },
-                      { pct: 35, label: 'Dubai Pilot & Viral Launch', detail: 'Influencer seeding, launch events, content engine, PR blitz' },
-                      { pct: 20, label: 'Operations & Safety', detail: 'Trust & safety team, legal, compliance, venue partnerships' },
-                      { pct: 10, label: 'Reserve', detail: 'Runway buffer for rapid scaling' },
-                    ].map((item, i) => (
-                      <div key={i}>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-sm text-white font-medium">{item.label}</span>
-                          <span className="text-sm font-bold text-[#C83E88]">{item.pct}%</span>
-                        </div>
-                        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(200,62,136,0.08)' }}>
-                          <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${item.pct}%`, background: 'linear-gradient(90deg, #C83E88, #C030A0)', animationDelay: `${1.5 + i * 0.15}s` }} />
-                        </div>
-                        <p className="text-[0.65rem] text-[#7A7A80] mt-1">{item.detail}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ── THE ASK ── */}
-              <div className="text-center max-w-2xl mx-auto mb-8">
-                <p className="text-2xl md:text-3xl font-bold text-white mb-3" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                  Raising $2.5M. Dubai pilot. Then the world.
-                </p>
-                <p className="text-sm text-[#98989D] mb-8">
-                  The product works. Dubai is the fuse. The only question is whether you&rsquo;re in before it lights.
-                </p>
-
-                <a href="mailto:jamal@hakadian.com?subject=Pulse%20%E2%80%94%20Investment%20Inquiry" className="inline-block px-12 py-4 rounded-full text-base font-bold text-white text-center hover:scale-[1.03] active:scale-[0.98] transition-all mb-3"
-                  style={{
-                    background: 'linear-gradient(135deg, #C83E88 0%, #C030A0 50%, #C83E88 100%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'shimmer-btn 3s ease-in-out infinite',
-                    boxShadow: '0 6px 30px rgba(200,62,136,0.4), 0 0 80px rgba(200,62,136,0.12)',
-                  }}>
-                  jamal@hakadian.com
-                </a>
-                <p className="text-sm text-[#7A7A80]">Jamal Hakadian &middot; Founder &middot; Dubai, UAE</p>
-              </div>
-
-            </div>
           </div>
 
         </div>

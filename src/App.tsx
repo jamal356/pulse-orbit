@@ -243,7 +243,7 @@ export default function App() {
         <button
           onClick={() => setShowAura(true)}
           className="fixed z-[90] group"
-          style={{ bottom: '4.5rem', right: '1.25rem' }}
+          style={{ bottom: '1.25rem', left: '1.25rem' }}
           title="Ask Aura">
           <div className="flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300
                           group-hover:scale-105 group-active:scale-95"
