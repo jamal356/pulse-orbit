@@ -150,6 +150,7 @@ interface Props {
   ratings: Record<string, 'like' | 'pass'>
   onRestart: () => void
   onContinue?: () => void
+  onSpeedDate?: (candidate: Candidate) => void
 }
 
 // Simulate their ratings
@@ -207,7 +208,7 @@ function makeConfetti(count: number): ConfettiPiece[] {
 
 type Phase = 'intro' | 'cascade' | 'summary'
 
-export default function MatchResults({ ratings, onRestart, onContinue }: Props) {
+export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDate }: Props) {
   const [phase, setPhase] = useState<Phase>('intro')
   const [revealedCards, setRevealedCards] = useState<boolean[]>(candidates.map(() => false))
   const [showConfetti, setShowConfetti] = useState(false)
@@ -226,35 +227,10 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
   const soundRef = useRef(createSoundEngine())
   useEffect(() => () => soundRef.current.cleanup(), [])
 
-  // "Say Hi" bonus call state
-  const [sayHiTarget, setSayHiTarget] = useState<Candidate | null>(null)
-  const [sayHiTimer, setSayHiTimer] = useState(60)
-  const [sayHiActive, setSayHiActive] = useState(false)
-
-  // Say Hi timer countdown
-  useEffect(() => {
-    if (!sayHiActive) return
-    const timer = setInterval(() => {
-      setSayHiTimer(p => {
-        if (p <= 1) {
-          setSayHiActive(false)
-          setSayHiTarget(null)
-          return 60
-        }
-        return p - 1
-      })
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [sayHiActive])
-
-  const handleSayHi = useCallback((c: Candidate) => {
-    setSayHiTarget(c)
-    setSayHiActive(true)
-    setSayHiTimer(60)
-    // Ring → then connected tone after 2s
-    soundRef.current.ringTone()
-    setTimeout(() => soundRef.current.callConnected(), 2500)
-  }, [])
+  // Speed Date handler — navigates to 1-to-1 speed date screen
+  const handleSpeedDate = useCallback((c: Candidate) => {
+    if (onSpeedDate) onSpeedDate(c)
+  }, [onSpeedDate])
 
   // Derived
   const getEffectiveRating = useCallback((name: string) => secondChances[name] ? 'like' as const : (ratings[name] || 'pass' as const), [secondChances, ratings])
@@ -326,57 +302,7 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
         />
       )}
 
-      {/* Say Hi bonus call overlay */}
-      {sayHiTarget && sayHiActive && (
-        <div className="fixed inset-0 z-[65] flex flex-col items-center justify-center bg-black/90 backdrop-blur-lg animate-fade-in">
-          <div className="text-center mb-8 animate-scale-in">
-            <div className="relative inline-block mb-4">
-              <img src={sayHiTarget.photo} alt={sayHiTarget.name}
-                className="w-24 h-24 rounded-full object-cover"
-                style={{ border: '3px solid #E040A0', boxShadow: '0 0 40px rgba(224,64,160,0.3)' }} />
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#30D158] flex items-center justify-center"
-                style={{ boxShadow: '0 0 12px rgba(48,209,88,0.4)' }}>
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </div>
-            </div>
-            <h3 className="text-xl font-bold text-white mb-1">Say Hi to {sayHiTarget.name}!</h3>
-            <p className="text-sm text-white/40 mb-6">60-second bonus call — say what you couldn't in 5 minutes</p>
-
-            {/* Timer ring */}
-            <div className="relative w-20 h-20 mx-auto mb-6">
-              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(224,64,160,0.15)" strokeWidth="4" />
-                <circle cx="50" cy="50" r="45" fill="none" stroke="#E040A0" strokeWidth="4" strokeLinecap="round"
-                  strokeDasharray="283" strokeDashoffset={283 - (sayHiTimer / 60) * 283}
-                  className="transition-all duration-1000 ease-linear" />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-lg font-mono font-bold text-[#E040A0]">{sayHiTimer}s</span>
-              </div>
-            </div>
-
-            {/* Simulated call wave */}
-            <div className="flex items-center justify-center gap-1 mb-6">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="w-1 rounded-full bg-[#E040A0]"
-                  style={{
-                    height: `${12 + Math.random() * 20}px`,
-                    animation: `wave-bar 0.8s ease-in-out ${i * 0.1}s infinite alternate`,
-                  }} />
-              ))}
-            </div>
-
-            <button
-              onClick={() => { soundRef.current.hangup(); setSayHiActive(false); setSayHiTarget(null); setSayHiTimer(60) }}
-              className="px-8 py-3 rounded-full text-sm font-semibold bg-[#FF3B30] text-white hover:scale-105 active:scale-95 transition-all"
-            >
-              End Call
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Speed Date overlay removed — navigates to dedicated SpeedDate screen */}
 
       {/* Second Chance notification toast */}
       {secondChanceNotif && (
@@ -652,14 +578,14 @@ export default function MatchResults({ ratings, onRestart, onContinue }: Props) 
                       <div className="flex items-center gap-2 shrink-0">
                         {match && (
                           <button
-                            onClick={(e) => { e.stopPropagation(); handleSayHi(c) }}
+                            onClick={(e) => { e.stopPropagation(); handleSpeedDate(c) }}
                             className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-white hover:scale-105 active:scale-95 transition-all"
-                            style={{ background: USER_COLOR.primary, boxShadow: `0 2px 12px rgba(${USER_COLOR.rgb},0.35)` }}
+                            style={{ background: 'linear-gradient(135deg, #E040A0, #C030A0)', boxShadow: '0 2px 12px rgba(224,64,160,0.35)' }}
                           >
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
-                            Say Hi
+                            Speed Date
                           </button>
                         )}
                         {match && (

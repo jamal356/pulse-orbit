@@ -6,9 +6,11 @@ import LiveSession from './screens/LiveSession'
 import TransitionScreen from './screens/TransitionScreen'
 import MatchSurvey from './screens/MatchSurvey'
 import MatchResults from './screens/MatchResults'
+import SpeedDate from './screens/SpeedDate'
 import InvestorClose from './screens/InvestorClose'
+import type { Candidate } from './data/people'
 
-type Screen = 'waitlist' | 'marketing' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'close'
+type Screen = 'waitlist' | 'marketing' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'close'
 
 /* ─── Demo Nav ─────────────────────────────────────────────
    Ordered screen sequence for quick forward/back during demos.
@@ -37,6 +39,7 @@ export default function App() {
   const [transitioning, setTransitioning] = useState(false)
   const [currentDateIndex, setCurrentDateIndex] = useState(0)
   const [ratings, setRatings] = useState<Record<string, 'like' | 'pass'>>({})
+  const [speedDateTarget, setSpeedDateTarget] = useState<Candidate | null>(null)
 
   const navigateTo = useCallback((next: Screen) => {
     setTransitioning(true)
@@ -69,6 +72,17 @@ export default function App() {
 
   const handleResultsContinue = useCallback(() => {
     navigateTo('close')
+  }, [navigateTo])
+
+  // 1-to-1 Speed Date: match clicks "Speed Date" → navigate to speed date screen
+  const handleSpeedDate = useCallback((candidate: Candidate) => {
+    setSpeedDateTarget(candidate)
+    navigateTo('speeddate')
+  }, [navigateTo])
+
+  const handleSpeedDateComplete = useCallback(() => {
+    setSpeedDateTarget(null)
+    navigateTo('results')
   }, [navigateTo])
 
   const handleRestart = useCallback(() => {
@@ -140,6 +154,13 @@ export default function App() {
           ratings={ratings}
           onRestart={handleRestart}
           onContinue={handleResultsContinue}
+          onSpeedDate={handleSpeedDate}
+        />
+      )}
+      {screen === 'speeddate' && speedDateTarget && (
+        <SpeedDate
+          candidate={speedDateTarget}
+          onComplete={handleSpeedDateComplete}
         />
       )}
       {screen === 'close' && (
