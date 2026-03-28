@@ -6,7 +6,6 @@ import PulseLogo from '../components/PulseLogo'
 interface Props {
   onQuickMatch: () => void
   onGroupSession: () => void
-  onOpenAura: () => void    // handled by global FAB now, kept for interface compat
 }
 
 /* ─── HOME SCREEN — True Netflix / Jobs-Ive philosophy ───────
@@ -122,7 +121,7 @@ function createHomeSounds() {
   }
 }
 
-export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }: Props) {
+export default function HomeScreen({ onQuickMatch, onGroupSession }: Props) {
   const [visible, setVisible] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
   const [transitioning, setTransitioning] = useState(false)

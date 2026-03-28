@@ -179,7 +179,6 @@ export default function App() {
         <HomeScreen
           onQuickMatch={handleQuickMatch}
           onGroupSession={handleGroupSession}
-          onOpenAura={() => setShowAura(true)}
         />
       )}
       {screen === 'discover' && (
