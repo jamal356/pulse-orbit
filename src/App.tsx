@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import MarketingPage from './screens/MarketingPage'
 import WaitlistPage from './screens/WaitlistPage'
+import Discover from './screens/Discover'
 import SessionLobby from './screens/SessionLobby'
 import LiveSession from './screens/LiveSession'
 import TransitionScreen from './screens/TransitionScreen'
@@ -10,13 +11,14 @@ import SpeedDate from './screens/SpeedDate'
 import InvestorClose from './screens/InvestorClose'
 import type { Candidate } from './data/people'
 
-type Screen = 'waitlist' | 'marketing' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'close'
+type Screen = 'waitlist' | 'marketing' | 'discover' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'close'
 
 /* ─── Demo Nav ─────────────────────────────────────────────
    Ordered screen sequence for quick forward/back during demos.
+   Shows both paths: discover (1-to-1) → speeddate, then group flow.
    Skips transition & survey (they're mid-flow filler).
    ──────────────────────────────────────────────────────────── */
-const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'lobby', 'session', 'survey', 'results', 'close']
+const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'discover', 'speeddate', 'lobby', 'session', 'survey', 'results', 'close']
 
 /* ─── Route Logic ────────────────────────────────────────────
    Default landing:
@@ -30,7 +32,7 @@ const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'lobby', 'session', 'su
 function getInitialScreen(): Screen {
   const hash = window.location.hash.replace('#', '')
   if (hash === 'demo' || hash === 'marketing') return 'marketing'
-  if (['lobby', 'session', 'survey', 'results'].includes(hash)) return hash as Screen
+  if (['discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) return hash as Screen
   return 'waitlist'
 }
 
@@ -74,20 +76,39 @@ export default function App() {
     navigateTo('close')
   }, [navigateTo])
 
-  // 1-to-1 Speed Date: match clicks "Speed Date" → navigate to speed date screen
-  const handleSpeedDate = useCallback((candidate: Candidate) => {
+  /* ─── DUAL PATH HANDLERS ─────────────────────────────────────
+     Path 1: Discover → Match → Both Accept → 1-to-1 Speed Date → Lobby (group)
+     Path 2: Discover → Skip → Lobby → Group 5×5 Session
+     Both paths converge at the group lobby after the speed date.
+     ──────────────────────────────────────────────────────────── */
+
+  // 1-to-1 Speed Date from discover match
+  const handleDiscoverSpeedDate = useCallback((candidate: Candidate) => {
     setSpeedDateTarget(candidate)
     navigateTo('speeddate')
   }, [navigateTo])
 
+  // 1-to-1 Speed Date from match results (post-group session)
+  const handleResultsSpeedDate = useCallback((candidate: Candidate) => {
+    setSpeedDateTarget(candidate)
+    navigateTo('speeddate')
+  }, [navigateTo])
+
+  // After 1-to-1 speed date completes → go to group lobby
   const handleSpeedDateComplete = useCallback(() => {
     setSpeedDateTarget(null)
-    navigateTo('results')
+    navigateTo('lobby')
+  }, [navigateTo])
+
+  // Skip swiping, go straight to group session
+  const handleGoToGroupSession = useCallback(() => {
+    navigateTo('lobby')
   }, [navigateTo])
 
   const handleRestart = useCallback(() => {
     setCurrentDateIndex(0)
     setRatings({})
+    setSpeedDateTarget(null)
     navigateTo('marketing')
   }, [navigateTo])
 
@@ -97,7 +118,7 @@ export default function App() {
       const hash = window.location.hash.replace('#', '')
       if (hash === 'demo' || hash === 'marketing') { setScreen('marketing'); return }
       if (hash === 'waitlist') { setScreen('waitlist'); return }
-      if (['lobby', 'session', 'survey', 'results'].includes(hash)) {
+      if (['discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) {
         setScreen(hash as Screen)
       }
     }
@@ -126,7 +147,13 @@ export default function App() {
         <WaitlistPage />
       )}
       {screen === 'marketing' && (
-        <MarketingPage onStartDemo={() => navigateTo('lobby')} />
+        <MarketingPage onStartDemo={() => navigateTo('discover')} />
+      )}
+      {screen === 'discover' && (
+        <Discover
+          onSpeedDate={handleDiscoverSpeedDate}
+          onGroupSession={handleGoToGroupSession}
+        />
       )}
       {screen === 'lobby' && (
         <SessionLobby onNavigate={() => navigateTo('session')} />
@@ -154,7 +181,7 @@ export default function App() {
           ratings={ratings}
           onRestart={handleRestart}
           onContinue={handleResultsContinue}
-          onSpeedDate={handleSpeedDate}
+          onSpeedDate={handleResultsSpeedDate}
         />
       )}
       {screen === 'speeddate' && speedDateTarget && (
