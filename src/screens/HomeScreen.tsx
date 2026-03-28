@@ -47,11 +47,11 @@ const allProfiles: Candidate[] = [
   ...candidates,
 ]
 
-// "Live now" session data
+// "Live now" session data — names should feel like curated experiences, not meeting rooms
 const liveSessions = [
-  { id: 1, title: 'Dubai Marina Mix', participants: 7, maxParticipants: 10, startsIn: 'Now', vibe: 'Chill & cultured' },
-  { id: 2, title: 'DIFC After Hours', participants: 4, maxParticipants: 10, startsIn: '8 min', vibe: 'Professional & witty' },
-  { id: 3, title: 'Weekend Brunch Crowd', participants: 9, maxParticipants: 10, startsIn: '23 min', vibe: 'Social butterflies' },
+  { id: 1, title: 'The Marina Round', participants: 7, maxParticipants: 10, startsIn: 'Now', vibe: 'Chill, cultured, sea breeze energy' },
+  { id: 2, title: 'DIFC After Dark', participants: 4, maxParticipants: 10, startsIn: '8 min', vibe: 'Sharp minds, good banter' },
+  { id: 3, title: 'The Saturday Table', participants: 9, maxParticipants: 10, startsIn: '23 min', vibe: 'Weekend energy, new faces' },
 ]
 
 function createHomeSounds() {
@@ -189,30 +189,26 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
 
             {/* ═══ THE TWO PATHS — equally prominent ═══ */}
             <div className="flex gap-3">
-              {/* Path 1: Quick Match (1-to-1) */}
+              {/* Path 1: Spark — 1-to-1 instant chemistry */}
               <button onClick={onQuickMatch}
-                className="flex-1 py-4 rounded-2xl text-sm font-bold text-white flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="flex-1 py-4 rounded-2xl font-bold text-white flex flex-col items-center justify-center gap-0.5 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 style={{
                   background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)',
                   boxShadow: '0 4px 25px rgba(224,64,160,0.4)',
                 }}>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                Quick Match
+                <span className="text-base tracking-wide">Spark</span>
+                <span className="text-[0.6rem] font-normal text-white/60">1-to-1 · Match & meet instantly</span>
               </button>
 
-              {/* Path 2: Group Session (5×5) */}
+              {/* Path 2: The Round — group speed dating experience */}
               <button onClick={onGroupSession}
-                className="flex-1 py-4 rounded-2xl text-sm font-bold text-white flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="flex-1 py-4 rounded-2xl font-bold text-white flex flex-col items-center justify-center gap-0.5 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 style={{
                   background: `linear-gradient(135deg, rgba(${USER_COLOR.rgb},0.9) 0%, rgba(${USER_COLOR.rgb},0.7) 100%)`,
                   boxShadow: `0 4px 25px rgba(${USER_COLOR.rgb},0.35)`,
                 }}>
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Group 5×5
+                <span className="text-base tracking-wide">The Round</span>
+                <span className="text-[0.6rem] font-normal text-white/60">5 dates · 5 minutes · One session</span>
               </button>
             </div>
           </div>
@@ -230,16 +226,16 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
         {/* ── PATH EXPLAINER — What each path offers ── */}
         <section className="px-5 pt-6 pb-4">
           <div className="grid grid-cols-2 gap-3">
-            {/* Quick Match explanation */}
+            {/* Spark explanation */}
             <button onClick={onQuickMatch} className="glass-tile rounded-2xl p-4 text-left hover:scale-[1.02] active:scale-[0.98] transition-all group"
               style={{ border: '1px solid rgba(224,64,160,0.10)' }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
                 style={{ background: 'rgba(224,64,160,0.10)' }}>
-                <span className="text-xl">💘</span>
+                <span className="text-xl">✨</span>
               </div>
-              <p className="text-xs font-bold text-white mb-1">Quick Match</p>
+              <p className="text-xs font-bold text-white mb-1">Spark</p>
               <p className="text-[0.65rem] text-[#98989D] leading-relaxed">
-                Swipe. Match. Instant 1-to-1 video call. Know in 5 minutes.
+                Browse. Like. Match. Face to face in 5 minutes. No texting required.
               </p>
               <div className="flex items-center gap-1 mt-2">
                 <div className="w-1 h-1 rounded-full bg-[#30D158]" />
@@ -247,20 +243,20 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
               </div>
             </button>
 
-            {/* Group Session explanation */}
+            {/* The Round explanation */}
             <button onClick={onGroupSession} className="glass-tile rounded-2xl p-4 text-left hover:scale-[1.02] active:scale-[0.98] transition-all group"
               style={{ border: `1px solid rgba(${USER_COLOR.rgb},0.10)` }}>
               <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
                 style={{ background: `rgba(${USER_COLOR.rgb},0.10)` }}>
-                <span className="text-xl">👥</span>
+                <span className="text-xl">🎯</span>
               </div>
-              <p className="text-xs font-bold text-white mb-1">Group 5×5</p>
+              <p className="text-xs font-bold text-white mb-1">The Round</p>
               <p className="text-[0.65rem] text-[#98989D] leading-relaxed">
-                5 dates, 5 minutes each. Meet people you'd never have swiped on.
+                5 new people. 5 minutes each. Discover who surprises you.
               </p>
               <div className="flex items-center gap-1 mt-2">
                 <div className="w-1 h-1 rounded-full bg-[#FF9F0A]" />
-                <span className="text-[0.55rem] text-[#FF9F0A]">Next session in 8 min</span>
+                <span className="text-[0.55rem] text-[#FF9F0A]">Next round in 8 min</span>
               </div>
             </button>
           </div>
@@ -328,10 +324,10 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
         <section className="px-5 pt-4 pb-2">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-white">Live Sessions</h3>
-              <p className="text-[0.6rem] text-[#7A7A80]">5×5 group speed dating · Join anytime</p>
+              <h3 className="text-base font-bold text-white">Happening Now</h3>
+              <p className="text-[0.6rem] text-[#7A7A80]">Live rounds · Jump in anytime</p>
             </div>
-            <button onClick={onGroupSession} className="text-[0.7rem] font-semibold" style={{ color: USER_COLOR.primary }}>Join →</button>
+            <button onClick={onGroupSession} className="text-[0.7rem] font-semibold" style={{ color: USER_COLOR.primary }}>See all →</button>
           </div>
 
           <div className="space-y-2.5">
@@ -430,12 +426,12 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
               <button onClick={onQuickMatch}
                 className="flex-1 py-3.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
                 style={{ background: 'linear-gradient(135deg, #E040A0, #C030A0)', boxShadow: '0 4px 20px rgba(224,64,160,0.3)' }}>
-                Start Matching
+                Find Your Spark
               </button>
               <button onClick={onGroupSession}
                 className="flex-1 py-3.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
                 style={{ background: `linear-gradient(135deg, rgba(${USER_COLOR.rgb},0.9), rgba(${USER_COLOR.rgb},0.7))`, boxShadow: `0 4px 20px rgba(${USER_COLOR.rgb},0.3)` }}>
-                Join Live Session
+                Join a Round
               </button>
             </div>
           </div>

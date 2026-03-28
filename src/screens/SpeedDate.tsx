@@ -356,7 +356,7 @@ export default function SpeedDate({ candidate, onComplete }: Props) {
             <div className="text-left mb-6">
               <p className="text-xs uppercase tracking-[0.25em] text-[#E040A0] font-semibold mb-2">What's next?</p>
               <p className="text-sm text-[#B0B0B8] leading-relaxed">
-                Keep the momentum going. Match with more people, or join a <span className="text-white font-semibold">5×5 group session</span> to meet someone you'd never have swiped on.
+                Keep going. Find another Spark, or join <span className="text-white font-semibold">The Round</span> — 5 new people, 5 minutes each. Someone might surprise you.
               </p>
             </div>
 

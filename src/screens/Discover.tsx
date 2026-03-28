@@ -345,7 +345,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
               )}
               <button onClick={onGroupSession}
                 className="w-full py-3 rounded-2xl text-sm font-semibold glass-button text-[#98989D] hover:text-white transition-colors">
-                Skip — Join Group Session Instead
+                Skip — Join The Round Instead
               </button>
             </div>
           )}
@@ -374,7 +374,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
             </div>
             <button onClick={onGroupSession}
               className="glass-button rounded-full px-4 py-2 text-xs font-semibold text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
-              <span>👥</span> Group Session
+              <span>🎯</span> The Round
             </button>
           </div>
         </header>
@@ -383,13 +383,13 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
         <div className="flex-1 flex items-center justify-center px-6 pb-4">
           {isLastCard ? (
             <div className="text-center animate-fade-in">
-              <div className="text-5xl mb-4">👥</div>
-              <h2 className="text-2xl font-bold text-white mb-2 font-display">More people in Group Sessions</h2>
-              <p className="text-sm text-[#98989D] mb-6 max-w-sm">Join a 5×5 speed dating session to meet 5 new people in 25 minutes.</p>
+              <div className="text-5xl mb-4">🎯</div>
+              <h2 className="text-2xl font-bold text-white mb-2 font-display">Ready for The Round?</h2>
+              <p className="text-sm text-[#98989D] mb-6 max-w-sm">5 new people, 5 minutes each. Discover someone you'd never have swiped on.</p>
               <button onClick={onGroupSession}
                 className="px-8 py-4 rounded-2xl text-base font-bold text-white hover:scale-[1.02] active:scale-[0.98] transition-all"
                 style={{ background: 'linear-gradient(135deg, #E040A0 0%, #C030A0 100%)', boxShadow: '0 4px 20px rgba(224,64,160,0.35)' }}>
-                Join Group Session — AED 75
+                Join The Round
               </button>
             </div>
           ) : (
@@ -492,7 +492,7 @@ export default function Discover({ onSpeedDate, onGroupSession }: Props) {
         {!isLastCard && (
           <div className="text-center pb-4">
             <p className="text-[0.6rem] text-[#7A7A80]">
-              Swipe right to like · Swipe left to pass · Or join a group session
+              Swipe right to like · Swipe left to pass · Or join The Round
             </p>
           </div>
         )}
