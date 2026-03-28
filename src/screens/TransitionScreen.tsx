@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { candidates, conversationStarters } from '../data/people'
 import { sponsors } from '../data/sponsors'
+import PulseLogo from '../components/PulseLogo'
 
 /* ═══════════════════════════════════════════════════════════════
    TRANSITION SCREEN — "The Anticipation Moment"
@@ -118,9 +119,7 @@ export default function TransitionScreen({ dateIndex, onNavigate }: Props) {
 
       {/* ══════ TOP — Minimal: Pulse logo + session progress ══════ */}
       <div className="absolute top-0 left-0 right-0 z-20 px-5 py-4 flex items-center justify-between">
-        <span className="text-sm font-medium text-white/30" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-          Pulse
-        </span>
+        <PulseLogo variant="full" color="white" size="sm" />
 
         {/* Session dots — which date are we on */}
         <div className="flex items-center gap-2">

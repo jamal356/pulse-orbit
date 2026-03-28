@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import PulseLogo from '../components/PulseLogo'
 
 interface Props {
   onStartDemo: () => void
@@ -184,12 +185,7 @@ export default function MarketingPage({ onStartDemo }: Props) {
             <HeartbeatLine visible={heroPhase >= 7} />
 
             <div className="mt-6">
-              <span
-                className="text-[clamp(0.75rem,1.8vw,0.95rem)] tracking-[0.35em] uppercase"
-                style={{ fontFamily: "'DM Sans', sans-serif", color: '#8A7E78' }}
-              >
-                Pulse
-              </span>
+              <PulseLogo variant="full" color="accent" size="sm" />
             </div>
 
             <div className="mt-10">

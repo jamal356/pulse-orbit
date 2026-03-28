@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import PulseLogo from '../components/PulseLogo'
 
 interface Props {
   onComplete: () => void
@@ -142,9 +143,9 @@ export default function LoginScreen({ onComplete }: Props) {
       <div className="fixed inset-0 bg-[#FAF7F2] flex items-center justify-center overflow-hidden">
         <div className={`relative z-10 w-full max-w-md mx-auto px-6 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold font-display text-[#C83E88] mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              Pulse
-            </h1>
+            <div className="flex justify-center mb-2">
+              <PulseLogo variant="full" color="accent" size="lg" />
+            </div>
             <p className="text-sm text-[#8A7E78]">Live speed dating. Real chemistry.</p>
           </div>
 

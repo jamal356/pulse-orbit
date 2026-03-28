@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { candidates, conversationStarters, USER_COLOR } from '../data/people'
 import BackgroundOrbs from '../components/BackgroundOrbs'
 import MatchCard from '../components/MatchCard'
+import PulseLogo from '../components/PulseLogo'
 import type { Candidate } from '../data/people'
 
 /* ─── SOUND ENGINE — Web Audio API procedural sounds ─────────
@@ -334,7 +335,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                 background: 'linear-gradient(165deg, #1E1B18 0%, #161412 30%, #C83E88 100%)',
               }}>
                 <div className="text-center">
-                  <h4 className="text-3xl font-bold font-display text-white mb-1">Pulse</h4>
+                  <PulseLogo variant="full" color="white" size="md" />
                   <p className="text-[0.65rem] text-white/40 uppercase tracking-[0.2em]">Tonight's Session</p>
                 </div>
                 <div className="w-full">
@@ -387,7 +388,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
 
       {/* Header */}
       <header className="relative z-20 px-5 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-bold font-display text-[#C83E88]">Pulse</h1>
+        <PulseLogo variant="full" color="accent" size="sm" />
         <div className="text-xs text-[#7A7A80]">
           {phase === 'intro' && 'Session Complete'}
           {phase === 'cascade' && 'Revealing...'}

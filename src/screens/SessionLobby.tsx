@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { candidates } from '../data/people'
 import { sponsors } from '../data/sponsors'
+import PulseLogo from '../components/PulseLogo'
 
 interface Props {
   onNavigate: () => void
@@ -602,7 +603,7 @@ export default function SessionLobby({ onNavigate }: Props) {
 
         {/* ─── Top bar ─── */}
         <header className="relative z-20 px-6 sm:px-10 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold font-display text-[#C83E88]">Pulse</h1>
+          <PulseLogo variant="full" color="white" size="sm" />
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-[#C83E88] rounded-full animate-pulse" />

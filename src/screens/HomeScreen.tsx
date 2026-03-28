@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { candidates, photos, USER_COLOR } from '../data/people'
 import type { Candidate } from '../data/people'
+import PulseLogo from '../components/PulseLogo'
 
 interface Props {
   onQuickMatch: () => void
@@ -164,9 +165,7 @@ export default function HomeScreen({ onQuickMatch, onGroupSession, onOpenAura }:
         {/* ── Top bar — almost invisible, floats over the hero ── */}
         <header className="fixed top-0 left-0 right-0 z-50 px-5 py-3 flex items-center justify-between"
           style={{ background: 'linear-gradient(to bottom, rgba(250,247,242,0.7) 0%, rgba(250,247,242,0.2) 50%, transparent 100%)' }}>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: "'Cormorant Garamond', serif", color: '#C83E88' }}>
-            Pulse
-          </h1>
+          <PulseLogo variant="full" color="accent" size="sm" />
           <div className="flex items-center gap-3">
             <img src={photos.user} alt="You" className="w-8 h-8 rounded-full object-cover"
               style={{ border: `2px solid rgba(${USER_COLOR.rgb},0.35)` }} />
