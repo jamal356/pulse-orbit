@@ -295,55 +295,40 @@ export default function WaitlistPage() {
     ctx.fillRect(0, 0, S, S)
 
     // Center glow
-    const glow = ctx.createRadialGradient(S / 2, S * 0.42, 0, S / 2, S * 0.42, S * 0.45)
-    glow.addColorStop(0, 'rgba(200,62,136,0.14)')
-    glow.addColorStop(0.5, 'rgba(200,62,136,0.04)')
+    const glow = ctx.createRadialGradient(S / 2, S * 0.38, 0, S / 2, S * 0.38, S * 0.45)
+    glow.addColorStop(0, 'rgba(200,62,136,0.16)')
+    glow.addColorStop(0.5, 'rgba(200,62,136,0.05)')
     glow.addColorStop(1, 'transparent')
     ctx.fillStyle = glow
     ctx.fillRect(0, 0, S, S)
 
     ctx.textAlign = 'center'
 
-    // "PULSE" brand
+    // "PULSE" brand — clean, no heartbeat
     ctx.fillStyle = 'rgba(200,62,136,0.9)'
-    ctx.font = '500 32px "DM Sans", sans-serif'
+    ctx.font = '500 30px "DM Sans", sans-serif'
     ctx.letterSpacing = '10px'
-    ctx.fillText('PULSE', S / 2, S * 0.14)
+    ctx.fillText('PULSE', S / 2, S * 0.16)
 
-    // Heartbeat line — compact
-    ctx.strokeStyle = 'rgba(200,62,136,0.35)'
-    ctx.lineWidth = 1.5
+    // Thin accent line under PULSE
+    ctx.strokeStyle = 'rgba(200,62,136,0.25)'
+    ctx.lineWidth = 1
     ctx.beginPath()
-    const hbY = S * 0.20
-    ctx.moveTo(S * 0.28, hbY)
-    ctx.lineTo(S * 0.40, hbY)
-    ctx.lineTo(S * 0.43, hbY - 24)
-    ctx.lineTo(S * 0.46, hbY + 24)
-    ctx.lineTo(S * 0.49, hbY - 24)
-    ctx.lineTo(S * 0.52, hbY + 24)
-    ctx.lineTo(S * 0.55, hbY)
-    ctx.lineTo(S * 0.72, hbY)
+    ctx.moveTo(S * 0.38, S * 0.19)
+    ctx.lineTo(S * 0.62, S * 0.19)
     ctx.stroke()
 
     // "You'll know." tagline
     ctx.fillStyle = 'rgba(255,255,255,0.93)'
-    ctx.font = 'italic 300 88px "Cormorant Garamond", Georgia, serif'
+    ctx.font = 'italic 300 84px "Cormorant Garamond", Georgia, serif'
     ctx.letterSpacing = '-1px'
-    ctx.fillText("You'll know.", S / 2, S * 0.36)
+    ctx.fillText("You'll know.", S / 2, S * 0.32)
 
-    // Thin divider
-    ctx.strokeStyle = 'rgba(200,62,136,0.2)'
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.moveTo(S * 0.38, S * 0.40)
-    ctx.lineTo(S * 0.62, S * 0.40)
-    ctx.stroke()
-
-    // Name — proper case (first letter upper, rest lower)
+    // Name — proper case
     const rawName = (answers.firstName || 'Someone').trim()
     const name = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase()
 
-    // Photo + name row (side by side if photo exists)
+    // Photo layout
     if (answers.photo) {
       try {
         const img = new Image()
@@ -354,117 +339,114 @@ export default function WaitlistPage() {
           img.src = answers.photo
         })
         if (img.complete && img.naturalWidth > 0) {
-          const r = 70, cx = S / 2, pcY = S * 0.54
-          // Glow behind photo
-          const pglow = ctx.createRadialGradient(cx, pcY, r, cx, pcY, r + 30)
-          pglow.addColorStop(0, 'rgba(200,62,136,0.12)')
+          const r = 80, cx = S / 2, pcY = S * 0.50
+          const pglow = ctx.createRadialGradient(cx, pcY, r, cx, pcY, r + 40)
+          pglow.addColorStop(0, 'rgba(200,62,136,0.10)')
           pglow.addColorStop(1, 'transparent')
           ctx.fillStyle = pglow
-          ctx.fillRect(cx - r - 30, pcY - r - 30, (r + 30) * 2, (r + 30) * 2)
-          // Clip circle
+          ctx.fillRect(cx - r - 40, pcY - r - 40, (r + 40) * 2, (r + 40) * 2)
           ctx.save()
           ctx.beginPath()
           ctx.arc(cx, pcY, r, 0, Math.PI * 2)
           ctx.clip()
           ctx.drawImage(img, cx - r, pcY - r, r * 2, r * 2)
           ctx.restore()
-          // Ring
-          ctx.strokeStyle = 'rgba(200,62,136,0.5)'
+          ctx.strokeStyle = 'rgba(200,62,136,0.45)'
           ctx.lineWidth = 2.5
           ctx.beginPath()
           ctx.arc(cx, pcY, r + 3, 0, Math.PI * 2)
           ctx.stroke()
 
-          // Name below photo
-          ctx.fillStyle = 'rgba(255,255,255,0.75)'
-          ctx.font = 'italic 300 44px "Cormorant Garamond", Georgia, serif'
+          ctx.fillStyle = 'rgba(255,255,255,0.8)'
+          ctx.font = 'italic 300 46px "Cormorant Garamond", Georgia, serif'
           ctx.letterSpacing = '0px'
-          ctx.fillText(`${name} is in.`, S / 2, S * 0.67)
-
+          ctx.fillText(`${name} is in.`, S / 2, S * 0.65)
           ctx.fillStyle = 'rgba(255,255,255,0.4)'
           ctx.font = '400 30px "DM Sans", sans-serif'
-          ctx.fillText('Are you?', S / 2, S * 0.72)
+          ctx.fillText('Are you?', S / 2, S * 0.70)
         }
       } catch {
-        // Photo failed — text only
-        ctx.fillStyle = 'rgba(255,255,255,0.75)'
-        ctx.font = 'italic 300 48px "Cormorant Garamond", Georgia, serif'
-        ctx.fillText(`${name} is in.`, S / 2, S * 0.52)
+        ctx.fillStyle = 'rgba(255,255,255,0.8)'
+        ctx.font = 'italic 300 50px "Cormorant Garamond", Georgia, serif'
+        ctx.fillText(`${name} is in.`, S / 2, S * 0.48)
         ctx.fillStyle = 'rgba(255,255,255,0.4)'
         ctx.font = '400 32px "DM Sans", sans-serif'
-        ctx.fillText('Are you?', S / 2, S * 0.58)
+        ctx.fillText('Are you?', S / 2, S * 0.54)
       }
     } else {
-      // No photo — centered text
-      ctx.fillStyle = 'rgba(255,255,255,0.75)'
-      ctx.font = 'italic 300 48px "Cormorant Garamond", Georgia, serif'
+      ctx.fillStyle = 'rgba(255,255,255,0.8)'
+      ctx.font = 'italic 300 50px "Cormorant Garamond", Georgia, serif'
       ctx.letterSpacing = '0px'
-      ctx.fillText(`${name} is in.`, S / 2, S * 0.52)
+      ctx.fillText(`${name} is in.`, S / 2, S * 0.48)
       ctx.fillStyle = 'rgba(255,255,255,0.4)'
       ctx.font = '400 32px "DM Sans", sans-serif'
-      ctx.fillText('Are you?', S / 2, S * 0.58)
+      ctx.fillText('Are you?', S / 2, S * 0.54)
     }
 
-    // Position badge
-    const badgeY = answers.photo ? S * 0.78 : S * 0.68
-    const badgeW = 300, badgeH = 48, badgeR = 24
+    // Bottom section — badge + CTA
+    const bottomY = answers.photo ? S * 0.78 : S * 0.68
+    const city = answers.city || 'UAE'
+
+    // Badge
+    const badgeW = 300, badgeH = 46, badgeR = 23
     const badgeX = (S - badgeW) / 2
-    ctx.fillStyle = 'rgba(200,62,136,0.15)'
+    ctx.fillStyle = 'rgba(200,62,136,0.12)'
     ctx.beginPath()
-    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeR)
+    ctx.roundRect(badgeX, bottomY, badgeW, badgeH, badgeR)
     ctx.fill()
-    ctx.strokeStyle = 'rgba(200,62,136,0.3)'
+    ctx.strokeStyle = 'rgba(200,62,136,0.25)'
     ctx.lineWidth = 1
     ctx.stroke()
-
-    const city = answers.city || 'UAE'
-    ctx.fillStyle = 'rgba(200,62,136,0.9)'
-    ctx.font = '500 18px "DM Sans", sans-serif'
+    ctx.fillStyle = 'rgba(200,62,136,0.85)'
+    ctx.font = '500 17px "DM Sans", sans-serif'
     ctx.letterSpacing = '3px'
-    ctx.fillText(`#${waitlistNumber} IN LINE \u00B7 ${city.toUpperCase()}`, S / 2, badgeY + 31)
+    ctx.fillText(`#${waitlistNumber} \u00B7 ${city.toUpperCase()}`, S / 2, bottomY + 30)
 
-    // URL + bottom
-    ctx.fillStyle = 'rgba(200,62,136,0.6)'
-    ctx.font = '500 24px "DM Sans", sans-serif'
-    ctx.letterSpacing = '1px'
-    const siteUrl = window.location.origin || 'https://pulse-orbit-jamal356s-projects.vercel.app'
-    const displayUrl = siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
-    ctx.fillText(displayUrl, S / 2, S * 0.89)
-
+    // "By application only"
     ctx.fillStyle = 'rgba(255,255,255,0.2)'
-    ctx.font = '400 18px "DM Sans", sans-serif'
+    ctx.font = '400 16px "DM Sans", sans-serif'
     ctx.letterSpacing = '5px'
-    ctx.fillText('BY APPLICATION ONLY', S / 2, S * 0.94)
+    ctx.fillText('BY APPLICATION ONLY', S / 2, S * 0.93)
+
+    // Manifesto line
+    ctx.fillStyle = 'rgba(255,255,255,0.12)'
+    ctx.font = 'italic 300 18px "Cormorant Garamond", Georgia, serif'
+    ctx.letterSpacing = '0px'
+    ctx.fillText('For people who want to feel something.', S / 2, S * 0.97)
 
     const url = canvas.toDataURL('image/png', 1.0)
     setShareCardUrl(url)
     setCardGenerating(false)
   }, [answers, waitlistNumber])
 
-  // Share LINK — clickable in WhatsApp, triggers OG preview
-  const handleShareLink = useCallback(async () => {
+  // ONE share function — image + clickable URL together, zero friction
+  const handleShare = useCallback(async () => {
+    if (!shareCardUrl) return
     const siteLink = window.location.origin || 'https://pulse-orbit-jamal356s-projects.vercel.app'
+
+    // Convert card to file
+    const res = await fetch(shareCardUrl)
+    const blob = await res.blob()
+    const file = new File([blob], 'pulse-invite.png', { type: 'image/png' })
+
+    // Mobile: share image + URL together in one action
     if (navigator.share) {
-      navigator.share({
-        title: "Pulse — You'll know.",
-        text: "I just got on the Pulse waitlist. By application only.",
-        url: siteLink,
-      }).catch(() => {})
+      const shareData: ShareData = { url: siteLink }
+      // Try with image first, fall back to URL-only
+      if (navigator.canShare?.({ files: [file] })) {
+        shareData.files = [file]
+      }
+      navigator.share(shareData).catch(() => {})
     } else {
-      // Fallback: copy to clipboard
+      // Desktop: download image + copy URL to clipboard
+      const a = document.createElement('a')
+      a.href = shareCardUrl
+      a.download = 'pulse-invite.png'
+      a.click()
       await navigator.clipboard.writeText(siteLink).catch(() => {})
       setCopiedLink(true)
-      setTimeout(() => setCopiedLink(false), 2000)
+      setTimeout(() => setCopiedLink(false), 2500)
     }
-  }, [])
-
-  // Save personalized card — for Instagram stories, etc
-  const handleSaveCard = useCallback(() => {
-    if (!shareCardUrl) return
-    const a = document.createElement('a')
-    a.href = shareCardUrl
-    a.download = 'pulse-invite.png'
-    a.click()
   }, [shareCardUrl])
 
   // Generate share card when completion animation finishes
@@ -859,7 +841,7 @@ export default function WaitlistPage() {
 
             <p className="transition-all duration-[1.8s] ease-out"
               style={{ fontFamily: sans, fontSize: '0.82rem', color: P.textSoft, opacity: completePhase >= 2 ? 1 : 0, lineHeight: 1.6 }}>
-              We'll reach out when it's your turn.
+              You're on the list. We go live soon.
             </p>
 
             {/* Position badge */}
@@ -873,58 +855,25 @@ export default function WaitlistPage() {
               </div>
             </div>
 
-            {/* ── Share section: link + save card ── */}
+            {/* ── Share — one button, zero friction ── */}
             <div className="mt-12 w-full transition-all duration-[3s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(16px)' }}>
 
-              <p className="mb-6" style={{ fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: P.text }}>
+              <p className="mb-5" style={{ fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: P.text }}>
                 Know someone who belongs here?
               </p>
 
-              {/* Primary: Share clickable link */}
-              <div className="flex flex-col items-center gap-4">
-                <button onClick={handleShareLink}
-                  className="px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
-                  style={{
-                    background: P.accent,
-                    color: 'white',
-                    fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
-                    boxShadow: '0 4px 24px rgba(200,62,136,0.25)',
-                    border: 'none', cursor: 'pointer',
-                  }}>
-                  {copiedLink ? 'Link copied' : 'Share Pulse'}
-                </button>
-
-                <p style={{ fontFamily: sans, fontSize: '0.68rem', color: P.textFaint }}>
-                  Send the link — it previews beautifully in any chat.
-                </p>
-              </div>
-
-              {/* Secondary: Save personalized card for stories */}
-              {shareCardUrl && (
-                <div className="flex flex-col items-center gap-4 mt-8">
-                  <div className="w-px h-8" style={{ background: `linear-gradient(180deg, ${P.border}, transparent)` }} />
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: P.textFaint, letterSpacing: '0.1em' }}>
-                    or save your personal invite card
-                  </p>
-                  <div className="relative group cursor-pointer" onClick={handleSaveCard}>
-                    <img src={shareCardUrl} alt="Your Pulse invite"
-                      className="w-40 rounded-xl transition-all duration-500 group-hover:scale-[1.03]"
-                      style={{ boxShadow: '0 6px 30px rgba(0,0,0,0.12), 0 0 40px rgba(200,62,136,0.06)' }} />
-                    <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-black/0 group-hover:bg-black/15 transition-all duration-300">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-3 py-1.5 rounded-full"
-                        style={{ background: 'rgba(255,255,255,0.9)' }}>
-                        <span style={{ fontFamily: sans, fontSize: '0.65rem', fontWeight: 600, color: P.text }}>
-                          Save
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <p style={{ fontFamily: sans, fontSize: '0.6rem', color: P.textGhost }}>
-                    For Instagram stories, Snapchat, etc.
-                  </p>
-                </div>
-              )}
+              <button onClick={handleShare}
+                className="px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+                style={{
+                  background: P.accent,
+                  color: 'white',
+                  fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
+                  boxShadow: '0 4px 24px rgba(200,62,136,0.25)',
+                  border: 'none', cursor: 'pointer',
+                }}>
+                {copiedLink ? 'Link copied' : 'Share Pulse'}
+              </button>
             </div>
           </div>
         </section>
