@@ -468,19 +468,30 @@ export default function WaitlistPage() {
       style={{ background: `linear-gradient(170deg, ${P.bg} 0%, ${P.bgDeep} 50%, ${P.bg} 100%)` }}
       onKeyDown={handleKeyDown}>
 
-      {/* Ambient warmth — breathing Pulse glow */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+      {/* Ambient warmth — breathing Pulse glow, clearly visible */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        {/* Primary — large center glow */}
+        <div className="absolute top-[30%] left-1/2"
           style={{
-            width: '1200px', height: '900px',
-            background: `radial-gradient(ellipse, rgba(200,62,136,0.07) 0%, rgba(200,62,136,0.03) 35%, transparent 65%)`,
+            width: '1400px', height: '1000px',
+            transform: 'translate(-50%, -50%)',
+            background: `radial-gradient(ellipse, rgba(200,62,136,0.18) 0%, rgba(200,62,136,0.08) 30%, rgba(200,62,136,0.02) 55%, transparent 70%)`,
             animation: 'bg-breathe 6s ease-in-out infinite',
           }} />
-        <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2"
+        {/* Secondary — bottom pool */}
+        <div className="absolute bottom-[-5%] left-1/2"
           style={{
-            width: '800px', height: '400px',
-            background: `radial-gradient(ellipse, rgba(200,62,136,0.04) 0%, transparent 60%)`,
+            width: '1000px', height: '500px',
+            transform: 'translateX(-50%)',
+            background: `radial-gradient(ellipse, rgba(200,62,136,0.12) 0%, rgba(200,62,136,0.04) 40%, transparent 65%)`,
             animation: 'bg-breathe 8s ease-in-out infinite reverse',
+          }} />
+        {/* Tertiary — offset accent for depth */}
+        <div className="absolute top-[15%] left-[20%]"
+          style={{
+            width: '600px', height: '600px',
+            background: `radial-gradient(circle, rgba(200,62,136,0.08) 0%, transparent 50%)`,
+            animation: 'bg-breathe 10s ease-in-out infinite',
           }} />
       </div>
 
