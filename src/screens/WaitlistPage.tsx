@@ -38,19 +38,6 @@ const P = {
   border: 'rgba(42,37,40,0.08)',
 }
 
-/* ─── Heartbeat SVG ─── */
-function HeartbeatLine({ visible }: { visible: boolean }) {
-  return (
-    <svg width="140" height="24" viewBox="0 0 140 24" fill="none"
-      className="transition-opacity duration-[2s]" style={{ opacity: visible ? 0.35 : 0 }}>
-      <path d="M0 12h42l5-10 5 20 5-20 5 10h78" stroke={P.accent} strokeWidth="1"
-        strokeLinecap="round" strokeLinejoin="round"
-        strokeDasharray="200" strokeDashoffset={visible ? '0' : '200'}
-        style={{ transition: 'stroke-dashoffset 2s ease-out' }} />
-    </svg>
-  )
-}
-
 /* ─── Onboarding question types ─── */
 interface TextQuestion { type: 'text'; id: string; question: string; placeholder: string; sub?: string }
 interface ChoiceQuestion { type: 'choice'; id: string; question: string; options: { label: string; icon?: string }[]; sub?: string }
@@ -517,11 +504,6 @@ export default function WaitlistPage() {
           <div className="transition-all duration-[2s] ease-out mb-4"
             style={{ opacity: heroPhase >= 1 ? 1 : 0, transform: heroPhase >= 1 ? 'translateY(0)' : 'translateY(8px)' }}>
             <PulseLogo size="lg" color="accent" />
-          </div>
-
-          {/* Heartbeat */}
-          <div className="my-4">
-            <HeartbeatLine visible={heroPhase >= 1} />
           </div>
 
           {/* Tagline — the hook */}
