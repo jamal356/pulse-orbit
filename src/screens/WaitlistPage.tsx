@@ -101,14 +101,15 @@ const QUESTIONS: Question[] = [
     options: [
       { label: 'Dubai' },
       { label: 'Abu Dhabi' },
+      { label: 'Sharjah' },
       { label: 'Riyadh' },
       { label: 'Doha' },
       { label: 'Cairo' },
       { label: 'London' },
       { label: 'Paris' },
-      { label: 'Other' },
+      { label: 'Somewhere else' },
     ],
-    sub: 'We launch city by city. Dubai is first.',
+    sub: 'We launch UAE first. Your city is next.',
   },
   {
     type: 'choice', id: 'attraction',
@@ -163,6 +164,8 @@ export default function WaitlistPage() {
   const [completePhase, setCompletePhase] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [ageValue, setAgeValue] = useState('')
+  const [customCity, setCustomCity] = useState('')
+  const [showCustomCity, setShowCustomCity] = useState(false)
   const formRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -234,6 +237,13 @@ export default function WaitlistPage() {
   }, [step, currentQ, answers, ageValue, setAnswer])
 
   const handleChoiceSelect = useCallback((id: string, value: string) => {
+    // "Somewhere else" on city → show text input instead of auto-advancing
+    if (id === 'city' && value === 'Somewhere else') {
+      setShowCustomCity(true)
+      setCustomCity('')
+      return
+    }
+    setShowCustomCity(false)
     setAnswer(id, value)
     // Auto-advance on choice with a beat of delay
     setTimeout(() => {
@@ -243,6 +253,19 @@ export default function WaitlistPage() {
       }
     }, 400)
   }, [setAnswer, step])
+
+  const handleCustomCitySubmit = useCallback(() => {
+    if (customCity.trim()) {
+      setAnswer('city', customCity.trim())
+      setShowCustomCity(false)
+      setTimeout(() => {
+        if (step < TOTAL_STEPS - 1) {
+          setStep(s => s + 1)
+          setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200)
+        }
+      }, 300)
+    }
+  }, [customCity, setAnswer, step])
 
   const handlePhotoUpload = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) return
@@ -280,10 +303,20 @@ export default function WaitlistPage() {
       style={{ background: `linear-gradient(170deg, ${P.bg} 0%, ${P.bgDeep} 50%, ${P.bg} 100%)` }}
       onKeyDown={handleKeyDown}>
 
-      {/* Ambient warmth */}
+      {/* Ambient warmth — breathing Pulse glow */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{ width: '1000px', height: '700px', background: `radial-gradient(ellipse, ${P.accentGlow} 0%, transparent 60%)` }} />
+        <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: '1200px', height: '900px',
+            background: `radial-gradient(ellipse, rgba(200,62,136,0.07) 0%, rgba(200,62,136,0.03) 35%, transparent 65%)`,
+            animation: 'bg-breathe 6s ease-in-out infinite',
+          }} />
+        <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2"
+          style={{
+            width: '800px', height: '400px',
+            background: `radial-gradient(ellipse, rgba(200,62,136,0.04) 0%, transparent 60%)`,
+            animation: 'bg-breathe 8s ease-in-out infinite reverse',
+          }} />
       </div>
 
       {/* Progress bar — thin, elegant, top of viewport */}
@@ -354,7 +387,7 @@ export default function WaitlistPage() {
                   I want in
                 </button>
                 <p style={{ fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textFaint }}>
-                  Dubai · Launching soon · By application only
+                  UAE · Launching soon · By application only
                 </p>
               </div>
             ) : (
@@ -479,6 +512,41 @@ export default function WaitlistPage() {
                     </button>
                   )
                 })}
+              </div>
+            )}
+
+            {/* ── Custom city text input (when "Somewhere else" selected) ── */}
+            {currentQ.type === 'choice' && currentQ.id === 'city' && showCustomCity && (
+              <div className="flex flex-col items-center mt-8 animate-fade-in">
+                <p className="mb-4" style={{ fontFamily: sans, fontSize: '0.8rem', color: P.textSoft }}>
+                  We love that. Tell us where.
+                </p>
+                <input
+                  type="text"
+                  value={customCity}
+                  onChange={e => setCustomCity(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && customCity.trim()) { e.stopPropagation(); handleCustomCitySubmit() } }}
+                  placeholder="Your city"
+                  autoFocus
+                  className="w-full max-w-xs px-0 py-3 text-center text-lg tracking-wide bg-transparent border-0 border-b-[1.5px] focus:outline-none transition-all duration-500"
+                  style={{
+                    fontFamily: sans, color: P.text,
+                    borderBottomColor: customCity.trim() ? P.accent : P.textGhost,
+                    caretColor: P.accent,
+                  }}
+                />
+                <button onClick={handleCustomCitySubmit} disabled={!customCity.trim()}
+                  className="mt-6 px-8 py-3 rounded-full transition-all duration-500"
+                  style={{
+                    background: customCity.trim() ? P.accent : 'transparent',
+                    color: customCity.trim() ? 'white' : P.textGhost,
+                    border: `1px solid ${customCity.trim() ? P.accent : P.border}`,
+                    fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
+                    cursor: customCity.trim() ? 'pointer' : 'default',
+                    boxShadow: customCity.trim() ? '0 4px 20px rgba(200,62,136,0.2)' : 'none',
+                  }}>
+                  Continue
+                </button>
               </div>
             )}
 
@@ -640,21 +708,44 @@ export default function WaitlistPage() {
               <div className="mt-5 mx-auto" style={{ width: '60%', height: '1px', background: `linear-gradient(90deg, transparent, ${P.accentBorder}, transparent)` }} />
             </div>
 
-            {/* Demo + share */}
-            <div className="mt-10 flex flex-col items-center gap-5 transition-all duration-[3s] ease-out"
+            {/* Curiosity trigger — no demo link, build anticipation */}
+            <div className="mt-12 flex flex-col items-center gap-6 transition-all duration-[3s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0 }}>
-              <a href="#demo"
-                className="px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
-                style={{
-                  background: P.accentSoft, border: `1px solid ${P.accentBorder}`,
-                  color: P.accent, fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
-                  textDecoration: 'none',
-                }}>
-                Preview the experience →
-              </a>
-              <p style={{ fontFamily: serif, fontSize: '0.9rem', fontStyle: 'italic', color: P.textFaint }}>
-                Know someone who should be here?
-              </p>
+
+              <div className="text-center px-4">
+                <p style={{ fontFamily: serif, fontSize: '1.1rem', fontStyle: 'italic', color: P.text, lineHeight: 1.5 }}>
+                  Something is being built for people like you.
+                </p>
+                <p className="mt-3" style={{ fontFamily: sans, fontSize: '0.78rem', color: P.textSoft, lineHeight: 1.6 }}>
+                  We're handpicking the first {answers.city === 'Dubai' || answers.city === 'Abu Dhabi' || answers.city === 'Sharjah' ? '500' : '200'} people
+                  {answers.city === 'Dubai' || answers.city === 'Abu Dhabi' || answers.city === 'Sharjah' ? ' in the UAE' : ` from ${answers.city || 'your city'}`}.
+                  <br />When it's your turn, you won't need an explanation. You'll feel it.
+                </p>
+              </div>
+
+              {/* Share prompt */}
+              <div className="mt-4 flex flex-col items-center gap-3">
+                <p style={{ fontFamily: serif, fontSize: '0.9rem', fontStyle: 'italic', color: P.textFaint }}>
+                  Know someone who belongs here?
+                </p>
+                <button
+                  onClick={() => {
+                    const shareText = `Something interesting is coming. I just got on the list.\n\npulse-orbit-jamal356s-projects.vercel.app`
+                    if (navigator.share) {
+                      navigator.share({ text: shareText }).catch(() => {})
+                    } else {
+                      navigator.clipboard.writeText(shareText).catch(() => {})
+                    }
+                  }}
+                  className="px-6 py-2.5 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+                  style={{
+                    background: 'transparent', border: `1px solid ${P.accentBorder}`,
+                    color: P.accent, fontFamily: sans, fontSize: '0.8rem', fontWeight: 500,
+                    cursor: 'pointer',
+                  }}>
+                  Send them this
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -663,7 +754,7 @@ export default function WaitlistPage() {
       {/* Footer */}
       <footer className="absolute bottom-0 left-0 right-0 px-6 py-6 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <span style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost }}>Dubai 2026</span>
+          <span style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost }}>UAE 2026</span>
           <a href="mailto:jamal@hakadian.com"
             className="transition-colors duration-500"
             style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost, textDecoration: 'none' }}>
@@ -685,6 +776,10 @@ export default function WaitlistPage() {
         @keyframes glow-pulse {
           0%, 100% { opacity: 0.7; transform: scale(1); }
           50% { opacity: 1; transform: scale(1.08); }
+        }
+        @keyframes bg-breathe {
+          0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
         }
         .animate-fade-in { animation: fade-in 0.6s ease-out; }
         .animate-float { animation: float 2s ease-in-out infinite; }
