@@ -1,387 +1,367 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import PulseLogo from '../components/PulseLogo'
 
-/* ─── Configuration ─────────────────────────────────────────────
-   Phase toggle:
-   - 'exclusive'  → mystery + selectivity
-   - 'fomo'       → counter-driven urgency
-   ──────────────────────────────────────────────────────────────── */
-const PHASE: 'exclusive' | 'fomo' = 'exclusive'
-const WAITLIST_COUNT = 2_437
+/* ═══════════════════════════════════════════════════════════════
+   WAITLIST — The experience starts here.
 
-/* ─── Palette — warm ivory, like a luxury invitation ──────────── */
+   Design philosophy:
+   Jobs didn't make you fill out forms. He made you feel something
+   first, then the action felt inevitable.
+
+   This page IS the first date with Pulse. Every micro-interaction
+   should feel considered, alive, intentional. The onboarding isn't
+   a survey — it's self-discovery. You learn about yourself while
+   Pulse learns about you.
+
+   Psychology:
+   1. Create desire before asking for anything
+   2. Each step reveals something about the product
+   3. Questions feel personal, not administrative
+   4. Scarcity is felt, not stated
+   5. The completion feels like acceptance, not submission
+   ═══════════════════════════════════════════════════════════════ */
+
+const serif = "'Cormorant Garamond', Georgia, serif"
+const sans = "'DM Sans', sans-serif"
+
 const P = {
-  bg: '#FAF7F2',         // warm ivory
-  bgDeep: '#F2EDE6',     // slightly deeper warmth
-  text: '#2A2528',        // warm charcoal (not pure black)
-  textSoft: '#8A7E78',   // warm mid-gray
-  textFaint: '#C2B8AE',  // warm light
-  textGhost: '#DDD5CC',  // barely there
-  accent: '#C83E88',     // deeper, more refined pink (less neon)
+  bg: '#FAF7F2',
+  bgDeep: '#F2EDE6',
+  text: '#2A2528',
+  textSoft: '#8A7E78',
+  textFaint: '#C2B8AE',
+  textGhost: '#DDD5CC',
+  accent: '#C83E88',
   accentSoft: 'rgba(200,62,136,0.08)',
   accentBorder: 'rgba(200,62,136,0.20)',
   accentGlow: 'rgba(200,62,136,0.06)',
   border: 'rgba(42,37,40,0.08)',
-  borderFocus: 'rgba(200,62,136,0.30)',
-  surface: 'rgba(42,37,40,0.03)',
-  surfaceHover: 'rgba(42,37,40,0.05)',
 }
 
-/* ─── Animated counter ───────────────────────────────────────── */
-function AnimatedCounter({ target }: { target: number }) {
-  const [count, setCount] = useState(0)
-  const ref = useRef<HTMLSpanElement>(null)
-  const started = useRef(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started.current) {
-        started.current = true
-        const start = performance.now()
-        const step = (now: number) => {
-          const p = Math.min((now - start) / 2000, 1)
-          setCount(Math.floor((1 - Math.pow(1 - p, 3)) * target))
-          if (p < 1) requestAnimationFrame(step)
-        }
-        requestAnimationFrame(step)
-      }
-    }, { threshold: 0.5 })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [target])
-
-  return <span ref={ref}>{count.toLocaleString()}</span>
-}
-
-/* ─── Animated heartbeat SVG ─────────────────────────────────── */
+/* ─── Heartbeat SVG ─── */
 function HeartbeatLine({ visible }: { visible: boolean }) {
   return (
-    <svg
-      width="140"
-      height="24"
-      viewBox="0 0 140 24"
-      fill="none"
-      className="transition-opacity duration-[2s]"
-      style={{ opacity: visible ? 0.35 : 0 }}
-    >
-      <path
-        d="M0 12h42l5-10 5 20 5-20 5 10h78"
-        stroke={P.accent}
-        strokeWidth="1"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray="200"
-        strokeDashoffset={visible ? '0' : '200'}
-        style={{ transition: 'stroke-dashoffset 2s ease-out' }}
-      />
+    <svg width="140" height="24" viewBox="0 0 140 24" fill="none"
+      className="transition-opacity duration-[2s]" style={{ opacity: visible ? 0.35 : 0 }}>
+      <path d="M0 12h42l5-10 5 20 5-20 5 10h78" stroke={P.accent} strokeWidth="1"
+        strokeLinecap="round" strokeLinejoin="round"
+        strokeDasharray="200" strokeDashoffset={visible ? '0' : '200'}
+        style={{ transition: 'stroke-dashoffset 2s ease-out' }} />
     </svg>
   )
 }
 
-/* ─── Form types ──────────────────────────────────────────────── */
-interface FormData {
-  email: string
-  firstName: string
-  city: string
-  ageRange: string
-  gender: string
-  lookingFor: string
-  photo: string
-}
+/* ─── Onboarding question types ─── */
+interface TextQuestion { type: 'text'; id: string; question: string; placeholder: string; sub?: string }
+interface ChoiceQuestion { type: 'choice'; id: string; question: string; options: { label: string; icon?: string }[]; sub?: string }
+interface AgeQuestion { type: 'age'; id: string; question: string; sub?: string }
+interface PhotoQuestion { type: 'photo'; id: string; question: string; sub?: string }
+type Question = TextQuestion | ChoiceQuestion | AgeQuestion | PhotoQuestion
 
-const CITIES = ['Dubai', 'Abu Dhabi', 'Riyadh', 'Doha', 'Cairo', 'London', 'Other']
-const AGE_RANGES = ['21–25', '26–30', '31–35', '36–40', '40+']
-const GENDERS = ['Man', 'Woman', 'Non-binary']
-const LOOKING_FOR = ['Men', 'Women', 'Everyone']
+/* ─── The questions — designed to intrigue, not interrogate ─── */
+const QUESTIONS: Question[] = [
+  {
+    type: 'text', id: 'email',
+    question: 'Where do we reach you?',
+    placeholder: 'your@email.com',
+    sub: 'We only write when it matters.',
+  },
+  {
+    type: 'text', id: 'firstName',
+    question: 'What do people call you?',
+    placeholder: 'First name',
+    sub: 'Just the one your friends use.',
+  },
+  {
+    type: 'age', id: 'age',
+    question: 'How many trips around the sun?',
+    sub: 'We match within compatible ranges. No judgment.',
+  },
+  {
+    type: 'choice', id: 'gender',
+    question: 'I am…',
+    options: [
+      { label: 'A woman', icon: '♀' },
+      { label: 'A man', icon: '♂' },
+      { label: 'Non-binary', icon: '◎' },
+    ],
+  },
+  {
+    type: 'choice', id: 'lookingFor',
+    question: 'I want to meet…',
+    options: [
+      { label: 'Women', icon: '♀' },
+      { label: 'Men', icon: '♂' },
+      { label: 'Everyone', icon: '✦' },
+    ],
+  },
+  {
+    type: 'choice', id: 'city',
+    question: 'Where are you based?',
+    options: [
+      { label: 'Dubai' },
+      { label: 'Abu Dhabi' },
+      { label: 'Riyadh' },
+      { label: 'Doha' },
+      { label: 'Cairo' },
+      { label: 'London' },
+      { label: 'Paris' },
+      { label: 'Other' },
+    ],
+    sub: 'We launch city by city. Dubai is first.',
+  },
+  {
+    type: 'choice', id: 'attraction',
+    question: 'What draws you to someone first?',
+    options: [
+      { label: 'Their voice', icon: '🎙' },
+      { label: 'Their eyes', icon: '👁' },
+      { label: 'Their humor', icon: '✨' },
+      { label: 'Their mind', icon: '🧠' },
+      { label: 'Their energy', icon: '⚡' },
+    ],
+    sub: 'There are no wrong answers. Only honest ones.',
+  },
+  {
+    type: 'choice', id: 'friday',
+    question: 'Your ideal Friday night?',
+    options: [
+      { label: 'Rooftop drinks', icon: '🌃' },
+      { label: 'Home cooking', icon: '🍳' },
+      { label: 'Live music', icon: '🎵' },
+      { label: 'Gallery opening', icon: '🎨' },
+      { label: 'Spontaneous adventure', icon: '🗺' },
+    ],
+  },
+  {
+    type: 'choice', id: 'dealbreaker',
+    question: 'Biggest dealbreaker on a first date?',
+    options: [
+      { label: 'Phone on the table', icon: '📱' },
+      { label: 'No curiosity', icon: '😶' },
+      { label: 'Talks only about themselves', icon: '🪞' },
+      { label: 'No eye contact', icon: '👀' },
+      { label: 'Negativity', icon: '🌧' },
+    ],
+    sub: 'This helps Aura, our AI, prepare you before each date.',
+  },
+  {
+    type: 'photo', id: 'photo',
+    question: 'Last thing. Show us you.',
+    sub: 'This is what they see when the camera turns on. Make it count.',
+  },
+]
 
-/* ─── Single-question step ────────────────────────────────────── */
-function FormStep({
-  active, stepNumber, totalSteps, question, children, onNext, canProceed, isLast,
-}: {
-  active: boolean; stepNumber: number; totalSteps: number; question: string;
-  children: React.ReactNode; onNext: () => void; canProceed: boolean; isLast?: boolean;
-}) {
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && canProceed) { e.preventDefault(); onNext() }
-  }, [canProceed, onNext])
+const TOTAL_STEPS = QUESTIONS.length
 
-  if (!active) return null
-
-  return (
-    <div className="flex flex-col items-center text-center animate-fade-in" onKeyDown={handleKeyDown}>
-      {/* Progress dots */}
-      <div className="flex items-center gap-2 mb-10">
-        {Array.from({ length: totalSteps }).map((_, i) => (
-          <div key={i} className="rounded-full transition-all duration-500"
-            style={{
-              width: i === stepNumber ? '20px' : '4px', height: '4px',
-              background: i <= stepNumber ? P.accent : P.textGhost,
-            }} />
-        ))}
-      </div>
-
-      <p className="text-lg sm:text-xl font-light tracking-wide mb-8"
-        style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: P.textSoft, fontStyle: 'italic' }}>
-        {question}
-      </p>
-
-      <div className="w-full max-w-sm mb-8">{children}</div>
-
-      <button onClick={onNext} disabled={!canProceed}
-        className="px-6 py-2.5 rounded-full text-sm tracking-wide transition-all duration-500"
-        style={{
-          border: `1px solid ${canProceed ? P.accentBorder : P.border}`,
-          color: canProceed ? P.accent : P.textGhost,
-          background: canProceed ? P.accentSoft : 'transparent',
-          cursor: canProceed ? 'pointer' : 'default',
-        }}>
-        {isLast ? 'Submit' : 'Continue'}
-      </button>
-
-      {canProceed && (
-        <p className="mt-4 text-[10px] tracking-widest uppercase" style={{ color: P.textGhost }}>
-          press Enter ↵
-        </p>
-      )}
-    </div>
-  )
-}
-
-/* ─── Pill selector ──────────────────────────────────────────── */
-function PillSelect({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
-  return (
-    <div className="flex flex-wrap justify-center gap-2">
-      {options.map(opt => {
-        const selected = value === opt
-        return (
-          <button key={opt} type="button" onClick={() => onChange(opt)}
-            className="px-5 py-2.5 rounded-full text-sm tracking-wide transition-all duration-400"
-            style={{
-              background: selected ? P.accentSoft : P.surface,
-              border: `1px solid ${selected ? P.accentBorder : P.border}`,
-              color: selected ? P.accent : P.textSoft,
-            }}>
-            {opt}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-/* ─── Text input ─────────────────────────────────────────────── */
-function FormInput({ value, onChange, placeholder, type = 'text', autoFocus = true }: {
-  value: string; onChange: (v: string) => void; placeholder: string; type?: string; autoFocus?: boolean;
-}) {
-  return (
-    <input type={type} value={value} onChange={e => onChange(e.target.value)}
-      placeholder={placeholder} autoFocus={autoFocus}
-      className="w-full px-0 py-3 text-center text-lg tracking-wide bg-transparent border-0 border-b focus:outline-none transition-all duration-500"
-      style={{
-        fontFamily: "'DM Sans', sans-serif",
-        color: P.text,
-        borderBottomColor: value ? P.accentBorder : P.border,
-        caretColor: P.accent,
-      }} />
-  )
-}
-
-/* ─── Photo upload ──────────────────────────────────────────── */
-function PhotoUpload({ value, onChange, firstName }: { value: string; onChange: (v: string) => void; firstName: string }) {
+/* ═══════════════════════════════════════════════════════════════ */
+export default function WaitlistPage() {
+  const [heroPhase, setHeroPhase] = useState(0)
+  const [started, setStarted] = useState(false)
+  const [step, setStep] = useState(0)
+  const [complete, setComplete] = useState(false)
+  const [completePhase, setCompletePhase] = useState(0)
+  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [ageValue, setAgeValue] = useState('')
+  const formRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
-  const [dragging, setDragging] = useState(false)
 
-  const processFile = useCallback((file: File) => {
+  // Hero entrance
+  useEffect(() => {
+    const t1 = setTimeout(() => setHeroPhase(1), 400)
+    const t2 = setTimeout(() => setHeroPhase(2), 1200)
+    const t3 = setTimeout(() => setHeroPhase(3), 2400)
+    const t4 = setTimeout(() => setHeroPhase(4), 3600)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4) }
+  }, [])
+
+  const setAnswer = useCallback((id: string, value: string) => {
+    setAnswers(prev => ({ ...prev, [id]: value }))
+  }, [])
+
+  const currentQ = QUESTIONS[step]
+  const currentAnswer = currentQ ? answers[currentQ.id] || '' : ''
+
+  const canProceed = (() => {
+    if (!currentQ) return false
+    if (currentQ.type === 'text') return currentAnswer.trim().length > 0
+    if (currentQ.type === 'age') return ageValue.length > 0 && parseInt(ageValue) >= 18 && parseInt(ageValue) <= 99
+    if (currentQ.type === 'choice') return currentAnswer.length > 0
+    if (currentQ.type === 'photo') return currentAnswer.length > 0
+    return false
+  })()
+
+  const nextStep = useCallback(() => {
+    if (currentQ?.type === 'age') {
+      setAnswer('age', ageValue)
+    }
+    if (step < TOTAL_STEPS - 1) {
+      setStep(s => s + 1)
+      setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200)
+    } else {
+      // Submit
+      setComplete(true)
+      setTimeout(() => setCompletePhase(1), 300)
+      setTimeout(() => setCompletePhase(2), 1200)
+      setTimeout(() => setCompletePhase(3), 2200)
+
+      const finalAnswers: Record<string, string> = { ...answers, age: ageValue }
+
+      // localStorage backup
+      const submissions = JSON.parse(localStorage.getItem('pulse-waitlist') || '[]')
+      submissions.push({ ...finalAnswers, photo: '[uploaded]', timestamp: new Date().toISOString() })
+      localStorage.setItem('pulse-waitlist', JSON.stringify(submissions))
+
+      // Formspree — replace with your form ID
+      const FORMSPREE_ID = 'xpwzgkbo'
+      fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: finalAnswers.email,
+          name: finalAnswers.firstName,
+          age: finalAnswers.age,
+          gender: finalAnswers.gender,
+          lookingFor: finalAnswers.lookingFor,
+          city: finalAnswers.city,
+          attraction: finalAnswers.attraction,
+          fridayNight: finalAnswers.friday,
+          dealbreaker: finalAnswers.dealbreaker,
+          _subject: `Pulse waitlist: ${finalAnswers.firstName} from ${finalAnswers.city}`,
+        }),
+      }).catch(() => {})
+    }
+  }, [step, currentQ, answers, ageValue, setAnswer])
+
+  const handleChoiceSelect = useCallback((id: string, value: string) => {
+    setAnswer(id, value)
+    // Auto-advance on choice with a beat of delay
+    setTimeout(() => {
+      if (step < TOTAL_STEPS - 1) {
+        setStep(s => s + 1)
+        setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200)
+      }
+    }, 400)
+  }, [setAnswer, step])
+
+  const handlePhotoUpload = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) return
     const reader = new FileReader()
     reader.onload = (e) => {
       const img = new Image()
       img.onload = () => {
         const canvas = document.createElement('canvas')
-        const maxSize = 800
+        const max = 800
         let { width, height } = img
-        if (width > height) { if (width > maxSize) { height = (height * maxSize) / width; width = maxSize } }
-        else { if (height > maxSize) { width = (width * maxSize) / height; height = maxSize } }
+        if (width > height) { if (width > max) { height = (height * max) / width; width = max } }
+        else { if (height > max) { width = (width * max) / height; height = max } }
         canvas.width = width; canvas.height = height
-        const ctx = canvas.getContext('2d')
-        ctx?.drawImage(img, 0, 0, width, height)
-        onChange(canvas.toDataURL('image/jpeg', 0.9))
+        canvas.getContext('2d')?.drawImage(img, 0, 0, width, height)
+        setAnswer('photo', canvas.toDataURL('image/jpeg', 0.9))
       }
       img.src = e.target?.result as string
     }
     reader.readAsDataURL(file)
-  }, [onChange])
+  }, [setAnswer])
 
-  return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="relative cursor-pointer group"
-        onClick={() => fileRef.current?.click()}
-        onDragOver={e => { e.preventDefault(); setDragging(true) }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={e => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files[0]; if (f) processFile(f) }}>
-        <div className="w-40 h-40 sm:w-48 sm:h-48 rounded-full overflow-hidden flex items-center justify-center transition-all duration-500"
-          style={{
-            border: value ? `2px solid ${P.accentBorder}` : dragging ? `2px solid ${P.accent}` : `2px dashed ${P.textGhost}`,
-            background: value ? 'transparent' : P.surface,
-            boxShadow: value ? `0 0 40px ${P.accentGlow}` : 'none',
-          }}>
-          {value ? (
-            <img src={value} alt="Profile preview" className="w-full h-full object-cover" />
-          ) : (
-            <div className="flex flex-col items-center gap-3 px-6">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" style={{ opacity: 0.3 }}>
-                <path d="M12 5v14m-7-7h14" stroke={P.textSoft} strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              <span className="text-[11px] tracking-wide text-center" style={{ color: P.textFaint }}>Tap to upload</span>
-            </div>
-          )}
-        </div>
-        {value && (
-          <div className="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <span className="text-white/80 text-xs tracking-wide">Change photo</span>
-          </div>
-        )}
-      </div>
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) processFile(f) }} />
-      <p className="text-[11px] tracking-wide text-center leading-relaxed" style={{ color: P.textFaint }}>
-        {value ? `This is how ${firstName || 'you'}'ll appear when the room opens.` : "High quality · Face clearly visible · This is what they'll see."}
-      </p>
-    </div>
-  )
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   MAIN COMPONENT — Warm ivory, luxury invitation aesthetic
-   Think: Hermès mailer, gallery opening, handwritten note.
-   Every dating app is dark. This is different. This is refined.
-   ═══════════════════════════════════════════════════════════════ */
-export default function WaitlistPage() {
-  const [heroPhase, setHeroPhase] = useState(0)
-  const [showForm, setShowForm] = useState(false)
-  const [step, setStep] = useState(0)
-  const [complete, setComplete] = useState(false)
-  const [completePhase, setCompletePhase] = useState(0)
-  const formRef = useRef<HTMLDivElement>(null)
-
-  const [form, setForm] = useState<FormData>({
-    email: '', firstName: '', city: '', ageRange: '', gender: '', lookingFor: '', photo: '',
-  })
-
-  const update = useCallback((field: keyof FormData, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }))
+  const handleStart = useCallback(() => {
+    setStarted(true)
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400)
   }, [])
 
-  useEffect(() => {
-    const t1 = setTimeout(() => setHeroPhase(1), 400)
-    const t2 = setTimeout(() => setHeroPhase(2), 1400)
-    const t3 = setTimeout(() => setHeroPhase(3), 2800)
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
-  }, [])
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && canProceed) { e.preventDefault(); nextStep() }
+  }, [canProceed, nextStep])
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!form.email.trim()) return
-    setShowForm(true)
-    setStep(0)
-    setTimeout(() => { formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }) }, 300)
-  }
-
-  const nextStep = useCallback(() => {
-    if (step < 5) { setStep(s => s + 1) }
-    else {
-      setComplete(true)
-      setTimeout(() => setCompletePhase(1), 300)
-      setTimeout(() => setCompletePhase(2), 1200)
-      setTimeout(() => setCompletePhase(3), 2200)
-      console.log('Application submitted:', form)
-    }
-  }, [step, form])
-
-  const handlePillSelect = useCallback((field: keyof FormData, value: string) => {
-    update(field, value)
-    setTimeout(() => nextStep(), 350)
-  }, [update, nextStep])
-
-  const TOTAL_STEPS = 6
+  const progress = step / TOTAL_STEPS
 
   return (
     <div className="min-h-screen relative overflow-hidden cursor-default"
-      style={{ background: `linear-gradient(170deg, ${P.bg} 0%, ${P.bgDeep} 50%, ${P.bg} 100%)` }}>
+      style={{ background: `linear-gradient(170deg, ${P.bg} 0%, ${P.bgDeep} 50%, ${P.bg} 100%)` }}
+      onKeyDown={handleKeyDown}>
 
-      {/* Ambient warmth — subtle radial glow */}
+      {/* Ambient warmth */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2"
+        <div className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{ width: '1000px', height: '700px', background: `radial-gradient(ellipse, ${P.accentGlow} 0%, transparent 60%)` }} />
       </div>
 
+      {/* Progress bar — thin, elegant, top of viewport */}
+      {started && !complete && (
+        <div className="fixed top-0 left-0 right-0 z-50 h-[2px]" style={{ background: P.border }}>
+          <div className="h-full transition-all duration-700 ease-out"
+            style={{ width: `${progress * 100}%`, background: `linear-gradient(90deg, ${P.accent}, #A030D0)` }} />
+        </div>
+      )}
+
       {/* ═══ HERO ═══ */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6">
-        <div className="relative z-10 flex flex-col items-center text-center">
+        <div className="relative z-10 flex flex-col items-center text-center max-w-lg">
 
-          {/* Logo */}
-          <div className="transition-all duration-[2s] ease-out"
-            style={{ opacity: heroPhase >= 1 ? 0.5 : 0, transform: heroPhase >= 1 ? 'translateY(0)' : 'translateY(8px)' }}>
-            <span className="text-[clamp(0.75rem,1.8vw,0.9rem)] font-normal tracking-[0.35em] uppercase"
-              style={{ fontFamily: "'DM Sans', sans-serif", color: P.textSoft }}>
-              Pulse
-            </span>
+          {/* Logo — draw-in animation */}
+          <div className="transition-all duration-[2s] ease-out mb-4"
+            style={{ opacity: heroPhase >= 1 ? 1 : 0, transform: heroPhase >= 1 ? 'translateY(0)' : 'translateY(8px)' }}>
+            <PulseLogo size="lg" color="accent" />
           </div>
 
           {/* Heartbeat */}
-          <div className="my-5">
+          <div className="my-4">
             <HeartbeatLine visible={heroPhase >= 1} />
           </div>
 
-          {/* Tagline */}
+          {/* Tagline — the hook */}
           <h1 className="transition-all duration-[2.2s] ease-out"
             style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: 'clamp(3.2rem, 11vw, 7.5rem)',
-              fontWeight: 300, fontStyle: 'italic', lineHeight: 0.95, letterSpacing: '-0.015em',
+              fontFamily: serif,
+              fontSize: 'clamp(3.5rem, 12vw, 8rem)',
+              fontWeight: 300, fontStyle: 'italic', lineHeight: 0.9, letterSpacing: '-0.02em',
               color: P.text,
               opacity: heroPhase >= 2 ? 1 : 0,
-              transform: heroPhase >= 2 ? 'translateY(0)' : 'translateY(16px)',
+              transform: heroPhase >= 2 ? 'translateY(0)' : 'translateY(20px)',
             }}>
             You'll know.
           </h1>
 
-          <div className="h-14 sm:h-16" />
+          {/* Sub — creates desire before asking anything */}
+          <p className="mt-6 transition-all duration-[2s] ease-out"
+            style={{
+              fontFamily: sans, fontSize: '1rem', color: P.textSoft, lineHeight: 1.6,
+              opacity: heroPhase >= 3 ? 1 : 0,
+              transform: heroPhase >= 3 ? 'translateY(0)' : 'translateY(10px)',
+            }}>
+            Five minutes on camera with a stranger.<br />
+            No swiping. No texting. No games.<br />
+            Just a real conversation — and you'll know.
+          </p>
 
-          {/* Email CTA */}
-          <div className="transition-all duration-[2s] ease-out"
-            style={{ opacity: heroPhase >= 3 ? 1 : 0, transform: heroPhase >= 3 ? 'translateY(0)' : 'translateY(10px)' }}>
-            {!showForm ? (
-              <form onSubmit={handleEmailSubmit} className="flex flex-col items-center gap-5">
-                <div className="flex flex-col sm:flex-row items-center gap-3">
-                  <input type="email" value={form.email} onChange={e => update('email', e.target.value)}
-                    placeholder="Your email" required
-                    className="w-64 px-5 py-3 rounded-full text-sm tracking-wide focus:outline-none transition-all duration-500 text-center sm:text-left"
-                    style={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      background: P.surface, color: P.text,
-                      border: `1px solid ${P.border}`,
-                      caretColor: P.accent,
-                    }}
-                    onFocus={e => { e.target.style.borderColor = P.borderFocus; e.target.style.background = 'rgba(200,62,136,0.03)' }}
-                    onBlur={e => { e.target.style.borderColor = P.border; e.target.style.background = P.surface }} />
-                  <button type="submit"
-                    className="px-6 py-3 rounded-full text-sm tracking-wide transition-all duration-500"
-                    style={{ border: `1px solid ${P.accentBorder}`, color: P.accent, background: P.accentSoft }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(200,62,136,0.12)'; e.currentTarget.style.borderColor = P.accent }}
-                    onMouseLeave={e => { e.currentTarget.style.background = P.accentSoft; e.currentTarget.style.borderColor = P.accentBorder }}>
-                    {PHASE === 'exclusive' ? 'Request access' : 'Join waitlist'}
-                  </button>
-                </div>
-                <p className="text-[11px] tracking-[0.2em] uppercase" style={{ color: P.textFaint }}>
-                  {PHASE === 'exclusive'
-                    ? 'By invitation only'
-                    : <><AnimatedCounter target={WAITLIST_COUNT} /> already in line</>}
+          {/* CTA — appears last, feels inevitable */}
+          <div className="mt-10 transition-all duration-[2s] ease-out"
+            style={{
+              opacity: heroPhase >= 4 ? 1 : 0,
+              transform: heroPhase >= 4 ? 'translateY(0)' : 'translateY(10px)',
+            }}>
+            {!started ? (
+              <div className="flex flex-col items-center gap-5">
+                <button onClick={handleStart}
+                  className="px-10 py-4 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+                  style={{
+                    background: P.accent,
+                    color: 'white',
+                    fontFamily: sans, fontSize: '0.95rem', fontWeight: 500, letterSpacing: '0.04em',
+                    boxShadow: '0 4px 30px rgba(200,62,136,0.25)',
+                    border: 'none', cursor: 'pointer',
+                  }}>
+                  I want in
+                </button>
+                <p style={{ fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textFaint }}>
+                  Dubai · Launching soon · By application only
                 </p>
-              </form>
+              </div>
             ) : (
               <div className="flex flex-col items-center gap-2 animate-fade-in">
-                <p className="text-sm tracking-wide" style={{ color: P.textSoft }}>Almost there — takes 30 seconds.</p>
+                <p style={{ fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: P.textSoft }}>
+                  Let's get to know each other.
+                </p>
                 <svg width="16" height="24" viewBox="0 0 16 24" fill="none" className="mt-2 animate-float" style={{ opacity: 0.25 }}>
                   <path d="M8 4v16m0 0l-5-5m5 5l5-5" stroke={P.textSoft} strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
@@ -391,66 +371,204 @@ export default function WaitlistPage() {
         </div>
       </section>
 
-      {/* ═══ NATIVE FORM ═══ */}
-      {showForm && !complete && (
+      {/* ═══ ONBOARDING — Each question is a full-screen moment ═══ */}
+      {started && !complete && (
         <section ref={formRef} className="relative min-h-screen flex items-center justify-center px-6 py-20">
-          <div className="w-full max-w-md">
-            <FormStep active={step === 0} stepNumber={0} totalSteps={TOTAL_STEPS}
-              question="What's your first name?" onNext={nextStep} canProceed={form.firstName.trim().length > 0}>
-              <FormInput value={form.firstName} onChange={v => update('firstName', v)} placeholder="First name only" />
-            </FormStep>
+          <div className="w-full max-w-md animate-fade-in" key={step}>
 
-            <FormStep active={step === 1} stepNumber={1} totalSteps={TOTAL_STEPS}
-              question={`${form.firstName}, where are you based?`} onNext={nextStep} canProceed={form.city.length > 0}>
-              <PillSelect options={CITIES} value={form.city} onChange={v => handlePillSelect('city', v)} />
-            </FormStep>
+            {/* Step counter */}
+            <div className="flex items-center justify-center gap-1.5 mb-12">
+              {QUESTIONS.map((_, i) => (
+                <div key={i} className="rounded-full transition-all duration-500"
+                  style={{
+                    width: i === step ? '24px' : '5px',
+                    height: '5px',
+                    background: i < step ? P.accent : i === step ? P.accent : P.textGhost,
+                    opacity: i < step ? 0.4 : 1,
+                  }} />
+              ))}
+            </div>
 
-            <FormStep active={step === 2} stepNumber={2} totalSteps={TOTAL_STEPS}
-              question="What's your age range?" onNext={nextStep} canProceed={form.ageRange.length > 0}>
-              <PillSelect options={AGE_RANGES} value={form.ageRange} onChange={v => handlePillSelect('ageRange', v)} />
-            </FormStep>
+            {/* Question */}
+            <h2 className="text-center mb-3"
+              style={{
+                fontFamily: serif, fontSize: 'clamp(1.5rem, 5vw, 2.2rem)',
+                fontWeight: 300, fontStyle: 'italic', color: P.text, lineHeight: 1.2,
+              }}>
+              {currentQ.question}
+            </h2>
 
-            <FormStep active={step === 3} stepNumber={3} totalSteps={TOTAL_STEPS}
-              question="I am a…" onNext={nextStep} canProceed={form.gender.length > 0}>
-              <PillSelect options={GENDERS} value={form.gender} onChange={v => handlePillSelect('gender', v)} />
-            </FormStep>
+            {currentQ.sub && (
+              <p className="text-center mb-10"
+                style={{ fontFamily: sans, fontSize: '0.8rem', color: P.textFaint, lineHeight: 1.5 }}>
+                {currentQ.sub}
+              </p>
+            )}
+            {!currentQ.sub && <div className="mb-10" />}
 
-            <FormStep active={step === 4} stepNumber={4} totalSteps={TOTAL_STEPS}
-              question="Interested in…" onNext={nextStep} canProceed={form.lookingFor.length > 0}>
-              <PillSelect options={LOOKING_FOR} value={form.lookingFor} onChange={v => handlePillSelect('lookingFor', v)} />
-            </FormStep>
+            {/* ── Text input ── */}
+            {currentQ.type === 'text' && (
+              <div className="flex flex-col items-center">
+                <input
+                  type={currentQ.id === 'email' ? 'email' : 'text'}
+                  value={currentAnswer}
+                  onChange={e => setAnswer(currentQ.id, e.target.value)}
+                  placeholder={currentQ.placeholder}
+                  autoFocus
+                  className="w-full max-w-xs px-0 py-3 text-center text-lg tracking-wide bg-transparent border-0 border-b-[1.5px] focus:outline-none transition-all duration-500"
+                  style={{
+                    fontFamily: sans, color: P.text,
+                    borderBottomColor: currentAnswer ? P.accent : P.textGhost,
+                    caretColor: P.accent,
+                  }}
+                />
+              </div>
+            )}
 
-            <FormStep active={step === 5} stepNumber={5} totalSteps={TOTAL_STEPS}
-              question="This is your first impression." onNext={nextStep} canProceed={form.photo.length > 0} isLast>
-              <PhotoUpload value={form.photo} onChange={v => update('photo', v)} firstName={form.firstName} />
-            </FormStep>
+            {/* ── Age input — smooth, not a range picker ── */}
+            {currentQ.type === 'age' && (
+              <div className="flex flex-col items-center">
+                <input
+                  type="number"
+                  value={ageValue}
+                  onChange={e => {
+                    const v = e.target.value
+                    if (v === '' || (parseInt(v) >= 0 && parseInt(v) <= 99)) setAgeValue(v)
+                  }}
+                  placeholder="25"
+                  min={18} max={99}
+                  autoFocus
+                  className="w-24 px-0 py-3 text-center text-4xl tracking-wide bg-transparent border-0 border-b-[1.5px] focus:outline-none transition-all duration-500"
+                  style={{
+                    fontFamily: serif, fontWeight: 300, color: P.text,
+                    borderBottomColor: ageValue ? P.accent : P.textGhost,
+                    caretColor: P.accent,
+                    /* hide spinners */
+                    MozAppearance: 'textfield',
+                  }}
+                />
+                {ageValue && parseInt(ageValue) < 18 && (
+                  <p className="mt-4 text-center" style={{ fontFamily: sans, fontSize: '0.75rem', color: '#FF6B6B' }}>
+                    You must be 18 or older to join Pulse.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* ── Choice grid ── */}
+            {currentQ.type === 'choice' && (
+              <div className={`flex flex-wrap justify-center gap-3 ${currentQ.options.length > 5 ? 'max-w-sm mx-auto' : ''}`}>
+                {currentQ.options.map(opt => {
+                  const selected = currentAnswer === opt.label
+                  return (
+                    <button key={opt.label}
+                      onClick={() => handleChoiceSelect(currentQ.id, opt.label)}
+                      className="flex items-center gap-2.5 px-5 py-3.5 rounded-full transition-all duration-400 hover:scale-[1.03] active:scale-[0.97]"
+                      style={{
+                        background: selected
+                          ? 'linear-gradient(135deg, rgba(200,62,136,0.12), rgba(200,62,136,0.06))'
+                          : 'rgba(42,37,40,0.03)',
+                        border: `1px solid ${selected ? P.accent : P.border}`,
+                        color: selected ? P.accent : P.textSoft,
+                        fontFamily: sans, fontSize: '0.9rem',
+                        boxShadow: selected ? '0 2px 16px rgba(200,62,136,0.1)' : 'none',
+                        cursor: 'pointer',
+                      }}>
+                      {opt.icon && <span className="text-base">{opt.icon}</span>}
+                      {opt.label}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* ── Photo upload ── */}
+            {currentQ.type === 'photo' && (
+              <div className="flex flex-col items-center gap-6">
+                <div className="relative cursor-pointer group"
+                  onClick={() => fileRef.current?.click()}
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handlePhotoUpload(f) }}>
+                  <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-full overflow-hidden flex items-center justify-center transition-all duration-700"
+                    style={{
+                      border: currentAnswer ? `3px solid ${P.accent}` : `2px dashed ${P.textGhost}`,
+                      background: currentAnswer ? 'transparent' : 'rgba(42,37,40,0.02)',
+                      boxShadow: currentAnswer ? `0 0 50px ${P.accentGlow}, 0 0 100px rgba(200,62,136,0.04)` : 'none',
+                    }}>
+                    {currentAnswer ? (
+                      <img src={currentAnswer} alt="You" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 px-6">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center"
+                          style={{ background: P.accentSoft }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5v14m-7-7h14" stroke={P.accent} strokeWidth="1.5" strokeLinecap="round" />
+                          </svg>
+                        </div>
+                        <span style={{ fontFamily: sans, fontSize: '0.75rem', color: P.textFaint }}>
+                          Tap to upload
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {currentAnswer && (
+                    <div className="absolute inset-0 rounded-full bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span style={{ fontFamily: sans, fontSize: '0.75rem', color: 'white' }}>Change</span>
+                    </div>
+                  )}
+                </div>
+                <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handlePhotoUpload(f) }} />
+              </div>
+            )}
+
+            {/* Continue button (text + age + photo only — choices auto-advance) */}
+            {(currentQ.type === 'text' || currentQ.type === 'age' || currentQ.type === 'photo') && (
+              <div className="flex flex-col items-center mt-10">
+                <button onClick={nextStep} disabled={!canProceed}
+                  className="px-8 py-3 rounded-full transition-all duration-500"
+                  style={{
+                    background: canProceed ? P.accent : 'transparent',
+                    color: canProceed ? 'white' : P.textGhost,
+                    border: `1px solid ${canProceed ? P.accent : P.border}`,
+                    fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
+                    cursor: canProceed ? 'pointer' : 'default',
+                    boxShadow: canProceed ? '0 4px 20px rgba(200,62,136,0.2)' : 'none',
+                  }}>
+                  {step === TOTAL_STEPS - 1 ? 'Apply' : 'Continue'}
+                </button>
+                {canProceed && (
+                  <p className="mt-3" style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textGhost }}>
+                    press Enter ↵
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </section>
       )}
 
-      {/* ═══ COMPLETION ═══ */}
+      {/* ═══ COMPLETION — You've been accepted ═══ */}
       {complete && (
         <section className="relative min-h-screen flex items-center justify-center px-6">
           <div className="flex flex-col items-center text-center max-w-sm w-full">
 
-            {/* Profile photo with warm glow aura */}
+            {/* Photo with glow */}
             <div className="mb-10 transition-all duration-[1.5s] ease-out"
               style={{ opacity: completePhase >= 1 ? 1 : 0, transform: completePhase >= 1 ? 'scale(1)' : 'scale(0.5)' }}>
-              {form.photo ? (
+              {answers.photo ? (
                 <div className="relative">
-                  {/* Warm radial glow behind photo — the user is "glowing" in the system */}
-                  <div className="absolute inset-0 rounded-full"
+                  <div className="absolute inset-[-20px] rounded-full"
                     style={{
-                      width: '160px', height: '160px', top: '-24px', left: '-24px',
-                      background: `radial-gradient(circle, rgba(200,62,136,0.15) 0%, rgba(200,62,136,0.04) 50%, transparent 70%)`,
-                      animation: 'completionGlow 3s ease-in-out infinite',
+                      background: `radial-gradient(circle, rgba(200,62,136,0.15) 0%, transparent 70%)`,
+                      animation: 'glow-pulse 3s ease-in-out infinite',
                     }} />
                   <div className="w-28 h-28 rounded-full overflow-hidden relative z-10"
-                    style={{ border: `2.5px solid ${P.accent}`, boxShadow: `0 0 50px rgba(200,62,136,0.12), 0 4px 20px rgba(0,0,0,0.06)` }}>
-                    <img src={form.photo} alt="" className="w-full h-full object-cover" />
+                    style={{ border: `2.5px solid ${P.accent}`, boxShadow: '0 0 50px rgba(200,62,136,0.12)' }}>
+                    <img src={answers.photo} alt="" className="w-full h-full object-cover" />
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center z-20"
-                    style={{ background: P.accent, boxShadow: `0 2px 12px rgba(200,62,136,0.3)` }}>
+                    style={{ background: P.accent, boxShadow: '0 2px 12px rgba(200,62,136,0.3)' }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M5 12l5 5L19 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -466,96 +584,113 @@ export default function WaitlistPage() {
               )}
             </div>
 
-            {/* Headline */}
+            {/* Welcome */}
             <h2 className="mb-3 transition-all duration-[1.8s] ease-out"
               style={{
-                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontFamily: serif,
                 fontSize: 'clamp(2rem, 6vw, 3.5rem)', fontWeight: 300, fontStyle: 'italic',
                 color: P.text,
                 opacity: completePhase >= 2 ? 1 : 0,
                 transform: completePhase >= 2 ? 'translateY(0)' : 'translateY(12px)',
               }}>
-              We'll find you, {form.firstName}.
+              We'll find you, {answers.firstName}.
             </h2>
 
-            <p className="text-sm tracking-wide transition-all duration-[1.8s] ease-out"
-              style={{ color: P.textSoft, opacity: completePhase >= 2 ? 1 : 0 }}>
-              Your application is in. We'll be in touch before launch.
+            <p className="transition-all duration-[1.8s] ease-out"
+              style={{ fontFamily: sans, fontSize: '0.85rem', color: P.textSoft, opacity: completePhase >= 2 ? 1 : 0 }}>
+              Your application is in. We reach out before launch.
             </p>
 
-            {/* Queue badge — premium membership card feel, not a deli ticket */}
+            {/* Position */}
             <div className="mt-8 transition-all duration-[2s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(8px)' }}>
               <div className="px-7 py-3 rounded-full"
-                style={{ background: 'rgba(200,62,136,0.06)', border: `1px solid ${P.accentBorder}` }}>
-                <p className="text-[11px] tracking-[0.2em] uppercase font-medium" style={{ color: P.accent }}>
-                  #{Math.floor(Math.random() * 200 + 180)} in line · {form.city || 'Dubai'}
+                style={{ background: P.accentSoft, border: `1px solid ${P.accentBorder}` }}>
+                <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 500, color: P.accent }}>
+                  #{Math.floor(Math.random() * 200 + 180)} in line · {answers.city || 'Dubai'}
                 </p>
               </div>
             </div>
 
-            {/* What happens next — fills the empty space with purpose */}
-            <div className="mt-16 w-full transition-all duration-[2.5s] ease-out"
+            {/* Journey steps */}
+            <div className="mt-14 w-full transition-all duration-[2.5s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(16px)' }}>
-              <p className="text-[10px] tracking-[0.25em] uppercase mb-8" style={{ color: P.textFaint }}>
-                Your journey begins
+              <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: P.textFaint, marginBottom: '24px' }}>
+                What happens next
               </p>
               <div className="flex items-start justify-between gap-4">
                 {[
                   { num: '01', label: 'Selected', desc: 'You caught our eye' },
-                  { num: '02', label: 'Curated', desc: 'We\'re building your room' },
-                  { num: '03', label: 'Unlocked', desc: 'Your first Spark awaits' },
+                  { num: '02', label: 'Curated', desc: 'Building your first room' },
+                  { num: '03', label: 'Live', desc: 'Camera on. Clock starts.' },
                 ].map((item, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center text-center gap-2.5">
-                    <span className="text-[10px] tracking-[0.2em] font-medium" style={{ color: P.accent }}>
+                  <div key={i} className="flex-1 flex flex-col items-center text-center gap-2">
+                    <span style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.2em', fontWeight: 500, color: P.accent }}>
                       {item.num}
                     </span>
-                    <span className="text-[13px] tracking-wide font-medium"
-                      style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: P.text, fontStyle: 'italic' }}>
+                    <span style={{ fontFamily: serif, fontSize: '0.95rem', fontStyle: 'italic', color: P.text }}>
                       {item.label}
                     </span>
-                    <span className="text-[11px] leading-relaxed" style={{ color: P.textSoft }}>
+                    <span style={{ fontFamily: sans, fontSize: '0.7rem', color: P.textSoft, lineHeight: 1.4 }}>
                       {item.desc}
                     </span>
                   </div>
                 ))}
               </div>
-              {/* Subtle progress line connecting the three steps */}
-              <div className="mt-6 mx-auto" style={{ width: '60%', height: '1px', background: `linear-gradient(90deg, transparent, ${P.accentBorder}, transparent)` }} />
+              <div className="mt-5 mx-auto" style={{ width: '60%', height: '1px', background: `linear-gradient(90deg, transparent, ${P.accentBorder}, transparent)` }} />
             </div>
 
-            {/* Share prompt — gives user something to do */}
-            <div className="mt-12 transition-all duration-[3s] ease-out"
-              style={{ opacity: completePhase >= 3 ? 0.7 : 0 }}>
-              <p className="text-[11px] tracking-wide" style={{ color: P.textFaint, fontStyle: 'italic', fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: '14px' }}>
+            {/* Demo + share */}
+            <div className="mt-10 flex flex-col items-center gap-5 transition-all duration-[3s] ease-out"
+              style={{ opacity: completePhase >= 3 ? 1 : 0 }}>
+              <a href="#demo"
+                className="px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+                style={{
+                  background: P.accentSoft, border: `1px solid ${P.accentBorder}`,
+                  color: P.accent, fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
+                  textDecoration: 'none',
+                }}>
+                Preview the experience →
+              </a>
+              <p style={{ fontFamily: serif, fontSize: '0.9rem', fontStyle: 'italic', color: P.textFaint }}>
                 Know someone who should be here?
               </p>
             </div>
           </div>
-
-          {/* CSS animation for the glow pulse */}
-          <style>{`
-            @keyframes completionGlow {
-              0%, 100% { opacity: 0.7; transform: scale(1); }
-              50% { opacity: 1; transform: scale(1.08); }
-            }
-          `}</style>
         </section>
       )}
 
-      {/* ═══ FOOTER ═══ */}
-      <footer className="absolute bottom-0 left-0 right-0 px-6 py-6" style={{ zIndex: 10 }}>
+      {/* Footer */}
+      <footer className="absolute bottom-0 left-0 right-0 px-6 py-6 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <span className="text-[11px] tracking-wider" style={{ color: P.textGhost }}>Dubai 2026</span>
+          <span style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost }}>Dubai 2026</span>
           <a href="mailto:jamal@hakadian.com"
-            className="text-[11px] tracking-wider transition-colors duration-500"
-            style={{ color: P.textGhost }}
-            onMouseEnter={e => e.currentTarget.style.color = P.textSoft}
-            onMouseLeave={e => e.currentTarget.style.color = P.textGhost}>
+            className="transition-colors duration-500"
+            style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost, textDecoration: 'none' }}>
             Contact
           </a>
         </div>
       </footer>
+
+      {/* Animations */}
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(6px); }
+        }
+        @keyframes glow-pulse {
+          0%, 100% { opacity: 0.7; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.08); }
+        }
+        .animate-fade-in { animation: fade-in 0.6s ease-out; }
+        .animate-float { animation: float 2s ease-in-out infinite; }
+        input[type=number]::-webkit-outer-spin-button,
+        input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+      `}</style>
     </div>
   )
 }
