@@ -10,16 +10,16 @@ interface Props {
 
 /* ─── Compatibility whispers ─── */
 const compatibilityWhispers: Record<string, string> = {
-  Sofia: "You both value experiences over things \u2014 that's rare chemistry.",
-  Layla: "Different energy, different wavelength \u2014 trust your gut.",
+  Sofia: "You both value experiences over things — that's rare chemistry.",
+  Layla: "Different energy, different wavelength — trust your gut.",
   Amira: "Shared creative passions can be a powerful foundation.",
-  Nour: "Two ambitious minds \u2014 could be fireworks or fuel.",
-  Yasmine: "Style meets substance \u2014 but did the conversation match?",
+  Nour: "Two ambitious minds — could be fireworks or fuel.",
+  Yasmine: "Style meets substance — but did the conversation match?",
 }
 
 /* ─── Vibe options ─── */
 const vibeOptions = [
-  { emoji: '\u26A1', label: 'Electric', color: '#FF6EC7' },
+  { emoji: '⚡', label: 'Electric', color: '#FF6EC7' },
   { emoji: '\u{1F60A}', label: 'Warm', color: '#FF9F0A' },
   { emoji: '\u{1F914}', label: 'Interesting', color: '#6060FF' },
   { emoji: '\u{1F602}', label: 'Fun', color: '#30D158' },
@@ -32,7 +32,7 @@ const dateIntentOptions = [
   { emoji: '\u{1F4AF}', label: 'Absolutely', value: 'definitely' as const },
   { emoji: '\u{1F914}', label: 'Maybe', value: 'maybe' as const },
   { emoji: '\u{1F91D}', label: 'As friends', value: 'friends' as const },
-  { emoji: '\u274C', label: 'Nah', value: 'no' as const },
+  { emoji: '❌', label: 'Nah', value: 'no' as const },
 ]
 
 type Phase = 'rating' | 'vibe' | 'intent' | 'done'
@@ -159,7 +159,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
           transition: 'all 0.6s ease-out 0.1s',
         }}
       >
-        {/* Profile pill \u2014 glass */}
+        {/* Profile pill — glass */}
         <div className="glass-tile backdrop-blur-xl flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full">
           <div className="relative">
             <img
@@ -180,7 +180,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                   animation: 'scale-pop 0.3s ease-out',
                 }}
               >
-                <span className="text-[0.45rem]">{rating === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
+                <span className="text-[0.45rem]">{rating === 'like' ? '\u{1F525}' : '❄\u{FE0F}'}</span>
               </div>
             )}
           </div>
@@ -220,7 +220,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
           {/* ─── PHASE 1: Chemistry ─── */}
           {phase === 'rating' && (
             <>
-              {/* AI whisper \u2014 glass pill */}
+              {/* AI whisper — glass pill */}
               <div
                 className="mb-8 max-w-sm text-center"
                 style={{
@@ -236,7 +236,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                 </div>
               </div>
 
-              {/* The big question \u2014 inside glass card */}
+              {/* The big question — inside glass card */}
               <div className="glass-tile backdrop-blur-xl rounded-3xl px-8 py-10 mb-8 w-full max-w-sm text-center">
                 <h2
                   className="text-3xl md:text-4xl leading-tight mb-3"
@@ -255,13 +255,13 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                 </p>
               </div>
 
-              {/* Two buttons \u2014 glass */}
+              {/* Two buttons — glass */}
               <div className="flex gap-4 w-full max-w-sm">
                 <button
                   onClick={(e) => handleRate('pass', e)}
                   className="flex-1 group glass-button backdrop-blur-xl rounded-2xl py-6 flex flex-col items-center gap-3 transition-all duration-200 active:scale-[0.96]"
                 >
-                  <span className="text-4xl transition-transform duration-200 group-hover:scale-110">{'\u2744\u{FE0F}'}</span>
+                  <span className="text-4xl transition-transform duration-200 group-hover:scale-110">{'❄\u{FE0F}'}</span>
                   <span className="text-sm font-medium text-white/50" style={{ fontFamily: "'DM Sans', sans-serif" }}>Not this time</span>
                 </button>
                 <button
@@ -301,7 +301,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                 </p>
               </div>
 
-              {/* 3x2 grid \u2014 glass buttons */}
+              {/* 3x2 grid — glass buttons */}
               <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
                 {vibeOptions.map((v) => (
                   <button
@@ -354,7 +354,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                 </p>
               </div>
 
-              {/* Stacked options \u2014 glass rows */}
+              {/* Stacked options — glass rows */}
               <div className="flex flex-col gap-3 w-full max-w-sm">
                 {dateIntentOptions.map((opt, i) => (
                   <button
@@ -422,7 +422,7 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
         </div>
       </div>
 
-      {/* ═══ Bottom: Sponsor card \u2014 Netflix-style glass integration ═══ */}
+      {/* ═══ Bottom: Sponsor card — Netflix-style glass integration ═══ */}
       <div
         className="relative z-10 pb-5 px-5"
         style={{

@@ -179,13 +179,13 @@ const replayData: Record<string, { questions: string[]; highlights: string[]; du
   },
   Amira: {
     questions: [conversationStarters[2], conversationStarters[7]],
-    highlights: ['Instant chemistry \u2014 both art lovers', 'She collects vintage prints', 'Plans to visit Louvre Abu Dhabi'],
+    highlights: ['Instant chemistry — both art lovers', 'She collects vintage prints', 'Plans to visit Louvre Abu Dhabi'],
     duration: '5:00',
     emojis: ['\u{1F60D}', '\u{1F525}', '\u{1F44F}', '\u{1F4AF}'],
   },
   Nour: {
     questions: [conversationStarters[4], conversationStarters[9]],
-    highlights: ['Both in tech \u2014 she gets the grind', 'Weekend hiking in Hatta', 'She laughed at your bad joke'],
+    highlights: ['Both in tech — she gets the grind', 'Weekend hiking in Hatta', 'She laughed at your bad joke'],
     duration: '5:00',
     emojis: ['\u{1F525}', '\u{2764}\u{FE0F}', '\u{1F602}'],
   },
@@ -397,7 +397,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                     </div>
                   )}
                   <p className="text-center text-sm italic text-white/70" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                    {mutualMatches.length >= 2 ? '"Chemistry confirmed \u2014 twice."' : mutualMatches.length === 1 ? '"Found a spark in 25 minutes."' : '"5 real conversations. Zero time wasted."'}
+                    {mutualMatches.length >= 2 ? '"Chemistry confirmed — twice."' : mutualMatches.length === 1 ? '"Found a spark in 25 minutes."' : '"5 real conversations. Zero time wasted."'}
                   </p>
                 </div>
                 <div className="text-center">
@@ -435,7 +435,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
       {phase === 'intro' && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6">
           <div className="text-center animate-fade-in">
-            <div className="text-6xl mb-6">{'\u2728'}</div>
+            <div className="text-6xl mb-6">{'✨'}</div>
             <h2 className="text-3xl md:text-5xl mb-4 font-display" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 300, fontStyle: 'italic' }}>
               Time for the truth.
             </h2>
@@ -488,12 +488,12 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                         <div className="p-2.5 space-y-1.5">
                           <div className="flex items-center justify-between">
                             <span className="text-[0.55rem] text-[#7A7A80] uppercase">You</span>
-                            <span className="text-sm">{effRating === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
+                            <span className="text-sm">{effRating === 'like' ? '\u{1F525}' : '❄\u{FE0F}'}</span>
                           </div>
                           <div className="h-px" style={{ background: 'rgba(200,62,136,0.10)' }} />
                           <div className="flex items-center justify-between">
                             <span className="text-[0.55rem] text-[#7A7A80] uppercase">Them</span>
-                            <span className="text-sm">{theirs === 'like' ? '\u{1F525}' : '\u2744\u{FE0F}'}</span>
+                            <span className="text-sm">{theirs === 'like' ? '\u{1F525}' : '❄\u{FE0F}'}</span>
                           </div>
                           {isMatch && (
                             <p className="text-center text-[0.6rem] font-bold text-[#C83E88] pt-1 animate-pulse">{'\u{1F4AB}'} Chemistry confirmed</p>
@@ -550,7 +550,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
             <div className="text-center lg:text-left mb-8">
               <h2 className="text-2xl md:text-3xl font-bold font-display mb-2">Tonight's Results</h2>
               <p className="text-sm text-[#98989D]">
-                {mutualMatches.length > 0 ? `${mutualMatches.length} mutual ${mutualMatches.length === 1 ? 'match' : 'matches'} \u2014 real chemistry, confirmed.` : 'No mutual matches tonight \u2014 every session is different.'}
+                {mutualMatches.length > 0 ? `${mutualMatches.length} mutual ${mutualMatches.length === 1 ? 'match' : 'matches'} — real chemistry, confirmed.` : 'No mutual matches tonight — every session is different.'}
               </p>
             </div>
 
@@ -559,7 +559,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               {[
                 { value: '5', label: 'People Met', icon: '\u{1F465}' },
                 { value: String(mutualMatches.length), label: 'Matches', icon: '\u{1F4AB}' },
-                { value: '25m', label: 'Total Time', icon: '\u23F1' },
+                { value: '25m', label: 'Total Time', icon: '⏱' },
                 { value: `${Object.values(ratings).filter(r => r === 'like').length + Object.keys(secondChances).length}`, label: 'You Liked', icon: '\u{1F525}' },
               ].map((s, i) => (
                 <div key={i} className="glass-tile rounded-2xl p-4 text-center animate-slide-up" style={{ animationDelay: `${i * 0.1}s`, animationFillMode: 'backwards' }}>
