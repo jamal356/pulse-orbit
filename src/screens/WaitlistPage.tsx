@@ -485,24 +485,17 @@ export default function WaitlistPage() {
       style={{ background: `linear-gradient(170deg, ${P.bg} 0%, ${P.bgDeep} 50%, ${P.bg} 100%)` }}
       onKeyDown={handleKeyDown}>
 
-      {/* ── Animated pulse rings — origin below hero content ── */}
+      {/* ── Animated pulse rings — start outside text, expand outward ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-        {/* Soft radial warmth */}
-        <div className="absolute top-[55%] left-1/2"
-          style={{
-            width: '1000px', height: '1000px',
-            transform: 'translate(-50%, -50%)',
-            background: `radial-gradient(circle, rgba(200,62,136,0.08) 0%, rgba(200,62,136,0.03) 35%, transparent 55%)`,
-          }} />
-        {/* Expanding rings — start large enough to avoid visible inner circle */}
+        {/* Rings start at 550px (already past all text) and expand out */}
         {[0, 1, 2].map(i => (
-          <div key={i} className="absolute top-[55%] left-1/2"
+          <div key={i} className="absolute top-1/2 left-1/2"
             style={{
-              width: '200px', height: '200px',
+              width: '550px', height: '550px',
               transform: 'translate(-50%, -50%)',
-              border: '1px solid rgba(200,62,136,0.15)',
+              border: '1px solid rgba(200,62,136,0.0)',
               borderRadius: '50%',
-              animation: `pulse-ring 6s ${i * 2}s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite`,
+              animation: `pulse-ring 7s ${i * 2.3}s ease-out infinite`,
             }} />
         ))}
       </div>
@@ -945,18 +938,22 @@ export default function WaitlistPage() {
         }
         @keyframes pulse-ring {
           0% {
-            width: 200px; height: 200px;
+            width: 550px; height: 550px;
             opacity: 0;
+            border-color: rgba(200,62,136,0);
           }
-          10% {
-            opacity: 0.25;
+          8% {
+            opacity: 0.2;
+            border-color: rgba(200,62,136,0.18);
           }
-          60% {
-            opacity: 0.06;
+          50% {
+            opacity: 0.07;
+            border-color: rgba(200,62,136,0.07);
           }
           100% {
-            width: 1100px; height: 1100px;
+            width: 1400px; height: 1400px;
             opacity: 0;
+            border-color: rgba(200,62,136,0);
           }
         }
         .animate-fade-in { animation: fade-in 0.6s ease-out; }
