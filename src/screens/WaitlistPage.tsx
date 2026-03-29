@@ -286,49 +286,57 @@ export default function WaitlistPage() {
     canvas.width = S; canvas.height = S
     const ctx = canvas.getContext('2d')!
 
-    // Background
+    // Background — deep warm black with grain texture
     const grad = ctx.createLinearGradient(0, 0, 0, S)
-    grad.addColorStop(0, '#1A1718')
-    grad.addColorStop(0.5, '#242022')
-    grad.addColorStop(1, '#1A1718')
+    grad.addColorStop(0, '#0F0D0C')
+    grad.addColorStop(0.4, '#1A1618')
+    grad.addColorStop(0.6, '#1A1618')
+    grad.addColorStop(1, '#0F0D0C')
     ctx.fillStyle = grad
     ctx.fillRect(0, 0, S, S)
 
-    // Center glow
-    const glow = ctx.createRadialGradient(S / 2, S * 0.38, 0, S / 2, S * 0.38, S * 0.45)
-    glow.addColorStop(0, 'rgba(200,62,136,0.16)')
-    glow.addColorStop(0.5, 'rgba(200,62,136,0.05)')
-    glow.addColorStop(1, 'transparent')
-    ctx.fillStyle = glow
+    // Large ambient glow — centered on photo area
+    const glow1 = ctx.createRadialGradient(S / 2, S * 0.44, 0, S / 2, S * 0.44, S * 0.5)
+    glow1.addColorStop(0, 'rgba(200,62,136,0.14)')
+    glow1.addColorStop(0.4, 'rgba(200,62,136,0.05)')
+    glow1.addColorStop(1, 'transparent')
+    ctx.fillStyle = glow1
     ctx.fillRect(0, 0, S, S)
+
+    // Top edge glow
+    const glow2 = ctx.createLinearGradient(0, 0, 0, S * 0.15)
+    glow2.addColorStop(0, 'rgba(200,62,136,0.06)')
+    glow2.addColorStop(1, 'transparent')
+    ctx.fillStyle = glow2
+    ctx.fillRect(0, 0, S, S * 0.15)
 
     ctx.textAlign = 'center'
 
-    // "PULSE" brand — clean, no heartbeat
-    ctx.fillStyle = 'rgba(200,62,136,0.9)'
-    ctx.font = '500 30px "DM Sans", sans-serif'
-    ctx.letterSpacing = '10px'
-    ctx.fillText('PULSE', S / 2, S * 0.16)
+    // ── Top: PULSE brand ──
+    ctx.fillStyle = 'rgba(200,62,136,0.85)'
+    ctx.font = '500 26px "DM Sans", sans-serif'
+    ctx.letterSpacing = '12px'
+    ctx.fillText('PULSE', S / 2, S * 0.10)
 
-    // Thin accent line under PULSE
-    ctx.strokeStyle = 'rgba(200,62,136,0.25)'
+    // ── "You'll know." — hero tagline ──
+    ctx.fillStyle = 'rgba(255,255,255,0.95)'
+    ctx.font = 'italic 300 90px "Cormorant Garamond", Georgia, serif'
+    ctx.letterSpacing = '-1px'
+    ctx.fillText("You'll know.", S / 2, S * 0.24)
+
+    // Thin divider
+    ctx.strokeStyle = 'rgba(200,62,136,0.2)'
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(S * 0.38, S * 0.19)
-    ctx.lineTo(S * 0.62, S * 0.19)
+    ctx.moveTo(S * 0.40, S * 0.28)
+    ctx.lineTo(S * 0.60, S * 0.28)
     ctx.stroke()
 
-    // "You'll know." tagline
-    ctx.fillStyle = 'rgba(255,255,255,0.93)'
-    ctx.font = 'italic 300 84px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '-1px'
-    ctx.fillText("You'll know.", S / 2, S * 0.32)
-
-    // Name — proper case
+    // ── Name — proper case ──
     const rawName = (answers.firstName || 'Someone').trim()
     const name = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase()
 
-    // Photo layout
+    // ── Photo + personal section ──
     if (answers.photo) {
       try {
         const img = new Image()
@@ -339,80 +347,102 @@ export default function WaitlistPage() {
           img.src = answers.photo
         })
         if (img.complete && img.naturalWidth > 0) {
-          const r = 80, cx = S / 2, pcY = S * 0.50
-          const pglow = ctx.createRadialGradient(cx, pcY, r, cx, pcY, r + 40)
-          pglow.addColorStop(0, 'rgba(200,62,136,0.10)')
+          const r = 90, cx = S / 2, pcY = S * 0.45
+
+          // Photo glow ring
+          const pglow = ctx.createRadialGradient(cx, pcY, r - 10, cx, pcY, r + 50)
+          pglow.addColorStop(0, 'rgba(200,62,136,0.08)')
           pglow.addColorStop(1, 'transparent')
           ctx.fillStyle = pglow
-          ctx.fillRect(cx - r - 40, pcY - r - 40, (r + 40) * 2, (r + 40) * 2)
+          ctx.fillRect(cx - r - 50, pcY - r - 50, (r + 50) * 2, (r + 50) * 2)
+
+          // Outer ring
+          ctx.strokeStyle = 'rgba(200,62,136,0.15)'
+          ctx.lineWidth = 1
+          ctx.beginPath()
+          ctx.arc(cx, pcY, r + 12, 0, Math.PI * 2)
+          ctx.stroke()
+
+          // Photo circle
           ctx.save()
           ctx.beginPath()
           ctx.arc(cx, pcY, r, 0, Math.PI * 2)
           ctx.clip()
           ctx.drawImage(img, cx - r, pcY - r, r * 2, r * 2)
           ctx.restore()
-          ctx.strokeStyle = 'rgba(200,62,136,0.45)'
-          ctx.lineWidth = 2.5
+
+          // Inner ring
+          ctx.strokeStyle = 'rgba(200,62,136,0.4)'
+          ctx.lineWidth = 2
           ctx.beginPath()
-          ctx.arc(cx, pcY, r + 3, 0, Math.PI * 2)
+          ctx.arc(cx, pcY, r + 2, 0, Math.PI * 2)
           ctx.stroke()
 
-          ctx.fillStyle = 'rgba(255,255,255,0.8)'
-          ctx.font = 'italic 300 46px "Cormorant Garamond", Georgia, serif'
+          // Name below photo
+          ctx.fillStyle = 'rgba(255,255,255,0.85)'
+          ctx.font = 'italic 300 50px "Cormorant Garamond", Georgia, serif'
           ctx.letterSpacing = '0px'
-          ctx.fillText(`${name} is in.`, S / 2, S * 0.65)
+          ctx.fillText(`${name} is in.`, S / 2, S * 0.61)
           ctx.fillStyle = 'rgba(255,255,255,0.4)'
           ctx.font = '400 30px "DM Sans", sans-serif'
-          ctx.fillText('Are you?', S / 2, S * 0.70)
+          ctx.fillText('Are you?', S / 2, S * 0.66)
         }
       } catch {
-        ctx.fillStyle = 'rgba(255,255,255,0.8)'
-        ctx.font = 'italic 300 50px "Cormorant Garamond", Georgia, serif'
-        ctx.fillText(`${name} is in.`, S / 2, S * 0.48)
+        ctx.fillStyle = 'rgba(255,255,255,0.85)'
+        ctx.font = 'italic 300 54px "Cormorant Garamond", Georgia, serif'
+        ctx.fillText(`${name} is in.`, S / 2, S * 0.44)
         ctx.fillStyle = 'rgba(255,255,255,0.4)'
-        ctx.font = '400 32px "DM Sans", sans-serif'
-        ctx.fillText('Are you?', S / 2, S * 0.54)
+        ctx.font = '400 34px "DM Sans", sans-serif'
+        ctx.fillText('Are you?', S / 2, S * 0.50)
       }
     } else {
-      ctx.fillStyle = 'rgba(255,255,255,0.8)'
-      ctx.font = 'italic 300 50px "Cormorant Garamond", Georgia, serif'
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'
+      ctx.font = 'italic 300 54px "Cormorant Garamond", Georgia, serif'
       ctx.letterSpacing = '0px'
-      ctx.fillText(`${name} is in.`, S / 2, S * 0.48)
+      ctx.fillText(`${name} is in.`, S / 2, S * 0.44)
       ctx.fillStyle = 'rgba(255,255,255,0.4)'
-      ctx.font = '400 32px "DM Sans", sans-serif'
-      ctx.fillText('Are you?', S / 2, S * 0.54)
+      ctx.font = '400 34px "DM Sans", sans-serif'
+      ctx.fillText('Are you?', S / 2, S * 0.50)
     }
 
-    // Bottom section — badge + CTA
-    const bottomY = answers.photo ? S * 0.78 : S * 0.68
+    // ── Position badge ──
+    const badgeY = answers.photo ? S * 0.72 : S * 0.58
     const city = answers.city || 'UAE'
-
-    // Badge
-    const badgeW = 300, badgeH = 46, badgeR = 23
+    const badgeW = 280, badgeH = 44, badgeR = 22
     const badgeX = (S - badgeW) / 2
-    ctx.fillStyle = 'rgba(200,62,136,0.12)'
+    ctx.fillStyle = 'rgba(200,62,136,0.10)'
     ctx.beginPath()
-    ctx.roundRect(badgeX, bottomY, badgeW, badgeH, badgeR)
+    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeR)
     ctx.fill()
-    ctx.strokeStyle = 'rgba(200,62,136,0.25)'
+    ctx.strokeStyle = 'rgba(200,62,136,0.22)'
     ctx.lineWidth = 1
     ctx.stroke()
-    ctx.fillStyle = 'rgba(200,62,136,0.85)'
-    ctx.font = '500 17px "DM Sans", sans-serif'
+    ctx.fillStyle = 'rgba(200,62,136,0.8)'
+    ctx.font = '500 16px "DM Sans", sans-serif'
     ctx.letterSpacing = '3px'
-    ctx.fillText(`#${waitlistNumber} \u00B7 ${city.toUpperCase()}`, S / 2, bottomY + 30)
+    ctx.fillText(`#${waitlistNumber} \u00B7 ${city.toUpperCase()}`, S / 2, badgeY + 28)
+
+    // ── Bottom: Manifesto line — prominent ──
+    // Divider
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    const divY = S * 0.83
+    ctx.moveTo(S * 0.15, divY)
+    ctx.lineTo(S * 0.85, divY)
+    ctx.stroke()
+
+    // Manifesto
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'
+    ctx.font = 'italic 300 28px "Cormorant Garamond", Georgia, serif'
+    ctx.letterSpacing = '0.5px'
+    ctx.fillText('For people who want to feel something.', S / 2, S * 0.89)
 
     // "By application only"
-    ctx.fillStyle = 'rgba(255,255,255,0.2)'
-    ctx.font = '400 16px "DM Sans", sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.18)'
+    ctx.font = '400 14px "DM Sans", sans-serif'
     ctx.letterSpacing = '5px'
-    ctx.fillText('BY APPLICATION ONLY', S / 2, S * 0.93)
-
-    // Manifesto line
-    ctx.fillStyle = 'rgba(255,255,255,0.12)'
-    ctx.font = 'italic 300 18px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '0px'
-    ctx.fillText('For people who want to feel something.', S / 2, S * 0.97)
+    ctx.fillText('BY APPLICATION ONLY', S / 2, S * 0.95)
 
     const url = canvas.toDataURL('image/png', 1.0)
     setShareCardUrl(url)
