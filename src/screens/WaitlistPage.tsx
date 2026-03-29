@@ -453,9 +453,12 @@ export default function WaitlistPage() {
   const handleShare = useCallback(async () => {
     const siteLink = window.location.origin || 'https://pulse-orbit-jamal356s-projects.vercel.app'
     if (navigator.share) {
-      navigator.share({ url: siteLink }).catch(() => {})
+      navigator.share({
+        text: "I'm in. Are you?",
+        url: siteLink,
+      }).catch(() => {})
     } else {
-      await navigator.clipboard.writeText(siteLink).catch(() => {})
+      await navigator.clipboard.writeText(`I'm in. Are you? ${siteLink}`).catch(() => {})
       setCopiedLink(true)
       setTimeout(() => setCopiedLink(false), 2500)
     }
