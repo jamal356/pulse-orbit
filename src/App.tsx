@@ -234,52 +234,76 @@ export default function App() {
         <AiSupport onClose={() => setShowAura(false)} />
       )}
 
-      {/* ═══ AURA FAB — floating bottom-right on ALL post-login screens ═══
-           Aura — top-right, docked into the header zone.
-           Compact glass pill. Never collides with bottom CTAs.
-           On light screens (home): darker glass. On dark: subtle translucent.
+      {/* ═══ AURA — top-center liquid glass island ═══
+           Inspired by Apple's Dynamic Island. Centered, floating, liquid.
+           Multi-layer glass: frosted base + inner glow + living orb.
+           Adapts tint to light (home) vs dark screens.
            ──────────────────────────────────────────────────────── */}
       {!['waitlist', 'marketing', 'login'].includes(screen) && !showAura && (
         <button
           onClick={() => setShowAura(true)}
-          className="fixed z-[90] group"
-          style={{ top: '0.85rem', right: '0.85rem' }}
+          className="fixed z-[90] left-1/2 -translate-x-1/2 group"
+          style={{ top: '0.65rem' }}
           title="Ask Aura">
-          <div className="flex items-center gap-1.5 pl-1.5 pr-2.5 py-1.5 rounded-full transition-all duration-300
-                          group-hover:scale-105 group-active:scale-95"
+          {/* Outer liquid glass shell */}
+          <div className="relative flex items-center gap-2 pl-2.5 pr-4 py-2 rounded-full transition-all duration-500
+                          group-hover:scale-[1.06] group-active:scale-[0.96]"
             style={{
-              background: screen === 'home' ? 'rgba(42,37,40,0.75)' : 'rgba(30,27,24,0.55)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              border: '1px solid rgba(200,62,136,0.12)',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+              background: screen === 'home'
+                ? 'linear-gradient(135deg, rgba(42,37,40,0.65) 0%, rgba(42,37,40,0.45) 100%)'
+                : 'linear-gradient(135deg, rgba(30,27,24,0.50) 0%, rgba(50,40,55,0.35) 100%)',
+              backdropFilter: 'blur(24px) saturate(1.4)',
+              WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: `
+                0 1px 0 0 rgba(255,255,255,0.05) inset,
+                0 -1px 0 0 rgba(0,0,0,0.1) inset,
+                0 4px 20px rgba(0,0,0,0.15),
+                0 0 0 0.5px rgba(200,62,136,0.08)
+              `,
             }}>
-            {/* Aura orb — compact */}
-            <div className="relative w-6 h-6 rounded-full flex items-center justify-center shrink-0">
-              <div className="absolute inset-0 rounded-full"
+            {/* Inner ambient glow — shifts with hover */}
+            <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse at 30% 50%, rgba(200,62,136,0.08) 0%, transparent 70%)',
+              }} />
+
+            {/* Aura orb — the living core */}
+            <div className="relative w-7 h-7 rounded-full flex items-center justify-center shrink-0">
+              {/* Spinning gradient ring */}
+              <div className="absolute inset-[-2px] rounded-full"
                 style={{
-                  background: 'conic-gradient(from 0deg, #C83E88, #8040E0, #C83E88)',
-                  opacity: 0.35,
+                  background: 'conic-gradient(from 0deg, rgba(200,62,136,0.5), rgba(128,64,224,0.5), rgba(200,62,136,0.5))',
                   animation: 'aura-ring-spin 6s linear infinite',
-                  filter: 'blur(2px)',
+                  filter: 'blur(3px)',
                 }} />
-              <div className="relative rounded-full"
+              {/* Glass orb body */}
+              <div className="relative rounded-full overflow-hidden"
                 style={{
-                  width: '18px', height: '18px',
-                  background: 'radial-gradient(circle at 35% 35%, #E040A0, #8040E0 70%, #5020C0)',
-                  boxShadow: '0 0 8px rgba(200,62,136,0.35)',
+                  width: '22px', height: '22px',
+                  background: 'radial-gradient(circle at 35% 30%, #E040A0, #9040D0 55%, #5020C0 100%)',
+                  boxShadow: '0 0 12px rgba(200,62,136,0.4), 0 2px 6px rgba(0,0,0,0.2) inset',
                 }}>
+                {/* Specular highlight — glass refraction */}
+                <div className="absolute top-[3px] left-[4px] w-[8px] h-[5px] rounded-full"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 100%)',
+                    filter: 'blur(1px)',
+                  }} />
+                {/* Breathing soul light */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full"
+                  <div className="w-2.5 h-2.5 rounded-full"
                     style={{
-                      background: 'radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,200,230,0.4))',
+                      background: 'radial-gradient(circle, rgba(255,255,255,0.85), rgba(255,200,230,0.3))',
                       animation: 'aura-breathe 3s ease-in-out infinite',
                     }} />
                 </div>
               </div>
             </div>
-            <span className="text-[0.6rem] font-semibold text-white/60 group-hover:text-white/80 transition-colors"
-              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.04em' }}>
+
+            {/* Label — Cormorant, elegant */}
+            <span className="text-[0.65rem] font-semibold text-white/55 group-hover:text-white/80 transition-colors duration-300"
+              style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.06em' }}>
               Aura
             </span>
           </div>
