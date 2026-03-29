@@ -920,7 +920,7 @@ export default function WaitlistPage() {
       {/* Footer */}
       <footer className="absolute bottom-0 left-0 right-0 px-6 py-6 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <span style={{ fontFamily: serif, fontSize: '0.7rem', fontStyle: 'italic', letterSpacing: '0.05em', color: P.textGhost }}>Made with intention, from Dubai</span>
+          <span style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: P.textGhost }}>Dubai</span>
           <a href="mailto:jamal@hakadian.com"
             className="transition-colors duration-500"
             style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost, textDecoration: 'none' }}>
