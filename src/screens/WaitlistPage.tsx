@@ -419,34 +419,25 @@ export default function WaitlistPage() {
     setCardGenerating(false)
   }, [answers, waitlistNumber])
 
-  // ONE share function — image + clickable URL together, zero friction
+  // Share URL only — WhatsApp/iMessage generate preview from OG tags
   const handleShare = useCallback(async () => {
-    if (!shareCardUrl) return
     const siteLink = window.location.origin || 'https://pulse-orbit-jamal356s-projects.vercel.app'
-
-    // Convert card to file
-    const res = await fetch(shareCardUrl)
-    const blob = await res.blob()
-    const file = new File([blob], 'pulse-invite.png', { type: 'image/png' })
-
-    // Mobile: share image + URL together in one action
     if (navigator.share) {
-      const shareData: ShareData = { url: siteLink }
-      // Try with image first, fall back to URL-only
-      if (navigator.canShare?.({ files: [file] })) {
-        shareData.files = [file]
-      }
-      navigator.share(shareData).catch(() => {})
+      navigator.share({ url: siteLink }).catch(() => {})
     } else {
-      // Desktop: download image + copy URL to clipboard
-      const a = document.createElement('a')
-      a.href = shareCardUrl
-      a.download = 'pulse-invite.png'
-      a.click()
       await navigator.clipboard.writeText(siteLink).catch(() => {})
       setCopiedLink(true)
       setTimeout(() => setCopiedLink(false), 2500)
     }
+  }, [])
+
+  // Save card to device — separate action, for stories/posts
+  const handleSaveCard = useCallback(() => {
+    if (!shareCardUrl) return
+    const a = document.createElement('a')
+    a.href = shareCardUrl
+    a.download = 'pulse-invite.png'
+    a.click()
   }, [shareCardUrl])
 
   // Generate share card when completion animation finishes
@@ -855,14 +846,15 @@ export default function WaitlistPage() {
               </div>
             </div>
 
-            {/* ── Share — one button, zero friction ── */}
-            <div className="mt-12 w-full transition-all duration-[3s] ease-out"
+            {/* ── Share ── */}
+            <div className="mt-12 w-full flex flex-col items-center gap-6 transition-all duration-[3s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(16px)' }}>
 
-              <p className="mb-5" style={{ fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: P.text }}>
+              <p style={{ fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: P.text }}>
                 Know someone who belongs here?
               </p>
 
+              {/* Primary: share the link */}
               <button onClick={handleShare}
                 className="px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
                 style={{
@@ -872,8 +864,21 @@ export default function WaitlistPage() {
                   boxShadow: '0 4px 24px rgba(200,62,136,0.25)',
                   border: 'none', cursor: 'pointer',
                 }}>
-                {copiedLink ? 'Link copied' : 'Share Pulse'}
+                {copiedLink ? 'Link copied' : 'Send them Pulse'}
               </button>
+
+              {/* Secondary: save personalized card */}
+              {shareCardUrl && (
+                <button onClick={handleSaveCard}
+                  className="transition-all duration-500 hover:opacity-80"
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: sans, fontSize: '0.72rem', color: P.textFaint,
+                    textDecoration: 'underline', textUnderlineOffset: '3px',
+                  }}>
+                  Save your personal invite card
+                </button>
+              )}
             </div>
           </div>
         </section>
