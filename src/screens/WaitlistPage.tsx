@@ -582,6 +582,19 @@ export default function WaitlistPage() {
             )}
           </div>
         </div>
+
+        {/* Manifesto — anchored to bottom of hero viewport */}
+        <p className="absolute bottom-8 left-0 right-0 text-center px-6"
+          style={{
+            fontFamily: serif,
+            fontSize: 'clamp(0.9rem, 2.5vw, 1.15rem)',
+            fontStyle: 'italic',
+            fontWeight: 300,
+            color: P.textSoft,
+            animation: 'manifesto-in 2s 4s ease-out both',
+          }}>
+          For people who want to feel something.
+        </p>
       </section>
 
       {/* ═══ ONBOARDING — Each question is a full-screen moment ═══ */}
@@ -917,21 +930,9 @@ export default function WaitlistPage() {
         </section>
       )}
 
-      {/* Footer — manifesto line + contact */}
-      <footer className="relative px-6 pt-16 pb-10 z-10">
-        <div className="max-w-4xl mx-auto flex flex-col items-center gap-8">
-          {/* Manifesto */}
-          <p className="text-center" style={{
-            fontFamily: serif,
-            fontSize: 'clamp(1.1rem, 3.5vw, 1.5rem)',
-            fontStyle: 'italic',
-            fontWeight: 300,
-            color: P.textSoft,
-            lineHeight: 1.5,
-            animation: 'manifesto-in 2s ease-out both',
-          }}>
-            For people who want to feel something.
-          </p>
+      {/* Footer */}
+      <footer className="relative px-6 py-6 z-10">
+        <div className="max-w-4xl mx-auto flex items-center justify-center">
           <a href="mailto:jamal@hakadian.com"
             className="transition-colors duration-500"
             style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textGhost, textDecoration: 'none' }}>
