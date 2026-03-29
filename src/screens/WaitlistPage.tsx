@@ -156,6 +156,7 @@ export default function WaitlistPage() {
   const [waitlistNumber] = useState(() => Math.floor(Math.random() * 200 + 180))
   const [shareCardUrl, setShareCardUrl] = useState<string | null>(null)
   const [cardGenerating, setCardGenerating] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
   const formRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -338,9 +339,9 @@ export default function WaitlistPage() {
     ctx.lineTo(S * 0.62, S * 0.40)
     ctx.stroke()
 
-    // Name — capitalize first letter
-    const rawName = answers.firstName || 'Someone'
-    const name = rawName.charAt(0).toUpperCase() + rawName.slice(1)
+    // Name — proper case (first letter upper, rest lower)
+    const rawName = (answers.firstName || 'Someone').trim()
+    const name = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase()
 
     // Photo + name row (side by side if photo exists)
     if (answers.photo) {
@@ -440,26 +441,30 @@ export default function WaitlistPage() {
     setCardGenerating(false)
   }, [answers, waitlistNumber])
 
-  const handleShareCard = useCallback(async () => {
-    if (!shareCardUrl) return
-    const res = await fetch(shareCardUrl)
-    const blob = await res.blob()
-    const file = new File([blob], 'pulse-invite.png', { type: 'image/png' })
-
+  // Share LINK — clickable in WhatsApp, triggers OG preview
+  const handleShareLink = useCallback(async () => {
     const siteLink = window.location.origin || 'https://pulse-orbit-jamal356s-projects.vercel.app'
-    if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      // Share image + single URL as caption (no duplication)
+    if (navigator.share) {
       navigator.share({
-        files: [file],
-        text: `${siteLink}`,
+        title: "Pulse — You'll know.",
+        text: "I just got on the Pulse waitlist. By application only.",
+        url: siteLink,
       }).catch(() => {})
     } else {
-      // Fallback: download
-      const a = document.createElement('a')
-      a.href = shareCardUrl
-      a.download = 'pulse-invite.png'
-      a.click()
+      // Fallback: copy to clipboard
+      await navigator.clipboard.writeText(siteLink).catch(() => {})
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 2000)
     }
+  }, [])
+
+  // Save personalized card — for Instagram stories, etc
+  const handleSaveCard = useCallback(() => {
+    if (!shareCardUrl) return
+    const a = document.createElement('a')
+    a.href = shareCardUrl
+    a.download = 'pulse-invite.png'
+    a.click()
   }, [shareCardUrl])
 
   // Generate share card when completion animation finishes
@@ -562,7 +567,7 @@ export default function WaitlistPage() {
                   I want in
                 </button>
                 <p style={{ fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textFaint }}>
-                  UAE · Launching soon · By application only
+                  Launching soon · By application only
                 </p>
               </div>
             ) : (
@@ -855,54 +860,56 @@ export default function WaitlistPage() {
               </div>
             </div>
 
-            {/* ── Share card preview + share button ── */}
+            {/* ── Share section: link + save card ── */}
             <div className="mt-12 w-full transition-all duration-[3s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(16px)' }}>
 
-              <p className="mb-5" style={{ fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: P.text }}>
+              <p className="mb-6" style={{ fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: P.text }}>
                 Know someone who belongs here?
               </p>
 
-              {/* Card preview */}
-              {shareCardUrl ? (
-                <div className="flex flex-col items-center gap-5">
-                  <div className="relative group cursor-pointer" onClick={handleShareCard}>
+              {/* Primary: Share clickable link */}
+              <div className="flex flex-col items-center gap-4">
+                <button onClick={handleShareLink}
+                  className="px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+                  style={{
+                    background: P.accent,
+                    color: 'white',
+                    fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
+                    boxShadow: '0 4px 24px rgba(200,62,136,0.25)',
+                    border: 'none', cursor: 'pointer',
+                  }}>
+                  {copiedLink ? 'Link copied' : 'Share Pulse'}
+                </button>
+
+                <p style={{ fontFamily: sans, fontSize: '0.68rem', color: P.textFaint }}>
+                  Send the link — it previews beautifully in any chat.
+                </p>
+              </div>
+
+              {/* Secondary: Save personalized card for stories */}
+              {shareCardUrl && (
+                <div className="flex flex-col items-center gap-4 mt-8">
+                  <div className="w-px h-8" style={{ background: `linear-gradient(180deg, ${P.border}, transparent)` }} />
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: P.textFaint, letterSpacing: '0.1em' }}>
+                    or save your personal invite card
+                  </p>
+                  <div className="relative group cursor-pointer" onClick={handleSaveCard}>
                     <img src={shareCardUrl} alt="Your Pulse invite"
-                      className="w-56 sm:w-64 rounded-2xl transition-all duration-500 group-hover:scale-[1.03]"
-                      style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.15), 0 0 60px rgba(200,62,136,0.08)' }} />
-                    <div className="absolute inset-0 rounded-2xl flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-all duration-300">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 rounded-full"
-                        style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)' }}>
-                        <span style={{ fontFamily: sans, fontSize: '0.7rem', fontWeight: 600, color: P.text }}>
-                          Tap to share
+                      className="w-40 rounded-xl transition-all duration-500 group-hover:scale-[1.03]"
+                      style={{ boxShadow: '0 6px 30px rgba(0,0,0,0.12), 0 0 40px rgba(200,62,136,0.06)' }} />
+                    <div className="absolute inset-0 rounded-xl flex items-center justify-center bg-black/0 group-hover:bg-black/15 transition-all duration-300">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-3 py-1.5 rounded-full"
+                        style={{ background: 'rgba(255,255,255,0.9)' }}>
+                        <span style={{ fontFamily: sans, fontSize: '0.65rem', fontWeight: 600, color: P.text }}>
+                          Save
                         </span>
                       </div>
                     </div>
                   </div>
-
-                  <button onClick={handleShareCard}
-                    className="px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
-                    style={{
-                      background: P.accent,
-                      color: 'white',
-                      fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
-                      boxShadow: '0 4px 24px rgba(200,62,136,0.25)',
-                      border: 'none', cursor: 'pointer',
-                    }}>
-                    Share your invite
-                  </button>
-
-                  <p style={{ fontFamily: sans, fontSize: '0.68rem', color: P.textFaint, lineHeight: 1.5 }}>
-                    Send it on WhatsApp, Instagram, or anywhere.
+                  <p style={{ fontFamily: sans, fontSize: '0.6rem', color: P.textGhost }}>
+                    For Instagram stories, Snapchat, etc.
                   </p>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center py-8">
-                  <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
-                    style={{ borderColor: `${P.accent} transparent ${P.accentBorder} ${P.accentBorder}` }} />
-                  <span className="ml-3" style={{ fontFamily: sans, fontSize: '0.75rem', color: P.textFaint }}>
-                    Creating your invite...
-                  </span>
                 </div>
               )}
             </div>
@@ -913,7 +920,7 @@ export default function WaitlistPage() {
       {/* Footer */}
       <footer className="absolute bottom-0 left-0 right-0 px-6 py-6 z-10">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <span style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost }}>UAE 2026</span>
+          <span style={{ fontFamily: serif, fontSize: '0.7rem', fontStyle: 'italic', letterSpacing: '0.05em', color: P.textGhost }}>Made with intention, from Dubai</span>
           <a href="mailto:jamal@hakadian.com"
             className="transition-colors duration-500"
             style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost, textDecoration: 'none' }}>
