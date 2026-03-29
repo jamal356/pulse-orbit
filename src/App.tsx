@@ -12,33 +12,38 @@ import MatchResults from './screens/MatchResults'
 import SpeedDate from './screens/SpeedDate'
 import AiSupport from './screens/AiSupport'
 import InvestorClose from './screens/InvestorClose'
+import VideoDate from './screens/VideoDate'
 import type { Candidate } from './data/people'
 
-type Screen = 'waitlist' | 'marketing' | 'login' | 'home' | 'discover' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'close'
+type Screen = 'waitlist' | 'marketing' | 'login' | 'home' | 'discover' | 'lobby' | 'session' | 'transition' | 'survey' | 'results' | 'speeddate' | 'videodate'
 
-/* ─── Demo Nav ─────────────────────────────────────────────
-   Full journey:
-   waitlist → pitch → login → HOME (Netflix hub) → discover → 1-to-1 → group → dates → results → close
+/* ─── Route Architecture ──────────────────────────────────────
+   Two independent routes:
 
-   The Home screen is the central hub where both paths are visible:
-   - "Quick Match" → Discover (swipe → match → 1-to-1 speed date)
-   - "Group 5×5"  → Lobby → 5×5 session → Results
+   DEFAULT (product demo):
+   waitlist → marketing → login → HOME → discover/lobby → dates → results → HOME
+   Home is the hub. Every path loops back. No investor content.
 
-   The flywheel:
-   - After 1-to-1 → Home (choose next action)
-   - After group results → Speed Date with matches OR Home
-   - Each mode feeds the other
+   #pitch (investor pitch):
+   Standalone InvestorClose. Accessed directly via URL.
+   No demo flow, no product screens.
    ──────────────────────────────────────────────────────────── */
-const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'login', 'home', 'discover', 'speeddate', 'lobby', 'session', 'survey', 'results', 'close']
+const DEMO_SCREENS: Screen[] = ['waitlist', 'marketing', 'login', 'home', 'discover', 'speeddate', 'lobby', 'session', 'survey', 'results']
+
+function getRoute(): 'pitch' | 'product' {
+  return window.location.hash.replace('#', '') === 'pitch' ? 'pitch' : 'product'
+}
 
 function getInitialScreen(): Screen {
   const hash = window.location.hash.replace('#', '')
+  if (hash === 'pitch') return 'waitlist' // won't be used — pitch route renders separately
   if (hash === 'demo' || hash === 'marketing') return 'marketing'
-  if (['login', 'home', 'discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) return hash as Screen
+  if (['login', 'home', 'discover', 'lobby', 'session', 'survey', 'results', 'videodate'].includes(hash)) return hash as Screen
   return 'waitlist'
 }
 
 export default function App() {
+  const [route, setRoute] = useState<'pitch' | 'product'>(getRoute)
   const [screen, setScreen] = useState<Screen>(getInitialScreen)
   const [transitioning, setTransitioning] = useState(false)
   const [currentDateIndex, setCurrentDateIndex] = useState(0)
@@ -76,7 +81,9 @@ export default function App() {
   }, [navigateTo])
 
   const handleResultsContinue = useCallback(() => {
-    navigateTo('close')
+    setCurrentDateIndex(0)
+    setRatings({})
+    navigateTo('home')
   }, [navigateTo])
 
   /* ─── FLYWHEEL HANDLERS ──────────────────────────────────────
@@ -88,6 +95,11 @@ export default function App() {
      The flywheel: group results → speed date with match → home
      Every endpoint loops back. Users always have a next action.
      ──────────────────────────────────────────────────────────── */
+
+  // Home → Live video date (real WebRTC)
+  const handleVideoDate = useCallback(() => {
+    navigateTo('videodate')
+  }, [navigateTo])
 
   // Home → Discover (swipe to find matches)
   const handleQuickMatch = useCallback(() => {
@@ -139,9 +151,11 @@ export default function App() {
   useEffect(() => {
     const onHash = () => {
       const hash = window.location.hash.replace('#', '')
+      if (hash === 'pitch') { setRoute('pitch'); return }
+      setRoute('product')
       if (hash === 'demo' || hash === 'marketing') { setScreen('marketing'); return }
       if (hash === 'waitlist') { setScreen('waitlist'); return }
-      if (['login', 'home', 'discover', 'lobby', 'session', 'survey', 'results'].includes(hash)) {
+      if (['login', 'home', 'discover', 'lobby', 'session', 'survey', 'results', 'videodate'].includes(hash)) {
         setScreen(hash as Screen)
       }
     }
@@ -164,6 +178,17 @@ export default function App() {
     if (idx >= 0 && idx < DEMO_SCREENS.length - 1) navigateTo(DEMO_SCREENS[idx + 1])
   }, [screen, navigateTo])
 
+  // ── PITCH ROUTE: standalone investor deck ──
+  if (route === 'pitch') {
+    return (
+      <InvestorClose
+        ratings={ratings}
+        onRestart={() => { window.location.hash = ''; setRoute('product'); setScreen('waitlist') }}
+      />
+    )
+  }
+
+  // ── PRODUCT ROUTE: the actual app ──
   return (
     <div className={`transition-opacity duration-400 ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
       {screen === 'waitlist' && (
@@ -179,6 +204,7 @@ export default function App() {
         <HomeScreen
           onQuickMatch={handleQuickMatch}
           onGroupSession={handleGroupSession}
+          onVideoDate={handleVideoDate}
         />
       )}
       {screen === 'discover' && (
@@ -222,13 +248,9 @@ export default function App() {
           onComplete={handleSpeedDateComplete}
         />
       )}
-      {screen === 'close' && (
-        <InvestorClose
-          ratings={ratings}
-          onRestart={handleRestart}
-        />
+      {screen === 'videodate' && (
+        <VideoDate onBack={() => navigateTo('home')} />
       )}
-
       {/* Aura overlay */}
       {showAura && (
         <AiSupport onClose={() => setShowAura(false)} />

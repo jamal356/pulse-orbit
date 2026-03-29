@@ -685,58 +685,6 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               </div>
 
 
-              {/* ── TIER 4: THE INNER CIRCLE — Per-session VIP ── */}
-              <div className="rounded-xl p-5 sm:p-6 transition-all duration-[1.5s] ease-out"
-                style={{
-                  background: 'linear-gradient(160deg, rgba(201,149,107,0.06) 0%, rgba(42,37,40,0.02) 100%)',
-                  border: '1px solid rgba(201,149,107,0.25)',
-                  opacity: economics.visible ? 1 : 0, transitionDelay: '1200ms',
-                }}>
-                <div className="flex items-start justify-between mb-1">
-                  <div>
-                    <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#2A2528' }}>
-                      The Inner Circle
-                    </p>
-                    <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9956B' }}>Per session · First class, not economy</p>
-                  </div>
-                  <div className="text-right">
-                    <p style={{ fontFamily: serif, fontSize: '1.5rem', fontWeight: 600, color: '#2A2528' }}>AED 149</p>
-                    <p style={{ fontFamily: sans, fontSize: '0.55rem', color: '#8A7E78' }}>add-on · Ignite members only</p>
-                  </div>
-                </div>
-
-                <div className="mt-3 space-y-2">
-                  {[
-                    { f: 'Curated 4-person sessions', note: 'AI deep-matches from verified profiles only. Fewer dates, sharper chemistry.' },
-                    { f: 'Extended 10-min dates + instant 1-on-1', note: 'Mutual like triggers an immediate private video extension. No waiting.' },
-                    { f: 'Permanent replay library', note: 'Not 24h — every Inner Circle date lives forever. Your personal highlight reel.' },
-                    { f: 'Unlimited Second Chances', note: 'Full freedom for that session. Pass someone, change your mind instantly.' },
-                    { f: 'Aura AI concierge — pre + post session', note: 'Personalized prep before, chemistry analysis after. Your AI wingman at full power.' },
-                    { f: 'Priority prime-time slots', note: 'First access to peak sessions. Friday 9pm fills in minutes — you skip the queue.' },
-                  ].map(item => (
-                    <div key={item.f} className="flex items-start gap-2">
-                      <span style={{ color: '#C9956B', fontSize: '0.6rem', marginTop: '5px' }}>•</span>
-                      <div>
-                        <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#2A2528' }}>{item.f}</p>
-                        {item.note && <p style={{ fontFamily: sans, fontSize: '0.65rem', color: '#A89E98', marginTop: '1px' }}>{item.note}</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(201,149,107,0.12)' }}>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C9956B', fontWeight: 600 }}>
-                    Why per-session, not annual:
-                  </p>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
-                    Nobody subscribes to a year of speed dating. The product's own success means users leave.
-                    Per-session VIP embraces this: upgrade the nights that matter, skip it when you don't care.
-                    Like buying first class on the flight that counts — not an annual airport lounge pass.
-                    Higher take rate, zero commitment friction, repeatable revenue every session.
-                  </p>
-                </div>
-              </div>
-
             </div>{/* end tier cards */}
 
 
@@ -764,7 +712,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               <p className="mt-1" style={{ fontFamily: sans, fontSize: '0.75rem', color: '#8A7E78', lineHeight: 1.5 }}>
                 + microtransactions (Second Chances, time extensions, boosts)
                 <br />
-                + Ignite subscriptions + Inner Circle per-session upgrades
+                + Ignite subscription revenue (recurring, predictable)
               </p>
               <p className="mt-2" style={{ fontFamily: serif, fontSize: '1rem', color: '#C83E88' }}>
                 ~92% gross margin. Software economics.
@@ -789,7 +737,6 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                   { from: 'Free → Spark', trigger: '"I want another session this week."', sub: 'Frequency cap is the gate. One taste creates the craving.' },
                   { from: 'Spark → Ignite', trigger: `\u201CI need to rewatch that date.\u201D`, sub: `Replay access is the #1 trigger. It doesn\u2019t exist before the session \u2014 only after, when desire peaks.` },
                   { from: 'Spark → Ignite', trigger: '"I regret that pass."', sub: 'Second Chance. The undo button at the moment of maximum regret. 34% conversion in testing.' },
-                  { from: 'Ignite → Inner Circle', trigger: '"This Friday matters — I want the best session."', sub: 'Per-session VIP. Curated matches, instant 1-on-1 extensions, permanent replays. AED 149 to go first class.' },
                 ].map((r, i) => (
                   <div key={i} className="flex items-start gap-4"
                     style={{ borderBottom: '1px solid rgba(42,37,40,0.06)', paddingBottom: '14px' }}>

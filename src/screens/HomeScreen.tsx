@@ -6,6 +6,7 @@ import PulseLogo from '../components/PulseLogo'
 interface Props {
   onQuickMatch: () => void
   onGroupSession: () => void
+  onVideoDate?: () => void
 }
 
 /* ─── HOME SCREEN — True Netflix / Jobs-Ive philosophy ───────
@@ -133,7 +134,7 @@ function createHomeSounds() {
   }
 }
 
-export default function HomeScreen({ onQuickMatch, onGroupSession }: Props) {
+export default function HomeScreen({ onQuickMatch, onGroupSession, onVideoDate }: Props) {
   const [visible, setVisible] = useState(false)
   const [slideIndex, setSlideIndex] = useState(0)
   const [transitioning, setTransitioning] = useState(false)
@@ -306,6 +307,32 @@ export default function HomeScreen({ onQuickMatch, onGroupSession }: Props) {
         {/* ══════════════════════════════════════════════════════════
             BELOW THE FOLD — Only two sections. Restrained.
            ══════════════════════════════════════════════════════════ */}
+
+        {/* ── Live Date banner — real video ── */}
+        {onVideoDate && (
+          <section className="px-6 pt-6">
+            <button
+              onClick={onVideoDate}
+              className="w-full rounded-2xl p-5 text-left transition-all hover:scale-[1.01] active:scale-[0.99]"
+              style={{
+                background: 'linear-gradient(135deg, rgba(200,62,136,0.08) 0%, rgba(128,64,224,0.06) 100%)',
+                border: '1px solid rgba(200,62,136,0.15)',
+              }}>
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full animate-pulse" style={{ background: '#30D158', boxShadow: '0 0 8px rgba(48,209,88,0.4)' }} />
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C83E88' }}>
+                  Live now
+                </span>
+              </div>
+              <p className="mt-2" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.3rem', fontWeight: 500, color: '#2A2528' }}>
+                Start a real video date
+              </p>
+              <p className="mt-1" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '0.8rem', color: '#8A7E78' }}>
+                5 minutes on camera. Create a room or join one with a code.
+              </p>
+            </button>
+          </section>
+        )}
 
         {/* ── "New near you" — single horizontal carousel ── */}
         <section className="pt-8 pb-4">
