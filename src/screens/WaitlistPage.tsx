@@ -166,6 +166,9 @@ export default function WaitlistPage() {
   const [ageValue, setAgeValue] = useState('')
   const [customCity, setCustomCity] = useState('')
   const [showCustomCity, setShowCustomCity] = useState(false)
+  const [waitlistNumber] = useState(() => Math.floor(Math.random() * 200 + 180))
+  const [shareCardUrl, setShareCardUrl] = useState<string | null>(null)
+  const [cardGenerating, setCardGenerating] = useState(false)
   const formRef = useRef<HTMLDivElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -287,6 +290,168 @@ export default function WaitlistPage() {
     reader.readAsDataURL(file)
   }, [setAnswer])
 
+  /* ─── Generate personalized share card ─── */
+  const generateShareCard = useCallback(async () => {
+    setCardGenerating(true)
+    const W = 1080, H = 1920 // Instagram story / WhatsApp ratio
+    const canvas = document.createElement('canvas')
+    canvas.width = W; canvas.height = H
+    const ctx = canvas.getContext('2d')!
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, H)
+    grad.addColorStop(0, '#1E1B18')
+    grad.addColorStop(0.5, '#2A2528')
+    grad.addColorStop(1, '#1E1B18')
+    ctx.fillStyle = grad
+    ctx.fillRect(0, 0, W, H)
+
+    // Subtle radial glow
+    const glow = ctx.createRadialGradient(W / 2, H * 0.38, 0, W / 2, H * 0.38, 500)
+    glow.addColorStop(0, 'rgba(200,62,136,0.12)')
+    glow.addColorStop(1, 'transparent')
+    ctx.fillStyle = glow
+    ctx.fillRect(0, 0, W, H)
+
+    // Heartbeat line
+    ctx.strokeStyle = 'rgba(200,62,136,0.3)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    const cy = H * 0.28
+    ctx.moveTo(W * 0.2, cy)
+    ctx.lineTo(W * 0.38, cy)
+    ctx.lineTo(W * 0.42, cy - 40)
+    ctx.lineTo(W * 0.46, cy + 40)
+    ctx.lineTo(W * 0.50, cy - 40)
+    ctx.lineTo(W * 0.54, cy + 40)
+    ctx.lineTo(W * 0.58, cy)
+    ctx.lineTo(W * 0.8, cy)
+    ctx.stroke()
+
+    // "Pulse" text
+    ctx.fillStyle = 'rgba(200,62,136,0.9)'
+    ctx.font = '300 42px "DM Sans", sans-serif'
+    ctx.letterSpacing = '8px'
+    ctx.textAlign = 'center'
+    ctx.fillText('PULSE', W / 2, H * 0.22)
+
+    // Main tagline
+    ctx.fillStyle = 'rgba(255,255,255,0.92)'
+    ctx.font = 'italic 300 120px "Cormorant Garamond", Georgia, serif'
+    ctx.letterSpacing = '-2px'
+    ctx.fillText("You'll know.", W / 2, H * 0.42)
+
+    // Divider line
+    ctx.strokeStyle = 'rgba(200,62,136,0.25)'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(W * 0.35, H * 0.47)
+    ctx.lineTo(W * 0.65, H * 0.47)
+    ctx.stroke()
+
+    // Personal line
+    const name = answers.firstName || 'Someone'
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'
+    ctx.font = 'italic 300 52px "Cormorant Garamond", Georgia, serif'
+    ctx.letterSpacing = '0px'
+    ctx.fillText(`${name} is in.`, W / 2, H * 0.54)
+
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'
+    ctx.font = '400 36px "DM Sans", sans-serif'
+    ctx.fillText('Are you?', W / 2, H * 0.59)
+
+    // Draw photo circle if available
+    if (answers.photo) {
+      try {
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+        await new Promise<void>((resolve) => {
+          img.onload = () => resolve()
+          img.onerror = () => resolve()
+          img.src = answers.photo
+        })
+        if (img.complete && img.naturalWidth > 0) {
+          const cx = W / 2, pcY = H * 0.72, r = 90
+          ctx.save()
+          ctx.beginPath()
+          ctx.arc(cx, pcY, r, 0, Math.PI * 2)
+          ctx.clip()
+          ctx.drawImage(img, cx - r, pcY - r, r * 2, r * 2)
+          ctx.restore()
+          // Ring
+          ctx.strokeStyle = 'rgba(200,62,136,0.5)'
+          ctx.lineWidth = 3
+          ctx.beginPath()
+          ctx.arc(cx, pcY, r + 4, 0, Math.PI * 2)
+          ctx.stroke()
+        }
+      } catch { /* skip photo */ }
+    }
+
+    // Position badge
+    ctx.fillStyle = 'rgba(200,62,136,0.15)'
+    const badgeY = answers.photo ? H * 0.82 : H * 0.72
+    const badgeW = 320, badgeH = 56, badgeR = 28
+    const badgeX = (W - badgeW) / 2
+    ctx.beginPath()
+    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeR)
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(200,62,136,0.3)'
+    ctx.lineWidth = 1
+    ctx.stroke()
+
+    ctx.fillStyle = 'rgba(200,62,136,0.9)'
+    ctx.font = '500 22px "DM Sans", sans-serif'
+    ctx.letterSpacing = '3px'
+    const city = answers.city || 'UAE'
+    ctx.fillText(`#${waitlistNumber} IN LINE \u00B7 ${city.toUpperCase()}`, W / 2, badgeY + 36)
+
+    // Bottom CTA
+    const ctaY = H * 0.92
+    ctx.fillStyle = 'rgba(255,255,255,0.3)'
+    ctx.font = '400 28px "DM Sans", sans-serif'
+    ctx.letterSpacing = '6px'
+    ctx.fillText('BY APPLICATION ONLY', W / 2, ctaY)
+
+    ctx.fillStyle = 'rgba(255,255,255,0.15)'
+    ctx.font = '400 22px "DM Sans", sans-serif'
+    ctx.letterSpacing = '2px'
+    ctx.fillText('UAE \u00B7 2026', W / 2, ctaY + 44)
+
+    const url = canvas.toDataURL('image/png', 1.0)
+    setShareCardUrl(url)
+    setCardGenerating(false)
+  }, [answers, waitlistNumber])
+
+  const handleShareCard = useCallback(async () => {
+    if (!shareCardUrl) return
+    // Convert data URL to blob for native share
+    const res = await fetch(shareCardUrl)
+    const blob = await res.blob()
+    const file = new File([blob], 'pulse-invite.png', { type: 'image/png' })
+
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      navigator.share({
+        files: [file],
+        title: 'Pulse',
+        text: "I'm in. Are you?",
+      }).catch(() => {})
+    } else {
+      // Fallback: download the image
+      const a = document.createElement('a')
+      a.href = shareCardUrl
+      a.download = 'pulse-invite.png'
+      a.click()
+    }
+  }, [shareCardUrl])
+
+  // Generate share card when completion animation finishes
+  useEffect(() => {
+    if (completePhase >= 3 && !shareCardUrl && !cardGenerating) {
+      generateShareCard()
+    }
+  }, [completePhase, shareCardUrl, cardGenerating, generateShareCard])
+
   const handleStart = useCallback(() => {
     setStarted(true)
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 400)
@@ -355,16 +520,15 @@ export default function WaitlistPage() {
             You'll know.
           </h1>
 
-          {/* Sub — creates desire before asking anything */}
+          {/* Sub — one line, emotional, not descriptive */}
           <p className="mt-6 transition-all duration-[2s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '1rem', color: P.textSoft, lineHeight: 1.6,
+              fontFamily: serif, fontSize: 'clamp(1rem, 3vw, 1.25rem)', fontStyle: 'italic',
+              color: P.textSoft, lineHeight: 1.7, letterSpacing: '0.01em',
               opacity: heroPhase >= 3 ? 1 : 0,
               transform: heroPhase >= 3 ? 'translateY(0)' : 'translateY(10px)',
             }}>
-            Five minutes on camera with a stranger.<br />
-            No swiping. No texting. No games.<br />
-            Just a real conversation — and you'll know.
+            The first date you'll actually remember.
           </p>
 
           {/* CTA — appears last, feels inevitable */}
@@ -652,8 +816,8 @@ export default function WaitlistPage() {
               )}
             </div>
 
-            {/* Welcome */}
-            <h2 className="mb-3 transition-all duration-[1.8s] ease-out"
+            {/* Welcome — tight, personal */}
+            <h2 className="mb-2 transition-all duration-[1.8s] ease-out"
               style={{
                 fontFamily: serif,
                 fontSize: 'clamp(2rem, 6vw, 3.5rem)', fontWeight: 300, fontStyle: 'italic',
@@ -661,91 +825,75 @@ export default function WaitlistPage() {
                 opacity: completePhase >= 2 ? 1 : 0,
                 transform: completePhase >= 2 ? 'translateY(0)' : 'translateY(12px)',
               }}>
-              We'll find you, {answers.firstName}.
+              You're in, {answers.firstName}.
             </h2>
 
             <p className="transition-all duration-[1.8s] ease-out"
-              style={{ fontFamily: sans, fontSize: '0.85rem', color: P.textSoft, opacity: completePhase >= 2 ? 1 : 0 }}>
-              Your application is in. We reach out before launch.
+              style={{ fontFamily: sans, fontSize: '0.82rem', color: P.textSoft, opacity: completePhase >= 2 ? 1 : 0, lineHeight: 1.6 }}>
+              We'll reach out when it's your turn.
             </p>
 
-            {/* Position */}
-            <div className="mt-8 transition-all duration-[2s] ease-out"
+            {/* Position badge */}
+            <div className="mt-6 transition-all duration-[2s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(8px)' }}>
               <div className="px-7 py-3 rounded-full"
                 style={{ background: P.accentSoft, border: `1px solid ${P.accentBorder}` }}>
                 <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 500, color: P.accent }}>
-                  #{Math.floor(Math.random() * 200 + 180)} in line · {answers.city || 'Dubai'}
+                  #{waitlistNumber} in line · {answers.city || 'UAE'}
                 </p>
               </div>
             </div>
 
-            {/* Journey steps */}
-            <div className="mt-14 w-full transition-all duration-[2.5s] ease-out"
+            {/* ── Share card preview + share button ── */}
+            <div className="mt-12 w-full transition-all duration-[3s] ease-out"
               style={{ opacity: completePhase >= 3 ? 1 : 0, transform: completePhase >= 3 ? 'translateY(0)' : 'translateY(16px)' }}>
-              <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: P.textFaint, marginBottom: '24px' }}>
-                What happens next
+
+              <p className="mb-5" style={{ fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: P.text }}>
+                Know someone who belongs here?
               </p>
-              <div className="flex items-start justify-between gap-4">
-                {[
-                  { num: '01', label: 'Selected', desc: 'You caught our eye' },
-                  { num: '02', label: 'Curated', desc: 'Building your first room' },
-                  { num: '03', label: 'Live', desc: 'Camera on. Clock starts.' },
-                ].map((item, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center text-center gap-2">
-                    <span style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.2em', fontWeight: 500, color: P.accent }}>
-                      {item.num}
-                    </span>
-                    <span style={{ fontFamily: serif, fontSize: '0.95rem', fontStyle: 'italic', color: P.text }}>
-                      {item.label}
-                    </span>
-                    <span style={{ fontFamily: sans, fontSize: '0.7rem', color: P.textSoft, lineHeight: 1.4 }}>
-                      {item.desc}
-                    </span>
+
+              {/* Card preview */}
+              {shareCardUrl ? (
+                <div className="flex flex-col items-center gap-5">
+                  <div className="relative group cursor-pointer" onClick={handleShareCard}>
+                    <img src={shareCardUrl} alt="Your Pulse invite"
+                      className="w-48 rounded-2xl transition-all duration-500 group-hover:scale-[1.03]"
+                      style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.15), 0 0 60px rgba(200,62,136,0.08)' }} />
+                    <div className="absolute inset-0 rounded-2xl flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-all duration-300">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 rounded-full"
+                        style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)' }}>
+                        <span style={{ fontFamily: sans, fontSize: '0.7rem', fontWeight: 600, color: P.text }}>
+                          Tap to share
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
-              <div className="mt-5 mx-auto" style={{ width: '60%', height: '1px', background: `linear-gradient(90deg, transparent, ${P.accentBorder}, transparent)` }} />
-            </div>
 
-            {/* Curiosity trigger — no demo link, build anticipation */}
-            <div className="mt-12 flex flex-col items-center gap-6 transition-all duration-[3s] ease-out"
-              style={{ opacity: completePhase >= 3 ? 1 : 0 }}>
+                  <button onClick={handleShareCard}
+                    className="px-8 py-3 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
+                    style={{
+                      background: P.accent,
+                      color: 'white',
+                      fontFamily: sans, fontSize: '0.85rem', fontWeight: 500,
+                      boxShadow: '0 4px 24px rgba(200,62,136,0.25)',
+                      border: 'none', cursor: 'pointer',
+                    }}>
+                    Share your invite
+                  </button>
 
-              <div className="text-center px-4">
-                <p style={{ fontFamily: serif, fontSize: '1.1rem', fontStyle: 'italic', color: P.text, lineHeight: 1.5 }}>
-                  Something is being built for people like you.
-                </p>
-                <p className="mt-3" style={{ fontFamily: sans, fontSize: '0.78rem', color: P.textSoft, lineHeight: 1.6 }}>
-                  We're handpicking the first {answers.city === 'Dubai' || answers.city === 'Abu Dhabi' || answers.city === 'Sharjah' ? '500' : '200'} people
-                  {answers.city === 'Dubai' || answers.city === 'Abu Dhabi' || answers.city === 'Sharjah' ? ' in the UAE' : ` from ${answers.city || 'your city'}`}.
-                  <br />When it's your turn, you won't need an explanation. You'll feel it.
-                </p>
-              </div>
-
-              {/* Share prompt */}
-              <div className="mt-4 flex flex-col items-center gap-3">
-                <p style={{ fontFamily: serif, fontSize: '0.9rem', fontStyle: 'italic', color: P.textFaint }}>
-                  Know someone who belongs here?
-                </p>
-                <button
-                  onClick={() => {
-                    const shareText = `Something interesting is coming. I just got on the list.\n\npulse-orbit-jamal356s-projects.vercel.app`
-                    if (navigator.share) {
-                      navigator.share({ text: shareText }).catch(() => {})
-                    } else {
-                      navigator.clipboard.writeText(shareText).catch(() => {})
-                    }
-                  }}
-                  className="px-6 py-2.5 rounded-full transition-all duration-500 hover:scale-[1.03] active:scale-[0.97]"
-                  style={{
-                    background: 'transparent', border: `1px solid ${P.accentBorder}`,
-                    color: P.accent, fontFamily: sans, fontSize: '0.8rem', fontWeight: 500,
-                    cursor: 'pointer',
-                  }}>
-                  Send them this
-                </button>
-              </div>
+                  <p style={{ fontFamily: sans, fontSize: '0.68rem', color: P.textFaint, lineHeight: 1.5 }}>
+                    Send it on WhatsApp, Instagram, or anywhere.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
+                    style={{ borderColor: `${P.accent} transparent ${P.accentBorder} ${P.accentBorder}` }} />
+                  <span className="ml-3" style={{ fontFamily: sans, fontSize: '0.75rem', color: P.textFaint }}>
+                    Creating your invite...
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </section>
