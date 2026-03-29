@@ -104,7 +104,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
       <section className="relative pt-20 pb-8 px-6 text-center">
         <p className="transition-all duration-[2s] ease-out"
           style={{
-            fontFamily: serif, fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
+            fontFamily: serif, fontSize: 'clamp(2rem, 5vw, 3.2rem)',
             fontWeight: 300, fontStyle: 'italic', color: '#2A2528',
             opacity: phase >= 1 ? 1 : 0,
             transform: phase >= 1 ? 'translateY(0)' : 'translateY(12px)',
@@ -113,7 +113,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
         </p>
         <p className="mt-3 transition-all duration-[2s] ease-out"
           style={{
-            fontFamily: sans, fontSize: '0.85rem', color: '#8A7E78',
+            fontFamily: sans, fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', color: '#8A7E78',
             letterSpacing: '0.08em',
             opacity: phase >= 2 ? 1 : 0,
           }}>
@@ -139,7 +139,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
             </div>
             <div>
               <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#2A2528' }}>Omar, 30</p>
-              <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#8A7E78' }}>Dubai Marina · Joined Mar 2026</p>
+              <p style={{ fontFamily: sans, fontSize: '1.05rem', color: '#8A7E78' }}>Dubai Marina · Joined Mar 2026</p>
             </div>
           </div>
 
@@ -153,14 +153,14 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
             ].map(s => (
               <div key={s.label} className="text-center">
                 <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#C83E88' }}>{s.value}</p>
-                <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7E78' }}>{s.label}</p>
+                <p style={{ fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8A7E78' }}>{s.label}</p>
               </div>
             ))}
           </div>
 
           {/* Tonight's matches */}
           <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
-            <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78', marginBottom: '12px' }}>
+            <p style={{ fontFamily: sans, fontSize: '0.82rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78', marginBottom: '12px' }}>
               Tonight's matches
             </p>
             <div className="flex gap-3">
@@ -171,7 +171,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                       style={{ border: '2px solid rgba(200,62,136,0.5)' }} />
                     <div className="absolute -top-1 -right-1 text-[10px]">💗</div>
                   </div>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#2A2528' }}>{m.name}</p>
+                  <p style={{ fontFamily: sans, fontSize: '0.88rem', color: '#2A2528' }}>{m.name}</p>
                 </div>
               ))}
             </div>
@@ -179,7 +179,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
           {/* Session history */}
           <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
-            <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78', marginBottom: '12px' }}>
+            <p style={{ fontFamily: sans, fontSize: '0.82rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78', marginBottom: '12px' }}>
               Session history
             </p>
             {pastSessions.map((s, i) => (
@@ -189,10 +189,10 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs"
                     style={{ background: 'rgba(200,62,136,0.12)', color: '#C83E88', fontFamily: sans }}>{s.matches}</div>
                   <div>
-                    <p style={{ fontFamily: sans, fontSize: '0.8rem', color: '#2A2528' }}>
+                    <p style={{ fontFamily: sans, fontSize: '0.95rem', color: '#2A2528' }}>
                       {s.matches} match{s.matches !== 1 ? 'es' : ''} from {s.dates} dates
                     </p>
-                    <p style={{ fontFamily: sans, fontSize: '0.65rem', color: '#8A7E78' }}>{s.date}</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.82rem', color: '#8A7E78' }}>{s.date}</p>
                   </div>
                 </div>
               </div>
@@ -203,9 +203,9 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           <div className="px-6 py-4" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
             <div className="flex items-center justify-between">
               <div>
-                <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78' }}>Next session</p>
+                <p style={{ fontFamily: sans, fontSize: '0.82rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8A7E78' }}>Next session</p>
                 <p className="mt-1" style={{ fontFamily: serif, fontSize: '1.1rem', fontWeight: 500, color: '#2A2528' }}>Thursday · 9 PM</p>
-                <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78' }}>3 spots left</p>
+                <p style={{ fontFamily: sans, fontSize: '0.88rem', color: '#8A7E78' }}>3 spots left</p>
               </div>
               <div className="px-4 py-2 rounded-full text-xs font-medium"
                 style={{ background: 'rgba(200,62,136,0.15)', color: '#C83E88', fontFamily: sans }}>Booked ✓</div>
@@ -228,7 +228,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           {/* The opening line — like Jobs: "There's a problem." */}
           <p className="text-center transition-all duration-[1.5s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+              fontFamily: sans, fontSize: '0.88rem', letterSpacing: '0.2em',
               textTransform: 'uppercase', color: '#C83E88',
               opacity: collapse.visible ? 1 : 0,
               transform: collapse.visible ? 'translateY(0)' : 'translateY(10px)',
@@ -250,7 +250,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           </p>
           <p className="text-center mt-3 transition-all duration-[1.5s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '0.85rem', color: '#8A7E78',
+              fontFamily: sans, fontSize: '1rem', color: '#8A7E78',
               opacity: collapse.visible ? 1 : 0,
               transitionDelay: '600ms',
             }}>
@@ -303,10 +303,10 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                   {item.stat}
                 </span>
                 <div>
-                  <p style={{ fontFamily: sans, fontSize: '0.9rem', color: '#2A2528', lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: sans, fontSize: '1.05rem', color: '#2A2528', lineHeight: 1.5 }}>
                     {item.line}
                   </p>
-                  <p className="mt-1" style={{ fontFamily: sans, fontSize: '0.75rem', color: '#8A7E78', lineHeight: 1.5 }}>
+                  <p className="mt-1" style={{ fontFamily: sans, fontSize: '1.05rem', color: '#8A7E78', lineHeight: 1.5 }}>
                     {item.sub}
                   </p>
                 </div>
@@ -339,7 +339,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
           <p className="mt-5 transition-all duration-[1.8s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '0.85rem', color: '#8A7E78', lineHeight: 1.6,
+              fontFamily: sans, fontSize: 'clamp(1rem, 2.2vw, 1.15rem)', color: '#8A7E78', lineHeight: 1.6,
               opacity: validation.visible ? 1 : 0,
               transitionDelay: '600ms',
             }}>
@@ -349,7 +349,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
           <p className="mt-4 transition-all duration-[1.8s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '0.85rem', color: '#2A2528', lineHeight: 1.6,
+              fontFamily: sans, fontSize: 'clamp(1rem, 2.2vw, 1.15rem)', color: '#2A2528', lineHeight: 1.6,
               opacity: validation.visible ? 1 : 0,
               transitionDelay: '1000ms',
             }}>
@@ -367,7 +367,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
           <p className="mt-1 transition-all duration-[1.5s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '0.75rem', color: '#A89E98',
+              fontFamily: sans, fontSize: '1.05rem', color: '#A89E98',
               opacity: validation.visible ? 1 : 0,
               transitionDelay: '1800ms',
             }}>
@@ -386,7 +386,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
         <div className="max-w-lg mx-auto">
           <p className="text-center mb-12 transition-all duration-[1.5s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+              fontFamily: sans, fontSize: '0.88rem', letterSpacing: '0.2em',
               textTransform: 'uppercase', color: '#C83E88',
               opacity: failures.visible ? 1 : 0,
             }}>
@@ -413,10 +413,10 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                   <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88]" />
                 </div>
                 <div>
-                  <p style={{ fontFamily: sans, fontSize: '0.85rem', color: '#2A2528' }}>
+                  <p style={{ fontFamily: sans, fontSize: '1rem', color: '#2A2528' }}>
                     <span style={{ textDecoration: 'line-through', color: '#C2B8AE' }}>{item.failure}</span>
                   </p>
-                  <p className="mt-0.5" style={{ fontFamily: sans, fontSize: '0.8rem', color: '#8A7E78' }}>
+                  <p className="mt-0.5" style={{ fontFamily: sans, fontSize: '0.95rem', color: '#8A7E78' }}>
                     {item.fix}
                   </p>
                 </div>
@@ -438,47 +438,53 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
 
       {/* ═══════════════════════════════════════════════════════
-          ACT 3.75: THE GCC — Why here. Why now.
+          ACT 3.75: THE MARKET — Global problem, Dubai launchpad.
           ═══════════════════════════════════════════════════════ */}
-      <section className="relative px-6 py-16 sm:py-20">
-        <div className="max-w-lg mx-auto text-center">
+      <section className="relative px-6 py-20 sm:py-28">
+        <div className="max-w-2xl mx-auto text-center">
           <p style={{
-            fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
-            textTransform: 'uppercase', color: '#C83E88', marginBottom: '24px',
+            fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.2em',
+            textTransform: 'uppercase', color: '#C83E88', marginBottom: '28px',
           }}>
-            The launch market
+            The market
           </p>
 
           <p style={{
-            fontFamily: serif, fontSize: 'clamp(1.3rem, 3.5vw, 1.8rem)',
+            fontFamily: serif, fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
             fontWeight: 400, color: '#2A2528', lineHeight: 1.3,
           }}>
-            Western apps don't fit the culture.
+            380 million people on dating apps.
             <br />
-            Arranged introductions don't fit the generation.
+            79% are burned out. The industry built a $9.6B machine
+            <br />
+            that profits from keeping them lonely.
           </p>
-          <p className="mt-2" style={{
-            fontFamily: serif, fontSize: '1.1rem', fontWeight: 500, color: '#C83E88',
+          <p className="mt-4" style={{
+            fontFamily: serif, fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: 500, color: '#C83E88',
           }}>
-            Pulse sits in the gap.
+            Pulse is the correction.
           </p>
 
-          {/* GCC stats — horizontal, clean */}
-          <div className="mt-10 grid grid-cols-3 gap-6">
+          {/* Global stats — horizontal, clean */}
+          <div className="mt-12 grid grid-cols-3 gap-8">
             {[
-              { value: '130%', label: 'Download growth since 2021' },
-              { value: '2x', label: 'Engagement vs. global average' },
-              { value: '64M+', label: 'Smartphone users across GCC' },
+              { value: '79%', label: 'Report dating app burnout' },
+              { value: '82%', label: 'Want video-first experiences' },
+              { value: '42%', label: 'Say current apps don\u2019t work' },
             ].map(s => (
               <div key={s.label} className="text-center">
-                <p style={{ fontFamily: serif, fontSize: '1.6rem', fontWeight: 600, color: '#C83E88', lineHeight: 1 }}>{s.value}</p>
-                <p className="mt-2" style={{ fontFamily: sans, fontSize: '0.6rem', color: '#8A7E78', lineHeight: 1.4 }}>{s.label}</p>
+                <p style={{ fontFamily: serif, fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', fontWeight: 600, color: '#C83E88', lineHeight: 1 }}>{s.value}</p>
+                <p className="mt-3" style={{ fontFamily: sans, fontSize: '1rem', color: '#8A7E78', lineHeight: 1.4 }}>{s.label}</p>
               </div>
             ))}
           </div>
 
-          <p className="mt-8" style={{ fontFamily: sans, fontSize: '0.75rem', color: '#A89E98', letterSpacing: '0.06em' }}>
-            Dubai → Riyadh → Doha → Cairo → London
+          <p className="mt-10" style={{
+            fontFamily: serif, fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)', fontStyle: 'italic', color: '#6B635E',
+          }}>
+            We launch in Dubai — 200+ nationalities, the world's dating culture in one city.
+            <br />
+            Then every city with a nightlife scene.
           </p>
         </div>
       </section>
@@ -498,7 +504,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
             {/* ── THE STRATEGIC INSIGHT ── */}
             <p className="text-center" style={{
-              fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+              fontFamily: sans, fontSize: '0.88rem', letterSpacing: '0.2em',
               textTransform: 'uppercase', color: '#C83E88',
             }}>
               The model
@@ -514,7 +520,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
             </p>
 
             <p className="text-center mt-4" style={{
-              fontFamily: sans, fontSize: '0.8rem', color: '#8A7E78', lineHeight: 1.6,
+              fontFamily: sans, fontSize: '0.95rem', color: '#8A7E78', lineHeight: 1.6,
               maxWidth: '420px', margin: '16px auto 0',
             }}>
               Every two-sided marketplace has a scarce side.
@@ -528,7 +534,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 opacity: economics.visible ? 1 : 0, transitionDelay: '400ms',
               }}>
               <p className="text-center" style={{
-                fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+                fontFamily: sans, fontSize: '0.88rem', letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: '#C83E88',
               }}>
                 Pricing architecture
@@ -539,7 +545,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 Each tier withholds the one feature you want most at the exact moment you want it most.
               </p>
               <p className="text-center mt-1" style={{
-                fontFamily: sans, fontSize: '0.75rem', color: '#A89E98',
+                fontFamily: sans, fontSize: '1.05rem', color: '#A89E98',
               }}>
                 Apple doesn't discount. They engineer desire at the boundary.
               </p>
@@ -556,7 +562,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 <div className="flex items-start justify-between mb-1">
                   <div>
                     <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#C83E88' }}>Pulse</p>
-                    <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Women · Always free</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Women · Always free</p>
                   </div>
                   <p style={{ fontFamily: serif, fontSize: '1.5rem', fontWeight: 600, color: '#C83E88' }}>Free</p>
                 </div>
@@ -569,17 +575,17 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                     { feature: 'Share card for social', note: null },
                   ].map(f => (
                     <div key={f.feature} className="flex items-start gap-2">
-                      <span style={{ color: '#C83E88', fontSize: '0.6rem', marginTop: '5px' }}>•</span>
-                      <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#2A2528' }}>{f.feature}</p>
+                      <span style={{ color: '#C83E88', fontSize: '0.95rem', marginTop: '5px' }}>•</span>
+                      <p style={{ fontFamily: sans, fontSize: '1.05rem', color: '#2A2528' }}>{f.feature}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(200,62,136,0.08)' }}>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C83E88', fontWeight: 600 }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.88rem', color: '#C83E88', fontWeight: 600 }}>
                     What's withheld:
                   </p>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.88rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
                     No replays. No Second Chances. No seeing who liked you before matching.
                     She experiences the magic — but can't hold onto it. That's the upgrade trigger.
                   </p>
@@ -596,11 +602,11 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 <div className="flex items-start justify-between mb-1">
                   <div>
                     <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#2A2528' }}>Spark</p>
-                    <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Single session · Pay to play</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Single session · Pay to play</p>
                   </div>
                   <div className="text-right">
                     <p style={{ fontFamily: serif, fontSize: '1.5rem', fontWeight: 600, color: '#2A2528' }}>AED 75</p>
-                    <p style={{ fontFamily: sans, fontSize: '0.6rem', color: '#8A7E78' }}>per session</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.95rem', color: '#8A7E78' }}>per session</p>
                   </div>
                 </div>
 
@@ -611,17 +617,17 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                     'Aura AI — basic pre-session coaching',
                   ].map(f => (
                     <div key={f} className="flex items-start gap-2">
-                      <span style={{ color: '#2A2528', fontSize: '0.6rem', marginTop: '5px' }}>•</span>
-                      <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#2A2528' }}>{f}</p>
+                      <span style={{ color: '#2A2528', fontSize: '0.95rem', marginTop: '5px' }}>•</span>
+                      <p style={{ fontFamily: sans, fontSize: '1.05rem', color: '#2A2528' }}>{f}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(42,37,40,0.06)' }}>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C83E88', fontWeight: 600 }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.88rem', color: '#C83E88', fontWeight: 600 }}>
                     The conversion moment:
                   </p>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.88rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
                     Session ends. He felt chemistry with someone. He wants to rewatch that 5-minute date.
                     He can't. He passed on someone and now regrets it. He can't undo it. He sees
                     "3 people liked you — upgrade to see who."
@@ -643,7 +649,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                     <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#2A2528' }}>
                       Ignite
                     </p>
-                    <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Monthly · The retention engine</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Monthly · The retention engine</p>
                   </div>
                   <div className="text-right">
                     <p style={{ fontFamily: serif, fontSize: '1.5rem', fontWeight: 600, color: '#2A2528' }}>AED 249</p>
@@ -663,20 +669,20 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                     { f: 'Weekly profile boost', note: null },
                   ].map(item => (
                     <div key={item.f} className="flex items-start gap-2">
-                      <span style={{ color: '#C83E88', fontSize: '0.6rem', marginTop: '5px' }}>•</span>
+                      <span style={{ color: '#C83E88', fontSize: '0.95rem', marginTop: '5px' }}>•</span>
                       <div>
-                        <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#2A2528' }}>{item.f}</p>
-                        {item.note && <p style={{ fontFamily: sans, fontSize: '0.65rem', color: '#A89E98', marginTop: '1px' }}>{item.note}</p>}
+                        <p style={{ fontFamily: sans, fontSize: '1.05rem', color: '#2A2528' }}>{item.f}</p>
+                        {item.note && <p style={{ fontFamily: sans, fontSize: '0.82rem', color: '#A89E98', marginTop: '1px' }}>{item.note}</p>}
                       </div>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(200,62,136,0.08)' }}>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C83E88', fontWeight: 600 }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.88rem', color: '#C83E88', fontWeight: 600 }}>
                     Why this tier prints money:
                   </p>
-                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.88rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
                     Replay access alone justifies the price — users don't know they want it until
                     the session ends and they're emotionally invested. Second Chances convert at 34% in testing.
                     Weekly regulars have 3x the match rate and 5x the LTV of one-time Spark users.
@@ -695,7 +701,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 transitionDelay: '1400ms',
               }}>
               <p style={{
-                fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+                fontFamily: sans, fontSize: '0.88rem', letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: '#C83E88',
               }}>
                 Blended unit economics
@@ -706,10 +712,10 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               }}>
                 AED 375+
               </p>
-              <p style={{ fontFamily: sans, fontSize: '0.85rem', color: '#8A7E78' }}>
+              <p style={{ fontFamily: sans, fontSize: '1rem', color: '#8A7E78' }}>
                 Base session revenue · 5 paying seats × AED 75
               </p>
-              <p className="mt-1" style={{ fontFamily: sans, fontSize: '0.75rem', color: '#8A7E78', lineHeight: 1.5 }}>
+              <p className="mt-1" style={{ fontFamily: sans, fontSize: '1.05rem', color: '#8A7E78', lineHeight: 1.5 }}>
                 + microtransactions (Second Chances, time extensions, boosts)
                 <br />
                 + Ignite subscription revenue (recurring, predictable)
@@ -726,7 +732,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 opacity: economics.visible ? 1 : 0, transitionDelay: '1600ms',
               }}>
               <p className="text-center mb-8" style={{
-                fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+                fontFamily: sans, fontSize: '0.88rem', letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: '#C83E88',
               }}>
                 Every upgrade trigger is an emotion, not a feature
@@ -740,12 +746,12 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
                 ].map((r, i) => (
                   <div key={i} className="flex items-start gap-4"
                     style={{ borderBottom: '1px solid rgba(42,37,40,0.06)', paddingBottom: '14px' }}>
-                    <span className="shrink-0" style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#C83E88', minWidth: '80px', marginTop: '2px' }}>
+                    <span className="shrink-0" style={{ fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#C83E88', minWidth: '80px', marginTop: '2px' }}>
                       {r.from}
                     </span>
                     <div>
-                      <p style={{ fontFamily: serif, fontSize: '0.9rem', fontStyle: 'italic', color: '#2A2528' }}>{r.trigger}</p>
-                      <p className="mt-0.5" style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', lineHeight: 1.4 }}>{r.sub}</p>
+                      <p style={{ fontFamily: serif, fontSize: '1.05rem', fontStyle: 'italic', color: '#2A2528' }}>{r.trigger}</p>
+                      <p className="mt-0.5" style={{ fontFamily: sans, fontSize: '0.88rem', color: '#8A7E78', lineHeight: 1.4 }}>{r.sub}</p>
                     </div>
                   </div>
                 ))}
@@ -797,7 +803,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
             </p>
 
             <p className="mt-5" style={{
-              fontFamily: sans, fontSize: '0.85rem', color: '#8A7E78', lineHeight: 1.7,
+              fontFamily: sans, fontSize: 'clamp(1rem, 2.2vw, 1.15rem)', color: '#8A7E78', lineHeight: 1.7,
             }}>
               Limited to a small group of founding partners
               <br />
@@ -805,7 +811,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
             </p>
 
             <p className="mt-3" style={{
-              fontFamily: sans, fontSize: '0.8rem', color: '#A89E98', lineHeight: 1.6,
+              fontFamily: sans, fontSize: '0.95rem', color: '#A89E98', lineHeight: 1.6,
             }}>
               The product works. The market is collapsing toward us.
               <br />
@@ -825,7 +831,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               </a>
             </div>
 
-            <p className="mt-5" style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C2B8AE' }}>
+            <p className="mt-5" style={{ fontFamily: sans, fontSize: '0.88rem', color: '#C2B8AE' }}>
               jamal@hakadian.com
             </p>
           </div>
@@ -843,8 +849,8 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
       {/* Footer */}
       <footer className="relative px-6 py-8 text-center" style={{ borderTop: '1px solid rgba(42,37,40,0.08)' }}>
-        <p style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.1em', color: '#DDD5CC' }}>
-          Pulse · Dubai 2026
+        <p style={{ fontFamily: sans, fontSize: '0.82rem', letterSpacing: '0.1em', color: '#DDD5CC' }}>
+          Pulse · 2026
         </p>
       </footer>
     </div>
