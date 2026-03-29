@@ -406,17 +406,26 @@ export default function WaitlistPage() {
     const city = answers.city || 'UAE'
     ctx.fillText(`#${waitlistNumber} IN LINE \u00B7 ${city.toUpperCase()}`, W / 2, badgeY + 36)
 
+    // URL — visible on card so recipients know where to go
+    const urlY = answers.photo ? H * 0.875 : H * 0.80
+    ctx.fillStyle = 'rgba(200,62,136,0.7)'
+    ctx.font = '500 30px "DM Sans", sans-serif'
+    ctx.letterSpacing = '1px'
+    const siteUrl = window.location.origin || 'pulse-orbit-jamal356s-projects.vercel.app'
+    const displayUrl = siteUrl.replace(/^https?:\/\//, '')
+    ctx.fillText(displayUrl, W / 2, urlY)
+
     // Bottom CTA
-    const ctaY = H * 0.92
+    const ctaY = H * 0.93
     ctx.fillStyle = 'rgba(255,255,255,0.3)'
-    ctx.font = '400 28px "DM Sans", sans-serif'
+    ctx.font = '400 26px "DM Sans", sans-serif'
     ctx.letterSpacing = '6px'
     ctx.fillText('BY APPLICATION ONLY', W / 2, ctaY)
 
     ctx.fillStyle = 'rgba(255,255,255,0.15)'
-    ctx.font = '400 22px "DM Sans", sans-serif'
+    ctx.font = '400 20px "DM Sans", sans-serif'
     ctx.letterSpacing = '2px'
-    ctx.fillText('UAE \u00B7 2026', W / 2, ctaY + 44)
+    ctx.fillText('UAE \u00B7 2026', W / 2, ctaY + 38)
 
     const url = canvas.toDataURL('image/png', 1.0)
     setShareCardUrl(url)
@@ -430,11 +439,13 @@ export default function WaitlistPage() {
     const blob = await res.blob()
     const file = new File([blob], 'pulse-invite.png', { type: 'image/png' })
 
+    const siteLink = window.location.origin || 'https://pulse-orbit-jamal356s-projects.vercel.app'
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
       navigator.share({
         files: [file],
         title: 'Pulse',
-        text: "I'm in. Are you?",
+        text: `I'm in. Are you?\n${siteLink}`,
+        url: siteLink,
       }).catch(() => {})
     } else {
       // Fallback: download the image
@@ -468,31 +479,26 @@ export default function WaitlistPage() {
       style={{ background: `linear-gradient(170deg, ${P.bg} 0%, ${P.bgDeep} 50%, ${P.bg} 100%)` }}
       onKeyDown={handleKeyDown}>
 
-      {/* Ambient warmth — breathing Pulse glow, clearly visible */}
+      {/* ── Animated pulse rings — the heartbeat of the page ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Primary — large center glow */}
-        <div className="absolute top-[30%] left-1/2"
+        {/* Radial warmth base */}
+        <div className="absolute top-[40%] left-1/2"
           style={{
-            width: '1400px', height: '1000px',
+            width: '1200px', height: '1200px',
             transform: 'translate(-50%, -50%)',
-            background: `radial-gradient(ellipse, rgba(200,62,136,0.18) 0%, rgba(200,62,136,0.08) 30%, rgba(200,62,136,0.02) 55%, transparent 70%)`,
-            animation: 'bg-breathe 6s ease-in-out infinite',
+            background: `radial-gradient(circle, rgba(200,62,136,0.12) 0%, rgba(200,62,136,0.04) 35%, transparent 60%)`,
           }} />
-        {/* Secondary — bottom pool */}
-        <div className="absolute bottom-[-5%] left-1/2"
-          style={{
-            width: '1000px', height: '500px',
-            transform: 'translateX(-50%)',
-            background: `radial-gradient(ellipse, rgba(200,62,136,0.12) 0%, rgba(200,62,136,0.04) 40%, transparent 65%)`,
-            animation: 'bg-breathe 8s ease-in-out infinite reverse',
-          }} />
-        {/* Tertiary — offset accent for depth */}
-        <div className="absolute top-[15%] left-[20%]"
-          style={{
-            width: '600px', height: '600px',
-            background: `radial-gradient(circle, rgba(200,62,136,0.08) 0%, transparent 50%)`,
-            animation: 'bg-breathe 10s ease-in-out infinite',
-          }} />
+        {/* Expanding rings — staggered, continuous */}
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="absolute top-[40%] left-1/2"
+            style={{
+              width: '80px', height: '80px',
+              transform: 'translate(-50%, -50%)',
+              border: '1.5px solid rgba(200,62,136,0.25)',
+              borderRadius: '50%',
+              animation: `pulse-ring 5s ${i * 1.25}s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite`,
+            }} />
+        ))}
       </div>
 
       {/* Progress bar — thin, elegant, top of viewport */}
@@ -936,9 +942,20 @@ export default function WaitlistPage() {
           0%, 100% { opacity: 0.7; transform: scale(1); }
           50% { opacity: 1; transform: scale(1.08); }
         }
-        @keyframes bg-breathe {
-          0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+        @keyframes pulse-ring {
+          0% {
+            width: 80px; height: 80px;
+            opacity: 0.4;
+            border-color: rgba(200,62,136,0.35);
+          }
+          70% {
+            opacity: 0.08;
+          }
+          100% {
+            width: 900px; height: 900px;
+            opacity: 0;
+            border-color: rgba(200,62,136,0.0);
+          }
         }
         .animate-fade-in { animation: fade-in 0.6s ease-out; }
         .animate-float { animation: float 2s ease-in-out infinite; }
