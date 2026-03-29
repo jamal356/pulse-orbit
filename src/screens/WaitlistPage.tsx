@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import PulseLogo from '../components/PulseLogo'
+import { submitWaitlistEntry } from '../lib/supabase'
 
 /* ═══════════════════════════════════════════════════════════════
    WAITLIST — The experience starts here.
@@ -153,7 +154,7 @@ export default function WaitlistPage() {
   const [ageValue, setAgeValue] = useState('')
   const [customCity, setCustomCity] = useState('')
   const [showCustomCity, setShowCustomCity] = useState(false)
-  const [waitlistNumber] = useState(() => Math.floor(Math.random() * 200 + 180))
+  const [waitlistNumber, setWaitlistNumber] = useState(() => Math.floor(Math.random() * 200 + 180))
   const [shareCardUrl, setShareCardUrl] = useState<string | null>(null)
   const [cardGenerating, setCardGenerating] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
@@ -185,7 +186,7 @@ export default function WaitlistPage() {
     return false
   })()
 
-  const nextStep = useCallback(() => {
+  const nextStep = useCallback(async () => {
     if (currentQ?.type === 'age') {
       setAnswer('age', ageValue)
     }
@@ -201,29 +202,26 @@ export default function WaitlistPage() {
 
       const finalAnswers: Record<string, string> = { ...answers, age: ageValue }
 
-      // localStorage backup
+      // localStorage backup (fallback if Supabase is not configured)
       const submissions = JSON.parse(localStorage.getItem('pulse-waitlist') || '[]')
       submissions.push({ ...finalAnswers, photo: '[uploaded]', timestamp: new Date().toISOString() })
       localStorage.setItem('pulse-waitlist', JSON.stringify(submissions))
 
-      // Formspree — replace with your form ID
-      const FORMSPREE_ID = 'xpwzgkbo'
-      fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: finalAnswers.email,
-          name: finalAnswers.firstName,
-          age: finalAnswers.age,
-          gender: finalAnswers.gender,
-          lookingFor: finalAnswers.lookingFor,
-          city: finalAnswers.city,
-          attraction: finalAnswers.attraction,
-          fridayNight: finalAnswers.friday,
-          dealbreaker: finalAnswers.dealbreaker,
-          _subject: `Pulse waitlist: ${finalAnswers.firstName} from ${finalAnswers.city}`,
-        }),
-      }).catch(() => {})
+      // Convert photo data URL to Blob for Supabase Storage upload
+      let photoBlob: Blob | null = null
+      if (finalAnswers.photo && finalAnswers.photo.startsWith('data:')) {
+        try {
+          const res = await fetch(finalAnswers.photo)
+          photoBlob = await res.blob()
+        } catch { /* photo conversion failed — submit without it */ }
+      }
+
+      // Submit to Supabase (table + photo storage)
+      submitWaitlistEntry(finalAnswers, photoBlob)
+        .then(({ position }) => {
+          if (position) setWaitlistNumber(position)
+        })
+        .catch(() => { /* silent — localStorage backup exists */ })
     }
   }, [step, currentQ, answers, ageValue, setAnswer])
 
