@@ -71,6 +71,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
   const validation = useReveal(0.3)
   const failures = useReveal(0.2)
   const economics = useReveal(0.3)
+  const moments = useReveal(0.25)
   const ask = useReveal(0.3)
 
   useEffect(() => {
@@ -319,59 +320,124 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
       {/* ═══════════════════════════════════════════════════════
           ACT 3: THE VALIDATION
-          "And then the market leader proved us right."
-          This is the killer moment. One fact.
+          The market leader just proved the thesis.
+          One devastating comparison.
           ═══════════════════════════════════════════════════════ */}
-      <section ref={validation.ref} className="relative px-6 py-20 sm:py-28">
-        <div className="max-w-xl mx-auto text-center">
+      <section ref={validation.ref} className="relative px-6 py-28 sm:py-40">
+        <div className="max-w-2xl mx-auto text-center">
+
+          {/* The setup — tiny label */}
+          <p className="transition-all duration-[1.5s] ease-out"
+            style={{
+              fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.2em',
+              textTransform: 'uppercase', color: '#C83E88',
+              opacity: validation.visible ? 1 : 0,
+            }}>
+            March 2026
+          </p>
+
+          {/* The headline — massive, cinematic */}
+          <p className="mt-6 transition-all duration-[2.5s] ease-out"
+            style={{
+              fontFamily: serif,
+              fontSize: 'clamp(2.2rem, 6vw, 3.8rem)',
+              fontWeight: 300, fontStyle: 'italic',
+              lineHeight: 1.1, color: '#2A2528',
+              opacity: validation.visible ? 1 : 0,
+              transform: validation.visible ? 'translateY(0)' : 'translateY(20px)',
+              transitionDelay: '300ms',
+            }}>
+            Tinder launched video speed dating.
+          </p>
+
+          <div className="h-10 sm:h-14" />
+
+          {/* The insight — not explanation, implication */}
           <p className="transition-all duration-[2s] ease-out"
             style={{
               fontFamily: serif,
               fontSize: 'clamp(1.4rem, 3.5vw, 2rem)',
-              fontWeight: 300, fontStyle: 'italic',
-              lineHeight: 1.3, color: '#2A2528',
-              opacity: validation.visible ? 1 : 0,
-              transform: validation.visible ? 'translateY(0)' : 'translateY(16px)',
-            }}>
-            In March 2026, Tinder launched{' '}
-            <span style={{ color: '#C83E88', fontWeight: 500 }}>video speed dating</span>.
-          </p>
-
-          <p className="mt-5 transition-all duration-[1.8s] ease-out"
-            style={{
-              fontFamily: sans, fontSize: 'clamp(1rem, 2.2vw, 1.15rem)', color: '#8A7E78', lineHeight: 1.6,
-              opacity: validation.visible ? 1 : 0,
-              transitionDelay: '600ms',
-            }}>
-            When the market leader pivots toward your model,
-            you're not early — you're right.
-          </p>
-
-          <p className="mt-4 transition-all duration-[1.8s] ease-out"
-            style={{
-              fontFamily: sans, fontSize: 'clamp(1rem, 2.2vw, 1.15rem)', color: '#2A2528', lineHeight: 1.6,
+              fontWeight: 400, color: '#6B635E', lineHeight: 1.4,
               opacity: validation.visible ? 1 : 0,
               transitionDelay: '1000ms',
             }}>
-            But they're bolting video onto a swipe-first architecture.
+            When the largest dating company on earth
+            pivots toward your model, you don't have a thesis anymore.
           </p>
 
-          <p className="mt-2 transition-all duration-[1.8s] ease-out"
+          <p className="mt-3 transition-all duration-[2s] ease-out"
             style={{
-              fontFamily: serif, fontSize: '1.2rem', fontWeight: 500, color: '#C83E88',
+              fontFamily: serif,
+              fontSize: 'clamp(1.6rem, 4vw, 2.4rem)',
+              fontWeight: 500, color: '#2A2528', lineHeight: 1.3,
               opacity: validation.visible ? 1 : 0,
               transitionDelay: '1400ms',
             }}>
-            Pulse is video-native from the ground up.
+            You have a market.
           </p>
 
-          <p className="mt-1 transition-all duration-[1.5s] ease-out"
+          <div className="h-12 sm:h-16" />
+
+          {/* The comparison — two columns, architecture vs. native */}
+          <div
+            className="grid grid-cols-2 gap-8 sm:gap-12 max-w-lg mx-auto transition-all duration-[2s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '1.05rem', color: '#A89E98',
               opacity: validation.visible ? 1 : 0,
               transitionDelay: '1800ms',
+            }}
+          >
+            {/* Tinder side */}
+            <div className="text-center">
+              <p style={{
+                fontFamily: sans, fontSize: '0.9rem', letterSpacing: '0.12em',
+                textTransform: 'uppercase', color: '#C2B8AE',
+              }}>
+                Tinder
+              </p>
+              <p className="mt-4" style={{
+                fontFamily: serif, fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)',
+                fontStyle: 'italic', color: '#8A7E78', lineHeight: 1.4,
+              }}>
+                Video bolted onto a swipe-first architecture.
+              </p>
+              <p className="mt-2" style={{ fontFamily: sans, fontSize: '0.95rem', color: '#C2B8AE' }}>
+                A feature.
+              </p>
+            </div>
+
+            {/* Pulse side */}
+            <div className="text-center">
+              <p style={{
+                fontFamily: sans, fontSize: '0.9rem', letterSpacing: '0.12em',
+                textTransform: 'uppercase', color: '#C83E88',
+              }}>
+                Pulse
+              </p>
+              <p className="mt-4" style={{
+                fontFamily: serif, fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)',
+                fontStyle: 'italic', color: '#2A2528', lineHeight: 1.4,
+              }}>
+                Video-native from the ground up. Every interaction is live.
+              </p>
+              <p className="mt-2" style={{ fontFamily: sans, fontSize: '0.95rem', color: '#C83E88', fontWeight: 500 }}>
+                A platform.
+              </p>
+            </div>
+          </div>
+
+          <div className="h-8" />
+
+          {/* The kicker */}
+          <p className="transition-all duration-[1.8s] ease-out"
+            style={{
+              fontFamily: sans, fontSize: 'clamp(1rem, 2.2vw, 1.15rem)',
+              color: '#8A7E78', lineHeight: 1.6,
+              opacity: validation.visible ? 1 : 0,
+              transitionDelay: '2400ms',
             }}>
-            That's the difference between a feature and a platform.
+            Instagram didn't win by adding stories to a photo app.
+            <br />
+            Snapchat won because stories <em>were</em> the app.
           </p>
         </div>
       </section>
@@ -382,41 +448,41 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
           Why the swipe model can't be fixed.
           Pulse solves all five simultaneously.
           ═══════════════════════════════════════════════════════ */}
-      <section ref={failures.ref} className="relative px-6 py-16 sm:py-24">
-        <div className="max-w-lg mx-auto">
-          <p className="text-center mb-12 transition-all duration-[1.5s] ease-out"
+      <section ref={failures.ref} className="relative px-6 py-24 sm:py-36">
+        <div className="max-w-xl mx-auto">
+          <p className="text-center mb-14 transition-all duration-[1.5s] ease-out"
             style={{
-              fontFamily: sans, fontSize: '0.88rem', letterSpacing: '0.2em',
+              fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.2em',
               textTransform: 'uppercase', color: '#C83E88',
               opacity: failures.visible ? 1 : 0,
             }}>
-            Five failures. One fix.
+            Five failures of the swipe model
           </p>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             {[
               { failure: 'Swipe fatigue', fix: 'Finite sessions — 5 people, not 5,000', delay: 200 },
               { failure: 'Ghosting epidemic', fix: 'Live video — presence, not promises', delay: 400 },
               { failure: 'The photo gap', fix: 'Camera on — what you see is what you get', delay: 600 },
-              { failure: 'Low-effort matches', fix: 'Skin in the game — women free, men pay. Everyone at the table wants to be there.', delay: 800 },
+              { failure: 'Low-effort matches', fix: 'Skin in the game — women free, men pay', delay: 800 },
               { failure: 'Paradox of choice', fix: 'Constrained discovery — depth over volume', delay: 1000 },
             ].map((item, i) => (
               <div key={i}
-                className="flex items-start gap-4 transition-all duration-[1.5s] ease-out"
+                className="flex items-start gap-5 transition-all duration-[1.5s] ease-out"
                 style={{
                   opacity: failures.visible ? 1 : 0,
-                  transform: failures.visible ? 'translateX(0)' : 'translateX(-12px)',
+                  transform: failures.visible ? 'translateX(0)' : 'translateX(-16px)',
                   transitionDelay: `${item.delay}ms`,
                 }}>
-                <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-1"
                   style={{ background: 'rgba(200,62,136,0.1)' }}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88]" />
+                  <div className="w-2 h-2 rounded-full bg-[#C83E88]" />
                 </div>
                 <div>
-                  <p style={{ fontFamily: sans, fontSize: '1rem', color: '#2A2528' }}>
+                  <p style={{ fontFamily: serif, fontSize: 'clamp(1.15rem, 2.5vw, 1.4rem)', color: '#2A2528' }}>
                     <span style={{ textDecoration: 'line-through', color: '#C2B8AE' }}>{item.failure}</span>
                   </p>
-                  <p className="mt-0.5" style={{ fontFamily: sans, fontSize: '0.95rem', color: '#8A7E78' }}>
+                  <p className="mt-1" style={{ fontFamily: sans, fontSize: 'clamp(1rem, 2vw, 1.1rem)', color: '#8A7E78', lineHeight: 1.5 }}>
                     {item.fix}
                   </p>
                 </div>
@@ -424,14 +490,18 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
             ))}
           </div>
 
-          <p className="text-center mt-12 transition-all duration-[1.5s] ease-out"
+          <p className="text-center mt-14 transition-all duration-[1.8s] ease-out"
             style={{
-              fontFamily: serif, fontSize: '1.05rem', fontStyle: 'italic',
+              fontFamily: serif,
+              fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)',
+              fontStyle: 'italic',
               color: '#2A2528',
               opacity: failures.visible ? 1 : 0,
               transitionDelay: '1400ms',
             }}>
-            Pulse doesn't fix swiping. It replaces it.
+            Pulse doesn't fix swiping.
+            <br />
+            <span style={{ color: '#C83E88' }}>It replaces it.</span>
           </p>
         </div>
       </section>
@@ -760,8 +830,10 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
 
             {/* The flywheel */}
-            <p className="mt-12 text-center" style={{
-              fontFamily: serif, fontSize: '1rem', fontStyle: 'italic',
+            <p className="mt-14 text-center" style={{
+              fontFamily: serif,
+              fontSize: 'clamp(1.2rem, 3vw, 1.6rem)',
+              fontStyle: 'italic',
               color: '#2A2528', lineHeight: 1.5,
             }}>
               Women join free. Men pay to show up.
@@ -772,6 +844,129 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               </span>
             </p>
           </div>
+        </div>
+      </section>
+
+
+      {/* ═══════════════════════════════════════════════════════
+          ACT 4.5: PULSE MOMENTS — The Content Flywheel
+          Every session produces shareable content.
+          Users become the marketing engine.
+          ═══════════════════════════════════════════════════════ */}
+      <section ref={moments.ref} className="relative px-6 py-24 sm:py-36">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center">
+            <p className="transition-all duration-[1.5s] ease-out"
+              style={{
+                fontFamily: sans, fontSize: '0.95rem', letterSpacing: '0.2em',
+                textTransform: 'uppercase', color: '#C83E88',
+                opacity: moments.visible ? 1 : 0,
+              }}>
+              Phase 2: The content flywheel
+            </p>
+
+            <p className="mt-6 transition-all duration-[2s] ease-out"
+              style={{
+                fontFamily: serif,
+                fontSize: 'clamp(2rem, 5vw, 3.2rem)',
+                fontWeight: 300, fontStyle: 'italic', color: '#2A2528', lineHeight: 1.15,
+                opacity: moments.visible ? 1 : 0,
+                transitionDelay: '300ms',
+              }}>
+              Every session produces
+              <br />
+              <span style={{ color: '#C83E88', fontWeight: 400 }}>25 minutes of live content.</span>
+            </p>
+
+            <p className="mt-5 max-w-lg mx-auto transition-all duration-[1.8s] ease-out"
+              style={{
+                fontFamily: sans,
+                fontSize: 'clamp(1rem, 2.2vw, 1.15rem)',
+                color: '#8A7E78', lineHeight: 1.7,
+                opacity: moments.visible ? 1 : 0,
+                transitionDelay: '600ms',
+              }}>
+              AI curates 15-second highlight reels from each date.
+              Both parties opt in. Users share to Instagram, TikTok, Snapchat.
+              Organic acquisition at zero CAC.
+            </p>
+          </div>
+
+          <div className="h-12 sm:h-16" />
+
+          {/* Pulse Moments — the mechanic */}
+          <div className="space-y-0">
+            {[
+              {
+                icon: '🎬',
+                title: 'Pulse Moments',
+                desc: 'AI-generated highlight clips from your best dates. The laugh. The spark. The match reveal. Fifteen seconds that tell the whole story.',
+                delay: 900,
+              },
+              {
+                icon: '🔒',
+                title: 'Consent-first sharing',
+                desc: 'Both parties approve before any clip goes public. Privacy is sacred — especially in cultures where dating is personal. This builds trust, not exposure.',
+                delay: 1100,
+              },
+              {
+                icon: '📱',
+                title: 'Native social distribution',
+                desc: 'Share directly to Stories, Reels, TikTok. Every shared Moment is a micro-ad for Pulse that no paid campaign can replicate — because it\'s real.',
+                delay: 1300,
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="py-7 transition-all duration-[1.5s] ease-out"
+                style={{
+                  borderBottom: i < 2 ? '1px solid rgba(42,37,40,0.06)' : 'none',
+                  opacity: moments.visible ? 1 : 0,
+                  transform: moments.visible ? 'translateY(0)' : 'translateY(10px)',
+                  transitionDelay: `${item.delay}ms`,
+                }}
+              >
+                <div className="flex items-start gap-5">
+                  <span className="text-2xl shrink-0 mt-0.5">{item.icon}</span>
+                  <div>
+                    <p style={{
+                      fontFamily: serif, fontSize: 'clamp(1.2rem, 3vw, 1.6rem)',
+                      fontWeight: 500, color: '#2A2528',
+                    }}>
+                      {item.title}
+                    </p>
+                    <p className="mt-2" style={{
+                      fontFamily: sans,
+                      fontSize: 'clamp(0.95rem, 2vw, 1.05rem)',
+                      color: '#8A7E78', lineHeight: 1.6,
+                    }}>
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="h-10" />
+
+          {/* The insight */}
+          <p className="text-center transition-all duration-[2s] ease-out"
+            style={{
+              fontFamily: serif,
+              fontSize: 'clamp(1.2rem, 3vw, 1.6rem)',
+              fontStyle: 'italic', color: '#2A2528', lineHeight: 1.4,
+              opacity: moments.visible ? 1 : 0,
+              transitionDelay: '1600ms',
+            }}>
+            Love Is Blind proved people will watch strangers connect.
+            <br />
+            Pulse makes every user the star of their own show.
+            <br />
+            <span style={{ color: '#C83E88', fontWeight: 500 }}>
+              That's how an app becomes a media company.
+            </span>
+          </p>
         </div>
       </section>
 
