@@ -24,6 +24,26 @@ const sans = "'DM Sans', sans-serif"
 
 const DATE_DURATION = 5 * 60 // 5 minutes in seconds
 
+const ICEBREAKERS = [
+  "What's the most spontaneous thing you've ever done?",
+  "If you could have dinner with anyone, who would it be?",
+  "What's a skill you'd love to learn this year?",
+  "Describe your perfect weekend in Dubai.",
+  "What's the last thing that made you laugh out loud?",
+  "If you could teleport anywhere right now, where?",
+  "What's your unpopular food opinion?",
+  "Morning person or night owl — and why?",
+  "What's a deal-breaker for you on a first date?",
+  "What song is stuck in your head right now?",
+]
+
+const REACTIONS = [
+  { emoji: '😂', label: 'Haha' },
+  { emoji: '🔥', label: 'Fire' },
+  { emoji: '❤️', label: 'Love' },
+  { emoji: '😮', label: 'Wow' },
+]
+
 type Phase = 'lobby' | 'connecting' | 'live' | 'ended' | 'rating'
 type Rating = 'like' | 'pass' | null
 
@@ -58,6 +78,11 @@ export default function VideoDate({ onBack }: Props) {
   const [userName] = useState(() => localStorage.getItem('pulse-name') || '')
   const [nameInput, setNameInput] = useState('')
   const [copied, setCopied] = useState(false)
+  const [currentIcebreaker, setCurrentIcebreaker] = useState('')
+  const [showIcebreaker, setShowIcebreaker] = useState(false)
+  const [floatingReactions, setFloatingReactions] = useState<{ id: number; emoji: string; x: number }[]>([])
+  const [icebreakerIndex, setIcebreakerIndex] = useState(0)
+  const reactionIdRef = useRef(0)
 
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
@@ -95,6 +120,20 @@ export default function VideoDate({ onBack }: Props) {
     }
   }, [])
 
+  // ── Re-attach streams when phase changes (DOM elements re-mount) ──
+  const remoteStreamRef = useRef<MediaStream | null>(null)
+
+  useEffect(() => {
+    // Re-attach local stream to new video element after re-render
+    if (localVideoRef.current && streamRef.current) {
+      localVideoRef.current.srcObject = streamRef.current
+    }
+    // Re-attach remote stream to new video element after re-render
+    if (remoteVideoRef.current && remoteStreamRef.current) {
+      remoteVideoRef.current.srcObject = remoteStreamRef.current
+    }
+  }, [phase])
+
   // ── Timer ──
   useEffect(() => {
     if (phase === 'live') {
@@ -118,7 +157,7 @@ export default function VideoDate({ onBack }: Props) {
   const setupDataChannel = useCallback((conn: DataConnection) => {
     dataRef.current = conn
     conn.on('data', (data: unknown) => {
-      const msg = data as { type: string; name?: string; rating?: Rating }
+      const msg = data as { type: string; name?: string; rating?: Rating; emoji?: string; icebreaker?: string }
       if (msg.type === 'name') setPartnerName(msg.name || 'Someone')
       if (msg.type === 'time-up') {
         if (timerRef.current) clearInterval(timerRef.current)
@@ -126,6 +165,16 @@ export default function VideoDate({ onBack }: Props) {
         setPhase('ended')
       }
       if (msg.type === 'rating') setPartnerRating(msg.rating || null)
+      if (msg.type === 'reaction' && msg.emoji) {
+        const id = ++reactionIdRef.current
+        const x = 10 + Math.random() * 30
+        setFloatingReactions(prev => [...prev, { id, emoji: msg.emoji!, x }])
+        setTimeout(() => setFloatingReactions(prev => prev.filter(r => r.id !== id)), 2500)
+      }
+      if (msg.type === 'icebreaker' && msg.icebreaker) {
+        setCurrentIcebreaker(msg.icebreaker)
+        setShowIcebreaker(true)
+      }
     })
     conn.on('open', () => {
       conn.send({ type: 'name', name: userName || nameInput })
@@ -164,6 +213,7 @@ export default function VideoDate({ onBack }: Props) {
       callRef.current = call
       call.answer(stream)
       call.on('stream', (remoteStream) => {
+        remoteStreamRef.current = remoteStream
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream
         }
@@ -205,6 +255,7 @@ export default function VideoDate({ onBack }: Props) {
       }
       callRef.current = call
       call.on('stream', (remoteStream) => {
+        remoteStreamRef.current = remoteStream
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = remoteStream
         }
@@ -228,6 +279,27 @@ export default function VideoDate({ onBack }: Props) {
 
     if (nameInput) localStorage.setItem('pulse-name', nameInput)
   }, [joinCode, getMedia, nameInput, setupDataChannel])
+
+  // ── Send reaction ──
+  const sendReaction = useCallback((emoji: string) => {
+    dataRef.current?.send({ type: 'reaction', emoji })
+    // Also show locally
+    const id = ++reactionIdRef.current
+    const x = 60 + Math.random() * 30
+    setFloatingReactions(prev => [...prev, { id, emoji, x }])
+    setTimeout(() => setFloatingReactions(prev => prev.filter(r => r.id !== id)), 2500)
+  }, [])
+
+  // ── Icebreaker ──
+  const triggerIcebreaker = useCallback(() => {
+    const prompt = ICEBREAKERS[icebreakerIndex % ICEBREAKERS.length]
+    setIcebreakerIndex(prev => prev + 1)
+    setCurrentIcebreaker(prompt)
+    setShowIcebreaker(true)
+    dataRef.current?.send({ type: 'icebreaker', icebreaker: prompt })
+    // Auto-hide after 8 seconds
+    setTimeout(() => setShowIcebreaker(false), 8000)
+  }, [icebreakerIndex])
 
   // ── Send rating ──
   const submitRating = useCallback((r: Rating) => {
@@ -458,22 +530,80 @@ export default function VideoDate({ onBack }: Props) {
               className="w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} />
           </div>
 
-          {/* End date button (during live) */}
+          {/* Icebreaker prompt (floating card) */}
+          {showIcebreaker && currentIcebreaker && (
+            <div className="absolute top-20 inset-x-0 flex justify-center z-20 px-6 animate-slide-down">
+              <div className="max-w-sm w-full px-5 py-4 rounded-2xl text-center"
+                style={{
+                  background: 'rgba(0,0,0,0.5)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(200,62,136,0.25)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                }}>
+                <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#C83E88' }}>
+                  Icebreaker
+                </p>
+                <p className="mt-2" style={{ fontFamily: serif, fontSize: '1.05rem', fontWeight: 400, fontStyle: 'italic', color: 'white', lineHeight: 1.4 }}>
+                  {currentIcebreaker}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Floating reactions */}
+          {floatingReactions.map(r => (
+            <div key={r.id} className="absolute z-30 pointer-events-none animate-float-up"
+              style={{ bottom: '120px', left: `${r.x}%` }}>
+              <span className="text-4xl">{r.emoji}</span>
+            </div>
+          ))}
+
+          {/* Bottom toolbar */}
           {phase === 'live' && (
-            <div className="absolute bottom-6 inset-x-0 flex justify-center z-10">
+            <div className="absolute bottom-6 inset-x-0 flex items-center justify-center gap-3 z-10 px-6">
+              {/* Icebreaker button */}
+              <button
+                onClick={triggerIcebreaker}
+                className="px-4 py-3 rounded-full transition-all hover:scale-105 active:scale-95"
+                style={{
+                  background: 'rgba(0,0,0,0.3)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  fontFamily: sans, fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)',
+                }}>
+                💬 Icebreaker
+              </button>
+
+              {/* Reactions */}
+              {REACTIONS.map(r => (
+                <button
+                  key={r.emoji}
+                  onClick={() => sendReaction(r.emoji)}
+                  className="w-11 h-11 rounded-full flex items-center justify-center transition-all hover:scale-125 active:scale-90"
+                  style={{
+                    background: 'rgba(0,0,0,0.3)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                  title={r.label}>
+                  <span className="text-lg">{r.emoji}</span>
+                </button>
+              ))}
+
+              {/* End date */}
               <button
                 onClick={() => {
                   if (timerRef.current) clearInterval(timerRef.current)
                   setPhase('ended')
                   dataRef.current?.send({ type: 'time-up' })
                 }}
-                className="px-6 py-3 rounded-full transition-all hover:scale-105 active:scale-95"
+                className="px-4 py-3 rounded-full transition-all hover:scale-105 active:scale-95"
                 style={{
                   background: 'rgba(255,59,48,0.15)',
                   backdropFilter: 'blur(12px)',
                   border: '1px solid rgba(255,59,48,0.3)',
                   color: '#FF3B30',
-                  fontFamily: sans, fontSize: '0.85rem', fontWeight: 600,
+                  fontFamily: sans, fontSize: '0.75rem', fontWeight: 600,
                 }}>
                 End date
               </button>
@@ -572,6 +702,19 @@ export default function VideoDate({ onBack }: Props) {
           </div>
         </div>
       )}
+      {/* Animations */}
+      <style>{`
+        @keyframes float-up {
+          0% { transform: translateY(0) scale(1); opacity: 1; }
+          100% { transform: translateY(-200px) scale(1.5); opacity: 0; }
+        }
+        @keyframes slide-down {
+          0% { transform: translateY(-20px); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        .animate-float-up { animation: float-up 2.5s ease-out forwards; }
+        .animate-slide-down { animation: slide-down 0.4s ease-out forwards; }
+      `}</style>
     </div>
   )
 }
