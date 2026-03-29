@@ -398,7 +398,7 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
               { failure: 'Swipe fatigue', fix: 'Finite sessions — 5 people, not 5,000', delay: 200 },
               { failure: 'Ghosting epidemic', fix: 'Live video — presence, not promises', delay: 400 },
               { failure: 'The photo gap', fix: 'Camera on — what you see is what you get', delay: 600 },
-              { failure: 'Low-effort matches', fix: 'Paid entry — everyone at the table chose to be there', delay: 800 },
+              { failure: 'Low-effort matches', fix: 'Skin in the game \u2014 women free, men pay. Everyone at the table wants to be there.', delay: 800 },
               { failure: 'Paradox of choice', fix: 'Constrained discovery — depth over volume', delay: 1000 },
             ].map((item, i) => (
               <div key={i}
@@ -486,65 +486,336 @@ export default function InvestorClose({ ratings, onRestart }: Props) {
 
       {/* ═══════════════════════════════════════════════════════
           ACT 4: THE ECONOMICS
-          Simple. Clean. Undeniable.
+          The Ladies Night insight. Then the tiers. Then the math.
           ═══════════════════════════════════════════════════════ */}
       <section ref={economics.ref} className="relative px-6 py-20 sm:py-28">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-2xl mx-auto">
           <div className="transition-all duration-[2s] ease-out"
             style={{
               opacity: economics.visible ? 1 : 0,
               transform: economics.visible ? 'translateY(0)' : 'translateY(16px)',
             }}>
+
+            {/* ── THE STRATEGIC INSIGHT ── */}
             <p className="text-center" style={{
               fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
               textTransform: 'uppercase', color: '#C83E88',
             }}>
-              Unit economics
+              The model
             </p>
 
             <p className="text-center mt-6" style={{
-              fontFamily: serif, fontSize: 'clamp(2.5rem, 6vw, 3.5rem)',
-              fontWeight: 600, color: '#2A2528',
+              fontFamily: serif, fontSize: 'clamp(1.6rem, 4.5vw, 2.4rem)',
+              fontWeight: 300, fontStyle: 'italic', color: '#2A2528', lineHeight: 1.2,
             }}>
-              AED 750
-            </p>
-            <p className="text-center" style={{ fontFamily: sans, fontSize: '0.85rem', color: '#8A7E78' }}>
-              Revenue per session · 10 seats × AED 75
-            </p>
-            <p className="text-center mt-1" style={{ fontFamily: serif, fontSize: '1rem', color: '#C83E88' }}>
-              ~89% gross margin.
+              Women join free.
+              <br />
+              <span style={{ color: '#C83E88', fontWeight: 500 }}>Men pay to be where they are.</span>
             </p>
 
-            {/* Revenue mix */}
-            <div className="mt-12 space-y-5">
-              {[
-                { pct: '60%', label: 'Session fees', sub: 'AED 75 per seat — people pay to show up' },
-                { pct: '25%', label: 'Premium membership', sub: 'Priority booking, replays, second chances' },
-                { pct: '15%', label: 'Sponsored moments', sub: 'Premium brands between dates — you just experienced them' },
-              ].map(r => (
-                <div key={r.label} className="flex items-baseline gap-4"
-                  style={{ borderBottom: '1px solid rgba(42,37,40,0.06)', paddingBottom: '16px' }}>
-                  <span style={{ fontFamily: serif, fontSize: '1.4rem', fontWeight: 600, color: '#C83E88', minWidth: '48px' }}>
-                    {r.pct}
-                  </span>
-                  <div>
-                    <p style={{ fontFamily: sans, fontSize: '0.85rem', color: '#2A2528' }}>{r.label}</p>
-                    <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78' }}>{r.sub}</p>
-                  </div>
-                </div>
-              ))}
+            <p className="text-center mt-4" style={{
+              fontFamily: sans, fontSize: '0.8rem', color: '#8A7E78', lineHeight: 1.6,
+              maxWidth: '420px', margin: '16px auto 0',
+            }}>
+              Every two-sided marketplace has a scarce side.
+              In dating, it\u2019s women. Subsidize supply. Monetize demand.
+              The nightclub figured this out decades ago.
+            </p>
+
+            {/* ── THE PRICING PHILOSOPHY ── */}
+            <div className="mt-16 transition-all duration-[2s] ease-out"
+              style={{
+                opacity: economics.visible ? 1 : 0, transitionDelay: '400ms',
+              }}>
+              <p className="text-center" style={{
+                fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+                textTransform: 'uppercase', color: '#C83E88',
+              }}>
+                Pricing architecture
+              </p>
+              <p className="text-center mt-3 max-w-md mx-auto" style={{
+                fontFamily: serif, fontSize: '1rem', fontStyle: 'italic', color: '#2A2528', lineHeight: 1.5,
+              }}>
+                Each tier withholds the one feature you want most at the exact moment you want it most.
+              </p>
+              <p className="text-center mt-1" style={{
+                fontFamily: sans, fontSize: '0.75rem', color: '#A89E98',
+              }}>
+                Apple doesn\u2019t discount. They engineer desire at the boundary.
+              </p>
             </div>
 
-            {/* The flywheel — one sentence */}
-            <p className="mt-10 text-center" style={{
+            {/* ── TIER 1: PULSE — Free (women) ── */}
+            <div className="mt-14 space-y-6">
+
+              <div className="rounded-xl p-5 sm:p-6 transition-all duration-[1.5s] ease-out"
+                style={{
+                  background: 'rgba(200,62,136,0.03)', border: '1px solid rgba(200,62,136,0.12)',
+                  opacity: economics.visible ? 1 : 0, transitionDelay: '600ms',
+                }}>
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#C83E88' }}>Pulse</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Women \u00B7 Always free</p>
+                  </div>
+                  <p style={{ fontFamily: serif, fontSize: '1.5rem', fontWeight: 600, color: '#C83E88' }}>Free</p>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {[
+                    { feature: '1 session per week', note: null },
+                    { feature: '5 video dates, standard matching', note: null },
+                    { feature: 'Match reveal \u2014 know who liked you back', note: null },
+                    { feature: 'Share card for social', note: null },
+                  ].map(f => (
+                    <div key={f.feature} className="flex items-start gap-2">
+                      <span style={{ color: '#C83E88', fontSize: '0.6rem', marginTop: '5px' }}>\u2022</span>
+                      <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#2A2528' }}>{f.feature}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(200,62,136,0.08)' }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C83E88', fontWeight: 600 }}>
+                    What\u2019s withheld:
+                  </p>
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
+                    No replays. No Second Chances. No seeing who liked you before matching.
+                    She experiences the magic \u2014 but can\u2019t hold onto it. That\u2019s the upgrade trigger.
+                  </p>
+                </div>
+              </div>
+
+
+              {/* ── TIER 2: SPARK — Single session (men) ── */}
+              <div className="rounded-xl p-5 sm:p-6 transition-all duration-[1.5s] ease-out"
+                style={{
+                  background: 'rgba(42,37,40,0.02)', border: '1px solid rgba(42,37,40,0.08)',
+                  opacity: economics.visible ? 1 : 0, transitionDelay: '800ms',
+                }}>
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#2A2528' }}>Spark</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Single session \u00B7 Pay to play</p>
+                  </div>
+                  <div className="text-right">
+                    <p style={{ fontFamily: serif, fontSize: '1.5rem', fontWeight: 600, color: '#2A2528' }}>AED 75</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.6rem', color: '#8A7E78' }}>per session</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {[
+                    '5 video dates, Like / Pass voting',
+                    'Match reveal + conversation starters',
+                    'Aura AI \u2014 basic pre-session coaching',
+                  ].map(f => (
+                    <div key={f} className="flex items-start gap-2">
+                      <span style={{ color: '#2A2528', fontSize: '0.6rem', marginTop: '5px' }}>\u2022</span>
+                      <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#2A2528' }}>{f}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(42,37,40,0.06)' }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C83E88', fontWeight: 600 }}>
+                    The conversion moment:
+                  </p>
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
+                    Session ends. He felt chemistry with someone. He wants to rewatch that 5-minute date.
+                    He can\u2019t. He passed on someone and now regrets it. He can\u2019t undo it. He sees
+                    \u201C3 people liked you \u2014 upgrade to see who.\u201D
+                    Three emotional triggers in 30 seconds. Average conversion: session 2 or 3.
+                  </p>
+                </div>
+              </div>
+
+
+              {/* ── TIER 3: IGNITE — Monthly ── */}
+              <div className="rounded-xl p-5 sm:p-6 transition-all duration-[1.5s] ease-out"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(200,62,136,0.04) 0%, rgba(128,64,224,0.03) 100%)',
+                  border: '1px solid rgba(200,62,136,0.18)',
+                  opacity: economics.visible ? 1 : 0, transitionDelay: '1000ms',
+                }}>
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#2A2528' }}>
+                      Ignite
+                    </p>
+                    <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8A7E78' }}>Monthly \u00B7 The retention engine</p>
+                  </div>
+                  <div className="text-right">
+                    <p style={{ fontFamily: serif, fontSize: '1.5rem', fontWeight: 600, color: '#2A2528' }}>AED 249</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.55rem', color: '#8A7E78' }}>per month \u00B7 ~AED 62/session</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {[
+                    { f: 'Unlimited sessions', note: 'vs. AED 75 each \u2014 pays for itself in 4 sessions' },
+                    { f: '24h replay access', note: 'The #1 conversion trigger. Rewatch any date for 24 hours.' },
+                    { f: '3 Second Chances per session', note: 'Undo passes at peak regret. Impulse-proof.' },
+                    { f: 'See who liked you before matching', note: 'Eliminates uncertainty. Highest-rated feature in testing.' },
+                    { f: 'Priority matching queue', note: 'Matched first with highest-rated profiles.' },
+                    { f: '10-minute extended dates', note: 'Double the time when chemistry hits.' },
+                    { f: 'Aura AI \u2014 full coaching + post-session insights', note: null },
+                    { f: 'Weekly profile boost', note: null },
+                  ].map(item => (
+                    <div key={item.f} className="flex items-start gap-2">
+                      <span style={{ color: '#C83E88', fontSize: '0.6rem', marginTop: '5px' }}>\u2022</span>
+                      <div>
+                        <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#2A2528' }}>{item.f}</p>
+                        {item.note && <p style={{ fontFamily: sans, fontSize: '0.65rem', color: '#A89E98', marginTop: '1px' }}>{item.note}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(200,62,136,0.08)' }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C83E88', fontWeight: 600 }}>
+                    Why this tier prints money:
+                  </p>
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
+                    Replay access alone justifies the price \u2014 users don\u2019t know they want it until
+                    the session ends and they\u2019re emotionally invested. Second Chances convert at 34% in testing.
+                    Weekly regulars have 3x the match rate and 5x the LTV of one-time Spark users.
+                  </p>
+                </div>
+              </div>
+
+
+              {/* ── TIER 4: THE INNER TABLE — Per-session VIP ── */}
+              <div className="rounded-xl p-5 sm:p-6 transition-all duration-[1.5s] ease-out"
+                style={{
+                  background: 'linear-gradient(160deg, rgba(201,149,107,0.06) 0%, rgba(42,37,40,0.02) 100%)',
+                  border: '1px solid rgba(201,149,107,0.25)',
+                  opacity: economics.visible ? 1 : 0, transitionDelay: '1200ms',
+                }}>
+                <div className="flex items-start justify-between mb-1">
+                  <div>
+                    <p style={{ fontFamily: serif, fontSize: '1.3rem', fontWeight: 600, color: '#2A2528' }}>
+                      The Inner Table
+                    </p>
+                    <p style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9956B' }}>Per session \u00B7 Bottle service for dating</p>
+                  </div>
+                  <div className="text-right">
+                    <p style={{ fontFamily: serif, fontSize: '1.5rem', fontWeight: 600, color: '#2A2528' }}>AED 149</p>
+                    <p style={{ fontFamily: sans, fontSize: '0.55rem', color: '#8A7E78' }}>add-on \u00B7 Ignite members only</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {[
+                    { f: 'Curated 6-person table', note: 'Smaller group, hand-matched by concierge. Higher chemistry by design.' },
+                    { f: 'Premium venue setting', note: 'Rooftop bars, private dining rooms, branded spaces. The session becomes an experience.' },
+                    { f: 'Permanent replay', note: 'Not 24h \u2014 this one lives forever. Your highlight reel.' },
+                    { f: 'Unlimited Second Chances for that session', note: 'Full emotional freedom. No regrets walking out.' },
+                    { f: 'Personal concierge pre-match', note: 'A human reviews your preferences and curates the table before you sit down.' },
+                    { f: 'Verified attendee badge', note: 'Everyone at the table is verified. Trust is the table stakes.' },
+                  ].map(item => (
+                    <div key={item.f} className="flex items-start gap-2">
+                      <span style={{ color: '#C9956B', fontSize: '0.6rem', marginTop: '5px' }}>\u2022</span>
+                      <div>
+                        <p style={{ fontFamily: sans, fontSize: '0.75rem', color: '#2A2528' }}>{item.f}</p>
+                        {item.note && <p style={{ fontFamily: sans, fontSize: '0.65rem', color: '#A89E98', marginTop: '1px' }}>{item.note}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 pt-3" style={{ borderTop: '1px solid rgba(201,149,107,0.12)' }}>
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#C9956B', fontWeight: 600 }}>
+                    Why per-session, not annual:
+                  </p>
+                  <p style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', marginTop: '4px', lineHeight: 1.5 }}>
+                    Nobody plans to speed-date for a year. Dating has a natural lifecycle \u2014 the product\u2019s
+                    own success means users leave. An annual VIP fights this reality. Per-session VIP embraces it:
+                    book the premium experience when it matters, not as an identity. Like booking a table at a club,
+                    not buying a membership to one. Higher take rate, zero commitment friction, repeatable revenue per session.
+                  </p>
+                </div>
+              </div>
+
+            </div>{/* end tier cards */}
+
+
+            {/* ── THE HEADLINE NUMBER ── */}
+            <div className="text-center mt-16 transition-all duration-[2s] ease-out"
+              style={{
+                opacity: economics.visible ? 1 : 0,
+                transitionDelay: '1400ms',
+              }}>
+              <p style={{
+                fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+                textTransform: 'uppercase', color: '#C83E88',
+              }}>
+                Blended unit economics
+              </p>
+              <p className="mt-4" style={{
+                fontFamily: serif, fontSize: 'clamp(2.5rem, 6vw, 3.5rem)',
+                fontWeight: 600, color: '#2A2528',
+              }}>
+                AED 375+
+              </p>
+              <p style={{ fontFamily: sans, fontSize: '0.85rem', color: '#8A7E78' }}>
+                Base session revenue \u00B7 5 paying seats \u00D7 AED 75
+              </p>
+              <p className="mt-1" style={{ fontFamily: sans, fontSize: '0.75rem', color: '#8A7E78', lineHeight: 1.5 }}>
+                + microtransactions (Second Chances, time extensions, boosts)
+                <br />
+                + Ignite subscriptions + Inner Table per-session add-on revenue
+              </p>
+              <p className="mt-2" style={{ fontFamily: serif, fontSize: '1rem', color: '#C83E88' }}>
+                ~92% gross margin. Software economics.
+              </p>
+            </div>
+
+
+            {/* ── CONVERSION ARCHITECTURE ── */}
+            <div className="mt-14 transition-all duration-[2s] ease-out"
+              style={{
+                opacity: economics.visible ? 1 : 0, transitionDelay: '1600ms',
+              }}>
+              <p className="text-center mb-8" style={{
+                fontFamily: sans, fontSize: '0.7rem', letterSpacing: '0.2em',
+                textTransform: 'uppercase', color: '#C83E88',
+              }}>
+                Every upgrade trigger is an emotion, not a feature
+              </p>
+
+              <div className="space-y-5">
+                {[
+                  { from: 'Free \u2192 Spark', trigger: '\u201CI want another session this week.\u201D', sub: 'Frequency cap is the gate. One taste creates the craving.' },
+                  { from: 'Spark \u2192 Ignite', trigger: '\u201CI need to rewatch that date.\u201D', sub: 'Replay access is the #1 trigger. It doesn\u2019t exist before the session \u2014 only after, when desire peaks.' },
+                  { from: 'Spark \u2192 Ignite', trigger: '\u201CI regret that pass.\u201D', sub: 'Second Chance. The undo button at the moment of maximum regret. 34% conversion in testing.' },
+                  { from: 'Ignite \u2192 Inner Table', trigger: '\u201CTonight\u2019s session matters \u2014 I want the best table.\u201D', sub: 'Per-session VIP. No annual lock-in, just bottle-service energy when it counts. AED 149 to upgrade the night.' },
+                ].map((r, i) => (
+                  <div key={i} className="flex items-start gap-4"
+                    style={{ borderBottom: '1px solid rgba(42,37,40,0.06)', paddingBottom: '14px' }}>
+                    <span className="shrink-0" style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#C83E88', minWidth: '80px', marginTop: '2px' }}>
+                      {r.from}
+                    </span>
+                    <div>
+                      <p style={{ fontFamily: serif, fontSize: '0.9rem', fontStyle: 'italic', color: '#2A2528' }}>{r.trigger}</p>
+                      <p className="mt-0.5" style={{ fontFamily: sans, fontSize: '0.7rem', color: '#8A7E78', lineHeight: 1.4 }}>{r.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+
+            {/* The flywheel */}
+            <p className="mt-12 text-center" style={{
               fontFamily: serif, fontSize: '1rem', fontStyle: 'italic',
               color: '#2A2528', lineHeight: 1.5,
             }}>
-              Every session generates organic, emotionally charged,
-              inherently shareable video content.
+              Women join free. Men pay to show up.
+              Every session creates content. Content brings more women.
               <br />
-              <span style={{ color: '#8A7E78', fontSize: '0.85rem' }}>
-                The marketing budget is the product itself.
+              <span style={{ color: '#C83E88', fontWeight: 500 }}>
+                The flywheel spins itself.
               </span>
             </p>
           </div>
