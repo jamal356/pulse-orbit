@@ -917,13 +917,24 @@ export default function WaitlistPage() {
         </section>
       )}
 
-      {/* Footer */}
-      <footer className="absolute bottom-0 left-0 right-0 px-6 py-6 z-10">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <span style={{ fontFamily: serif, fontSize: '0.72rem', fontStyle: 'italic', color: P.textFaint }}>For people who want to feel something.</span>
+      {/* Footer — manifesto line + contact */}
+      <footer className="relative px-6 pt-16 pb-10 z-10">
+        <div className="max-w-4xl mx-auto flex flex-col items-center gap-8">
+          {/* Manifesto */}
+          <p className="text-center" style={{
+            fontFamily: serif,
+            fontSize: 'clamp(1.1rem, 3.5vw, 1.5rem)',
+            fontStyle: 'italic',
+            fontWeight: 300,
+            color: P.textSoft,
+            lineHeight: 1.5,
+            animation: 'manifesto-in 2s ease-out both',
+          }}>
+            For people who want to feel something.
+          </p>
           <a href="mailto:jamal@hakadian.com"
             className="transition-colors duration-500"
-            style={{ fontFamily: sans, fontSize: '0.65rem', letterSpacing: '0.15em', color: P.textGhost, textDecoration: 'none' }}>
+            style={{ fontFamily: sans, fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: P.textGhost, textDecoration: 'none' }}>
             Contact
           </a>
         </div>
@@ -964,6 +975,10 @@ export default function WaitlistPage() {
           }
         }
         .animate-fade-in { animation: fade-in 0.6s ease-out; }
+        @keyframes manifesto-in {
+          0% { opacity: 0; transform: translateY(12px); letter-spacing: 0.15em; }
+          100% { opacity: 1; transform: translateY(0); letter-spacing: 0; }
+        }
         .animate-float { animation: float 2s ease-in-out infinite; }
         input[type=number]::-webkit-outer-spin-button,
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
