@@ -485,24 +485,24 @@ export default function WaitlistPage() {
       style={{ background: `linear-gradient(170deg, ${P.bg} 0%, ${P.bgDeep} 50%, ${P.bg} 100%)` }}
       onKeyDown={handleKeyDown}>
 
-      {/* ── Animated pulse rings — the heartbeat of the page ── */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Radial warmth base */}
-        <div className="absolute top-[40%] left-1/2"
+      {/* ── Animated pulse rings — origin below hero content ── */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+        {/* Soft radial warmth */}
+        <div className="absolute top-[55%] left-1/2"
           style={{
-            width: '1200px', height: '1200px',
+            width: '1000px', height: '1000px',
             transform: 'translate(-50%, -50%)',
-            background: `radial-gradient(circle, rgba(200,62,136,0.12) 0%, rgba(200,62,136,0.04) 35%, transparent 60%)`,
+            background: `radial-gradient(circle, rgba(200,62,136,0.08) 0%, rgba(200,62,136,0.03) 35%, transparent 55%)`,
           }} />
-        {/* Expanding rings — staggered, continuous */}
-        {[0, 1, 2, 3].map(i => (
-          <div key={i} className="absolute top-[40%] left-1/2"
+        {/* Expanding rings — start large enough to avoid visible inner circle */}
+        {[0, 1, 2].map(i => (
+          <div key={i} className="absolute top-[55%] left-1/2"
             style={{
-              width: '80px', height: '80px',
+              width: '200px', height: '200px',
               transform: 'translate(-50%, -50%)',
-              border: '1.5px solid rgba(200,62,136,0.25)',
+              border: '1px solid rgba(200,62,136,0.15)',
               borderRadius: '50%',
-              animation: `pulse-ring 5s ${i * 1.25}s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite`,
+              animation: `pulse-ring 6s ${i * 2}s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite`,
             }} />
         ))}
       </div>
@@ -516,8 +516,8 @@ export default function WaitlistPage() {
       )}
 
       {/* ═══ HERO ═══ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6">
-        <div className="relative z-10 flex flex-col items-center text-center max-w-lg">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6" style={{ zIndex: 1 }}>
+        <div className="relative flex flex-col items-center text-center max-w-lg">
 
           {/* Logo — draw-in animation */}
           <div className="transition-all duration-[2s] ease-out mb-4"
@@ -945,17 +945,18 @@ export default function WaitlistPage() {
         }
         @keyframes pulse-ring {
           0% {
-            width: 80px; height: 80px;
-            opacity: 0.4;
-            border-color: rgba(200,62,136,0.35);
+            width: 200px; height: 200px;
+            opacity: 0;
           }
-          70% {
-            opacity: 0.08;
+          10% {
+            opacity: 0.25;
+          }
+          60% {
+            opacity: 0.06;
           }
           100% {
-            width: 900px; height: 900px;
+            width: 1100px; height: 1100px;
             opacity: 0;
-            border-color: rgba(200,62,136,0.0);
           }
         }
         .animate-fade-in { animation: fade-in 0.6s ease-out; }
