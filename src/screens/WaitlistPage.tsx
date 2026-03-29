@@ -277,77 +277,72 @@ export default function WaitlistPage() {
     reader.readAsDataURL(file)
   }, [setAnswer])
 
-  /* ─── Generate personalized share card ─── */
+  /* ─── Generate personalized share card (1080x1080 square) ─── */
   const generateShareCard = useCallback(async () => {
     setCardGenerating(true)
-    const W = 1080, H = 1920 // Instagram story / WhatsApp ratio
+    const S = 1080 // Square — displays well everywhere
     const canvas = document.createElement('canvas')
-    canvas.width = W; canvas.height = H
+    canvas.width = S; canvas.height = S
     const ctx = canvas.getContext('2d')!
 
-    // Background gradient
-    const grad = ctx.createLinearGradient(0, 0, 0, H)
-    grad.addColorStop(0, '#1E1B18')
-    grad.addColorStop(0.5, '#2A2528')
-    grad.addColorStop(1, '#1E1B18')
+    // Background
+    const grad = ctx.createLinearGradient(0, 0, 0, S)
+    grad.addColorStop(0, '#1A1718')
+    grad.addColorStop(0.5, '#242022')
+    grad.addColorStop(1, '#1A1718')
     ctx.fillStyle = grad
-    ctx.fillRect(0, 0, W, H)
+    ctx.fillRect(0, 0, S, S)
 
-    // Subtle radial glow
-    const glow = ctx.createRadialGradient(W / 2, H * 0.38, 0, W / 2, H * 0.38, 500)
-    glow.addColorStop(0, 'rgba(200,62,136,0.12)')
+    // Center glow
+    const glow = ctx.createRadialGradient(S / 2, S * 0.42, 0, S / 2, S * 0.42, S * 0.45)
+    glow.addColorStop(0, 'rgba(200,62,136,0.14)')
+    glow.addColorStop(0.5, 'rgba(200,62,136,0.04)')
     glow.addColorStop(1, 'transparent')
     ctx.fillStyle = glow
-    ctx.fillRect(0, 0, W, H)
+    ctx.fillRect(0, 0, S, S)
 
-    // Heartbeat line
-    ctx.strokeStyle = 'rgba(200,62,136,0.3)'
-    ctx.lineWidth = 2
+    ctx.textAlign = 'center'
+
+    // "PULSE" brand
+    ctx.fillStyle = 'rgba(200,62,136,0.9)'
+    ctx.font = '500 32px "DM Sans", sans-serif'
+    ctx.letterSpacing = '10px'
+    ctx.fillText('PULSE', S / 2, S * 0.14)
+
+    // Heartbeat line — compact
+    ctx.strokeStyle = 'rgba(200,62,136,0.35)'
+    ctx.lineWidth = 1.5
     ctx.beginPath()
-    const cy = H * 0.28
-    ctx.moveTo(W * 0.2, cy)
-    ctx.lineTo(W * 0.38, cy)
-    ctx.lineTo(W * 0.42, cy - 40)
-    ctx.lineTo(W * 0.46, cy + 40)
-    ctx.lineTo(W * 0.50, cy - 40)
-    ctx.lineTo(W * 0.54, cy + 40)
-    ctx.lineTo(W * 0.58, cy)
-    ctx.lineTo(W * 0.8, cy)
+    const hbY = S * 0.20
+    ctx.moveTo(S * 0.28, hbY)
+    ctx.lineTo(S * 0.40, hbY)
+    ctx.lineTo(S * 0.43, hbY - 24)
+    ctx.lineTo(S * 0.46, hbY + 24)
+    ctx.lineTo(S * 0.49, hbY - 24)
+    ctx.lineTo(S * 0.52, hbY + 24)
+    ctx.lineTo(S * 0.55, hbY)
+    ctx.lineTo(S * 0.72, hbY)
     ctx.stroke()
 
-    // "Pulse" text
-    ctx.fillStyle = 'rgba(200,62,136,0.9)'
-    ctx.font = '300 42px "DM Sans", sans-serif'
-    ctx.letterSpacing = '8px'
-    ctx.textAlign = 'center'
-    ctx.fillText('PULSE', W / 2, H * 0.22)
+    // "You'll know." tagline
+    ctx.fillStyle = 'rgba(255,255,255,0.93)'
+    ctx.font = 'italic 300 88px "Cormorant Garamond", Georgia, serif'
+    ctx.letterSpacing = '-1px'
+    ctx.fillText("You'll know.", S / 2, S * 0.36)
 
-    // Main tagline
-    ctx.fillStyle = 'rgba(255,255,255,0.92)'
-    ctx.font = 'italic 300 120px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '-2px'
-    ctx.fillText("You'll know.", W / 2, H * 0.42)
-
-    // Divider line
-    ctx.strokeStyle = 'rgba(200,62,136,0.25)'
+    // Thin divider
+    ctx.strokeStyle = 'rgba(200,62,136,0.2)'
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(W * 0.35, H * 0.47)
-    ctx.lineTo(W * 0.65, H * 0.47)
+    ctx.moveTo(S * 0.38, S * 0.40)
+    ctx.lineTo(S * 0.62, S * 0.40)
     ctx.stroke()
 
-    // Personal line
-    const name = answers.firstName || 'Someone'
-    ctx.fillStyle = 'rgba(255,255,255,0.7)'
-    ctx.font = 'italic 300 52px "Cormorant Garamond", Georgia, serif'
-    ctx.letterSpacing = '0px'
-    ctx.fillText(`${name} is in.`, W / 2, H * 0.54)
+    // Name — capitalize first letter
+    const rawName = answers.firstName || 'Someone'
+    const name = rawName.charAt(0).toUpperCase() + rawName.slice(1)
 
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'
-    ctx.font = '400 36px "DM Sans", sans-serif'
-    ctx.fillText('Are you?', W / 2, H * 0.59)
-
-    // Draw photo circle if available
+    // Photo + name row (side by side if photo exists)
     if (answers.photo) {
       try {
         const img = new Image()
@@ -358,7 +353,14 @@ export default function WaitlistPage() {
           img.src = answers.photo
         })
         if (img.complete && img.naturalWidth > 0) {
-          const cx = W / 2, pcY = H * 0.72, r = 90
+          const r = 70, cx = S / 2, pcY = S * 0.54
+          // Glow behind photo
+          const pglow = ctx.createRadialGradient(cx, pcY, r, cx, pcY, r + 30)
+          pglow.addColorStop(0, 'rgba(200,62,136,0.12)')
+          pglow.addColorStop(1, 'transparent')
+          ctx.fillStyle = pglow
+          ctx.fillRect(cx - r - 30, pcY - r - 30, (r + 30) * 2, (r + 30) * 2)
+          // Clip circle
           ctx.save()
           ctx.beginPath()
           ctx.arc(cx, pcY, r, 0, Math.PI * 2)
@@ -367,19 +369,46 @@ export default function WaitlistPage() {
           ctx.restore()
           // Ring
           ctx.strokeStyle = 'rgba(200,62,136,0.5)'
-          ctx.lineWidth = 3
+          ctx.lineWidth = 2.5
           ctx.beginPath()
-          ctx.arc(cx, pcY, r + 4, 0, Math.PI * 2)
+          ctx.arc(cx, pcY, r + 3, 0, Math.PI * 2)
           ctx.stroke()
+
+          // Name below photo
+          ctx.fillStyle = 'rgba(255,255,255,0.75)'
+          ctx.font = 'italic 300 44px "Cormorant Garamond", Georgia, serif'
+          ctx.letterSpacing = '0px'
+          ctx.fillText(`${name} is in.`, S / 2, S * 0.67)
+
+          ctx.fillStyle = 'rgba(255,255,255,0.4)'
+          ctx.font = '400 30px "DM Sans", sans-serif'
+          ctx.fillText('Are you?', S / 2, S * 0.72)
         }
-      } catch { /* skip photo */ }
+      } catch {
+        // Photo failed — text only
+        ctx.fillStyle = 'rgba(255,255,255,0.75)'
+        ctx.font = 'italic 300 48px "Cormorant Garamond", Georgia, serif'
+        ctx.fillText(`${name} is in.`, S / 2, S * 0.52)
+        ctx.fillStyle = 'rgba(255,255,255,0.4)'
+        ctx.font = '400 32px "DM Sans", sans-serif'
+        ctx.fillText('Are you?', S / 2, S * 0.58)
+      }
+    } else {
+      // No photo — centered text
+      ctx.fillStyle = 'rgba(255,255,255,0.75)'
+      ctx.font = 'italic 300 48px "Cormorant Garamond", Georgia, serif'
+      ctx.letterSpacing = '0px'
+      ctx.fillText(`${name} is in.`, S / 2, S * 0.52)
+      ctx.fillStyle = 'rgba(255,255,255,0.4)'
+      ctx.font = '400 32px "DM Sans", sans-serif'
+      ctx.fillText('Are you?', S / 2, S * 0.58)
     }
 
     // Position badge
+    const badgeY = answers.photo ? S * 0.78 : S * 0.68
+    const badgeW = 300, badgeH = 48, badgeR = 24
+    const badgeX = (S - badgeW) / 2
     ctx.fillStyle = 'rgba(200,62,136,0.15)'
-    const badgeY = answers.photo ? H * 0.82 : H * 0.72
-    const badgeW = 320, badgeH = 56, badgeR = 28
-    const badgeX = (W - badgeW) / 2
     ctx.beginPath()
     ctx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeR)
     ctx.fill()
@@ -387,32 +416,24 @@ export default function WaitlistPage() {
     ctx.lineWidth = 1
     ctx.stroke()
 
-    ctx.fillStyle = 'rgba(200,62,136,0.9)'
-    ctx.font = '500 22px "DM Sans", sans-serif'
-    ctx.letterSpacing = '3px'
     const city = answers.city || 'UAE'
-    ctx.fillText(`#${waitlistNumber} IN LINE \u00B7 ${city.toUpperCase()}`, W / 2, badgeY + 36)
+    ctx.fillStyle = 'rgba(200,62,136,0.9)'
+    ctx.font = '500 18px "DM Sans", sans-serif'
+    ctx.letterSpacing = '3px'
+    ctx.fillText(`#${waitlistNumber} IN LINE \u00B7 ${city.toUpperCase()}`, S / 2, badgeY + 31)
 
-    // URL — visible on card so recipients know where to go
-    const urlY = answers.photo ? H * 0.875 : H * 0.80
-    ctx.fillStyle = 'rgba(200,62,136,0.7)'
-    ctx.font = '500 30px "DM Sans", sans-serif'
+    // URL + bottom
+    ctx.fillStyle = 'rgba(200,62,136,0.6)'
+    ctx.font = '500 24px "DM Sans", sans-serif'
     ctx.letterSpacing = '1px'
-    const siteUrl = window.location.origin || 'pulse-orbit-jamal356s-projects.vercel.app'
-    const displayUrl = siteUrl.replace(/^https?:\/\//, '')
-    ctx.fillText(displayUrl, W / 2, urlY)
+    const siteUrl = window.location.origin || 'https://pulse-orbit-jamal356s-projects.vercel.app'
+    const displayUrl = siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
+    ctx.fillText(displayUrl, S / 2, S * 0.89)
 
-    // Bottom CTA
-    const ctaY = H * 0.93
-    ctx.fillStyle = 'rgba(255,255,255,0.3)'
-    ctx.font = '400 26px "DM Sans", sans-serif'
-    ctx.letterSpacing = '6px'
-    ctx.fillText('BY APPLICATION ONLY', W / 2, ctaY)
-
-    ctx.fillStyle = 'rgba(255,255,255,0.15)'
-    ctx.font = '400 20px "DM Sans", sans-serif'
-    ctx.letterSpacing = '2px'
-    ctx.fillText('UAE \u00B7 2026', W / 2, ctaY + 38)
+    ctx.fillStyle = 'rgba(255,255,255,0.2)'
+    ctx.font = '400 18px "DM Sans", sans-serif'
+    ctx.letterSpacing = '5px'
+    ctx.fillText('BY APPLICATION ONLY', S / 2, S * 0.94)
 
     const url = canvas.toDataURL('image/png', 1.0)
     setShareCardUrl(url)
@@ -421,21 +442,19 @@ export default function WaitlistPage() {
 
   const handleShareCard = useCallback(async () => {
     if (!shareCardUrl) return
-    // Convert data URL to blob for native share
     const res = await fetch(shareCardUrl)
     const blob = await res.blob()
     const file = new File([blob], 'pulse-invite.png', { type: 'image/png' })
 
     const siteLink = window.location.origin || 'https://pulse-orbit-jamal356s-projects.vercel.app'
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      // Share image + single URL as caption (no duplication)
       navigator.share({
         files: [file],
-        title: 'Pulse',
-        text: `I'm in. Are you?\n${siteLink}`,
-        url: siteLink,
+        text: `${siteLink}`,
       }).catch(() => {})
     } else {
-      // Fallback: download the image
+      // Fallback: download
       const a = document.createElement('a')
       a.href = shareCardUrl
       a.download = 'pulse-invite.png'
@@ -856,7 +875,7 @@ export default function WaitlistPage() {
                 <div className="flex flex-col items-center gap-5">
                   <div className="relative group cursor-pointer" onClick={handleShareCard}>
                     <img src={shareCardUrl} alt="Your Pulse invite"
-                      className="w-48 rounded-2xl transition-all duration-500 group-hover:scale-[1.03]"
+                      className="w-56 sm:w-64 rounded-2xl transition-all duration-500 group-hover:scale-[1.03]"
                       style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.15), 0 0 60px rgba(200,62,136,0.08)' }} />
                     <div className="absolute inset-0 rounded-2xl flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-all duration-300">
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-4 py-2 rounded-full"
