@@ -1,585 +1,539 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { photos, candidates, conversationStarters, USER_COLOR } from '../data/people'
+import { useSession } from '../hooks/useSession'
+import { useVideo } from '../hooks/useVideo'
+import { useTimer } from '../hooks/useTimer'
+import { dark } from '../theme'
 import BackgroundOrbs from '../components/BackgroundOrbs'
+import { conversationStarters } from '../data/people'
+
+type SessionPhase = 'intro' | 'live' | 'transition' | 'rating'
 
 interface Props {
-  dateIndex: number
-  onNavigate: () => void
+  user: { id: string; display_name: string; photo_url: string | null }
+  sessionData: {
+    sessionId: string
+    participants: Array<{ userId: string; displayName: string; photoUrl: string | null }>
+    rounds: number
+  }
+  onNavigate: (screen: string, data?: unknown) => void
 }
 
-const reactionEmojis = ['😂', '🔥', '❤️', '😍', '👏', '😮']
+const INTRO_DURATION = 5
+const LIVE_DURATION = 300
+const TRANSITION_DURATION = 15
+const EXTEND_WINDOW = 30
 
-interface FloatingEmoji {
-  id: number
-  emoji: string
-  x: number
-}
+export default function LiveSession({ user, sessionData, onNavigate }: Props) {
+  const { sendSpark, requestExtend, sparks } = useSession(sessionData.sessionId, user.id)
+  const { localStream, remoteStream, startCamera, stopCamera, disconnect } = useVideo()
+  const timer = useTimer()
 
-/* ─── SLOT ARCHITECTURE ───────────────────────────────────────
-   The user sees "5-minute dates." The slot is actually 7 minutes.
-   5:00 conversation → 0:30 rating buffer → 1:30 transition/sponsor
-   When BOTH people hit Extend, the extra 2 min come from the buffer.
-   Conversation goes to 7:00, transition is instant. Schedule never shifts.
-   ──────────────────────────────────────────────────────────── */
-const CONVERSATION_TIME = 300  // 5 minutes default
-const EXTENDED_TIME = 420      // 7 minutes when mutually extended
-const EXTEND_WINDOW = 30       // Extend button appears in last 30 seconds
-const ONE_MORE_TIME = 60       // "One More Thing" adds 60 seconds — no mutual requirement
-
-export default function LiveSession({ dateIndex, onNavigate }: Props) {
-  const person = candidates[dateIndex] || candidates[0]
-  const [timer, setTimer] = useState(CONVERSATION_TIME)
-  const [visible, setVisible] = useState(false)
-  const [currentQuestion, setCurrentQuestion] = useState<string | null>(null)
-  const [isSpinning, setIsSpinning] = useState(false)
-  const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([])
-  const emojiIdRef = useRef(0)
-
-  // Emergency exit state
+  const [phase, setPhase] = useState<SessionPhase>('intro')
+  const [currentRound, setCurrentRound] = useState(1)
+  const [currentPartner, setCurrentPartner] = useState<{ name: string; photo: string } | null>(null)
+  const [userSparkSent, setUserSparkSent] = useState(false)
+  const [userExtendRequested, setUserExtendRequested] = useState(false)
+  const [isExtended, setIsExtended] = useState(false)
   const [showEmergencyConfirm, setShowEmergencyConfirm] = useState(false)
   const [emergencyTriggered, setEmergencyTriggered] = useState(false)
+  const [currentQuestion, setCurrentQuestion] = useState<string | null>(conversationStarters[0])
+  const [showReport, setShowReport] = useState(false)
+  const [reportReason, setReportReason] = useState<string | null>(null)
 
-  // Compatibility animation
-  const [compatScore, setCompatScore] = useState(0)
-  const [compatTarget] = useState(() => Math.floor(Math.random() * 30) + 65)
-  const [showCompat, setShowCompat] = useState(false)
+  const localVideoRef = useRef<HTMLVideoElement>(null)
+  const remoteVideoRef = useRef<HTMLVideoElement>(null)
 
-  // ── SPARK SIGNAL ──
-  // Either person can tap. If BOTH tap during the same date, magic happens.
-  const [userSparked, setUserSparked] = useState(false)
-  const [partnerSparked, setPartnerSparked] = useState(false)
-  const [sparkRevealed, setSparkRevealed] = useState(false)
-  const [sparkGlow, setSparkGlow] = useState(false)
-
-  // ── EXTEND ──
-  const [userExtended, setUserExtended] = useState(false)
-  const [partnerExtended, setPartnerExtended] = useState(false)
-  const [isExtended, setIsExtended] = useState(false)
-  const [extendFlash, setExtendFlash] = useState(false)
-
-  // ── ONE MORE THING ── unilateral 1-min boost, once per session
-  const [usedOneMore, setUsedOneMore] = useState(false)
-  const [oneMoreFlash, setOneMoreFlash] = useState(false)
-
-  const showExtendButton = timer <= EXTEND_WINDOW && timer > 0 && !isExtended
-
+  // Initialize camera
   useEffect(() => {
-    setTimeout(() => setVisible(true), 100)
-    setTimeout(() => setShowCompat(true), 1200)
-
-    const interval = setInterval(() => {
-      setTimer(prev => (prev > 0 ? prev - 1 : 0))
-    }, 1000)
-
-    // Simulate partner reactions
-    const partnerTimer = setInterval(() => {
-      const emoji = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)]
-      spawnEmoji(emoji)
-    }, 6000)
-
-    // Simulate partner spark (35% chance, after 2-4 minutes)
-    const sparkDelay = 120000 + Math.random() * 120000
-    const partnerSparkTimer = setTimeout(() => {
-      if (Math.random() < 0.35) {
-        setPartnerSparked(true)
+    const init = async () => {
+      try {
+        await startCamera()
+      } catch (err) {
+        console.error('Camera init error:', err)
       }
-    }, sparkDelay)
-
-    // Simulate partner extend (60% chance, when timer is low)
-    const partnerExtendTimer = setTimeout(() => {
-      if (Math.random() < 0.6) {
-        setPartnerExtended(true)
-      }
-    }, (CONVERSATION_TIME - EXTEND_WINDOW + 5) * 1000)
+    }
+    init()
 
     return () => {
-      clearInterval(interval)
-      clearInterval(partnerTimer)
-      clearTimeout(partnerSparkTimer)
-      clearTimeout(partnerExtendTimer)
+      stopCamera()
+      disconnect()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [startCamera, stopCamera, disconnect])
 
-  // ── Mutual Spark detection ──
+  // Set up video refs
   useEffect(() => {
-    if (userSparked && partnerSparked && !sparkRevealed) {
-      setSparkRevealed(true)
-      setSparkGlow(true)
-      // Glow lasts 4 seconds, then dims to subtle
-      setTimeout(() => setSparkGlow(false), 4000)
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream
     }
-  }, [userSparked, partnerSparked, sparkRevealed])
+  }, [localStream])
 
-  // ── Mutual Extend detection ──
   useEffect(() => {
-    if (userExtended && partnerExtended && !isExtended) {
-      setIsExtended(true)
-      setTimer(EXTENDED_TIME - CONVERSATION_TIME + timer) // Add remaining buffer
-      setExtendFlash(true)
-      setTimeout(() => setExtendFlash(false), 2000)
+    if (remoteVideoRef.current && remoteStream) {
+      remoteVideoRef.current.srcObject = remoteStream
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userExtended, partnerExtended])
+  }, [remoteStream])
 
-  // Animate compat score
+  // Simulate partner data
   useEffect(() => {
-    if (!showCompat) return
-    const step = () => {
-      setCompatScore(prev => {
-        if (prev >= compatTarget) return compatTarget
-        return prev + 1
-      })
+    const partners = ['Sofia', 'Layla', 'Amira', 'Nour', 'Yasmine']
+    const photos = [
+      'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1280&q=90',
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1280&q=90',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1280&q=90',
+      'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=1280&q=90',
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1280&q=90',
+    ]
+    setCurrentPartner({
+      name: partners[currentRound - 1] || 'Partner',
+      photo: photos[currentRound - 1] || photos[0],
+    })
+  }, [currentRound])
+
+  // Round state machine
+  useEffect(() => {
+    if (phase === 'intro') {
+      const timeout = setTimeout(() => {
+        setPhase('live')
+        timer.start(LIVE_DURATION)
+      }, INTRO_DURATION * 1000)
+      return () => clearTimeout(timeout)
     }
-    const id = setInterval(step, 30)
-    return () => clearInterval(id)
-  }, [showCompat, compatTarget])
 
-  const spawnEmoji = useCallback((emoji: string) => {
-    const id = emojiIdRef.current++
-    const x = 10 + Math.random() * 80
-    setFloatingEmojis(prev => [...prev, { id, emoji, x }])
-    setTimeout(() => {
-      setFloatingEmojis(prev => prev.filter(e => e.id !== id))
-    }, 3000)
-  }, [])
+    if (phase === 'live' && timer.seconds === 0) {
+      disconnect()
+      setPhase('transition')
+      setUserSparkSent(false)
+      setUserExtendRequested(false)
+      setIsExtended(false)
+    }
+  }, [phase, timer.seconds, disconnect, timer])
 
-  const handleReaction = useCallback((emoji: string) => {
-    spawnEmoji(emoji)
-    setTimeout(() => {
-      const response = reactionEmojis[Math.floor(Math.random() * reactionEmojis.length)]
-      spawnEmoji(response)
-    }, 800 + Math.random() * 1200)
-  }, [spawnEmoji])
+  useEffect(() => {
+    if (phase === 'transition') {
+      const timeout = setTimeout(() => {
+        if (currentRound >= sessionData.rounds) {
+          setPhase('rating')
+          onNavigate('match-survey', { sessionId: sessionData.sessionId })
+        } else {
+          setCurrentRound(currentRound + 1)
+          setPhase('intro')
+        }
+      }, TRANSITION_DURATION * 1000)
+      return () => clearTimeout(timeout)
+    }
+  }, [phase, currentRound, sessionData, onNavigate])
 
-  const spinForQuestion = useCallback(() => {
-    if (isSpinning) return
-    setIsSpinning(true)
-    setCurrentQuestion(null)
-    let count = 0
-    const shuffleInterval = setInterval(() => {
+  // Rotate conversation starters
+  useEffect(() => {
+    const interval = setInterval(() => {
       setCurrentQuestion(conversationStarters[Math.floor(Math.random() * conversationStarters.length)])
-      count++
-      if (count > 10) {
-        clearInterval(shuffleInterval)
-        setCurrentQuestion(conversationStarters[Math.floor(Math.random() * conversationStarters.length)])
-        setIsSpinning(false)
-      }
-    }, 120)
-  }, [isSpinning])
+    }, 8000)
+    return () => clearInterval(interval)
+  }, [])
+
+  // Handle mutual spark
+  useEffect(() => {
+    if (userSparkSent && sparks.received && !sparks.mutual) {
+      // Flash animation would be here
+    }
+  }, [userSparkSent, sparks])
 
   const handleSpark = useCallback(() => {
-    if (userSparked) return
-    setUserSparked(true)
-  }, [userSparked])
+    if (userSparkSent || phase !== 'live') return
+    setUserSparkSent(true)
+    sendSpark()
+  }, [userSparkSent, phase, sendSpark])
 
   const handleExtend = useCallback(() => {
-    if (userExtended) return
-    setUserExtended(true)
-  }, [userExtended])
+    if (userExtendRequested || phase !== 'live' || timer.seconds > EXTEND_WINDOW) return
+    setUserExtendRequested(true)
+    requestExtend()
+  }, [userExtendRequested, phase, timer.seconds, requestExtend])
 
-  const handleOneMore = useCallback(() => {
-    if (usedOneMore) return
-    setUsedOneMore(true)
-    setTimer(prev => prev + ONE_MORE_TIME)
-    setOneMoreFlash(true)
-    setTimeout(() => setOneMoreFlash(false), 2500)
-  }, [usedOneMore])
+  const handleReport = useCallback(() => {
+    if (!reportReason || !currentPartner) return
+    // Submit report via API
+    console.log('Report submitted:', { partnerId: currentPartner.name, reason: reportReason })
+    setShowReport(false)
+    setReportReason(null)
+    // End current round and skip future rounds with this person
+    disconnect()
+    setPhase('transition')
+  }, [reportReason, currentPartner, disconnect])
 
-  // Emergency exit handler
   const handleEmergencyExit = useCallback(() => {
     setEmergencyTriggered(true)
-    setShowEmergencyConfirm(false)
-    setTimeout(onNavigate, 1500)
-  }, [onNavigate])
+    setTimeout(() => {
+      stopCamera()
+      disconnect()
+      onNavigate('home')
+    }, 1500)
+  }, [stopCamera, disconnect, onNavigate])
 
-  const minutes = Math.floor(timer / 60)
-  const seconds = timer % 60
-  const compatArc = (compatScore / 100) * 283
+  const minutes = Math.floor(timer.seconds / 60)
+  const seconds = timer.seconds % 60
+  const showExtendButton = timer.seconds <= EXTEND_WINDOW && timer.seconds > 0 && !isExtended && phase === 'live'
 
-  // Emergency triggered — immediate black screen
   if (emergencyTriggered) {
     return (
-      <div className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center animate-fade-in">
+      <div className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center">
         <div className="text-center px-6">
-          <div className="w-16 h-16 rounded-full bg-[#FF3B30]/15 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'rgba(255,59,48,0.15)' }}>
+            <svg className="w-8 h-8 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
           </div>
-          <p className="text-white font-semibold mb-2">Session Ended</p>
-          <p className="text-sm text-white/50 max-w-xs">This date has been terminated. The interaction has been flagged for review by our safety team.</p>
+          <p className="text-white font-semibold mb-2">Session ended</p>
+          <p className="text-sm text-white/50 max-w-xs">This date has been terminated. The interaction has been flagged for review.</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (phase === 'transition') {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: dark.bg }}>
+        <BackgroundOrbs />
+        <div className="relative z-10 text-center px-6">
+          <div className="text-sm mb-4" style={{ color: dark.textSoft }}>Next up</div>
+          <h1 className="text-3xl md:text-4xl font-semibold mb-6" style={{ color: dark.text }}>
+            {currentRound < sessionData.rounds
+              ? `Match ${currentRound + 1}`
+              : 'Session Complete'}
+          </h1>
+          <div className="inline-flex items-center gap-2" style={{ color: dark.textFaint }}>
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: dark.accent }} />
+            <span className="text-sm">{TRANSITION_DURATION}s</span>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#1E1B18' }}>
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: dark.bg }}>
       <BackgroundOrbs />
 
-      {/* ── Mutual Spark glow — full border glow when both sparked ── */}
-      {sparkRevealed && (
+      {/* Mutual spark glow */}
+      {sparks.mutual && (
         <div
           className="fixed inset-0 pointer-events-none z-40 transition-opacity duration-1000"
           style={{
-            opacity: sparkGlow ? 1 : 0.3,
             boxShadow: 'inset 0 0 80px rgba(200,62,136,0.35), inset 0 0 200px rgba(200,62,136,0.15)',
           }}
         />
       )}
 
-      {/* ── Extend flash — full screen warm flash ── */}
-      {extendFlash && (
-        <div
-          className="fixed inset-0 pointer-events-none z-40 animate-fade-in"
-          style={{
-            background: 'radial-gradient(circle at center, rgba(200,62,136,0.15) 0%, transparent 70%)',
-            animation: 'extend-glow 2s ease-out forwards',
-          }}
-        />
-      )}
-
-      {/* Floating emojis */}
-      {floatingEmojis.map(e => (
-        <div
-          key={e.id}
-          className="fixed z-30 text-3xl pointer-events-none"
-          style={{
-            left: `${e.x}%`,
-            bottom: '15%',
-            animation: 'emoji-float 3s ease-out forwards',
-          }}
-        >
-          {e.emoji}
-        </div>
-      ))}
-
-      {/* ====== MUTUAL SPARK CELEBRATION ====== */}
-      {sparkRevealed && sparkGlow && (
+      {/* Mutual spark celebration */}
+      {sparks.mutual && (
         <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
-          <div className="animate-scale-in text-center">
+          <div className="text-center animate-scale-in">
             <div className="text-6xl mb-2" style={{ animation: 'spark-pulse 0.8s ease-in-out infinite' }}>✨</div>
-            <p className="text-sm font-semibold text-[#C83E88] tracking-wide animate-fade-in"
-              style={{ animationDelay: '0.3s', animationFillMode: 'backwards', textShadow: '0 0 20px rgba(200,62,136,0.5)' }}>
+            <p className="text-sm font-semibold tracking-wide" style={{ color: dark.accent, textShadow: '0 0 20px rgba(200,62,136,0.5)' }}>
               Mutual Spark!
             </p>
           </div>
         </div>
       )}
 
-      {/* ====== MUTUAL EXTEND CELEBRATION ====== */}
-      {extendFlash && (
-        <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
-          <div className="animate-scale-in text-center">
-            <div className="text-5xl mb-2">⏳</div>
-            <p className="text-lg font-bold text-white mb-1">+2 Minutes!</p>
-            <p className="text-sm text-[#C83E88]">You both want more time</p>
-          </div>
-        </div>
-      )}
-
-      {/* ====== ONE MORE THING CELEBRATION ====== */}
-      {oneMoreFlash && (
-        <>
-          <div
-            className="fixed inset-0 pointer-events-none z-40 animate-fade-in"
-            style={{
-              background: `radial-gradient(circle at center, rgba(${USER_COLOR.rgb},0.12) 0%, transparent 70%)`,
-              animation: 'extend-glow 2.5s ease-out forwards',
-            }}
-          />
-          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
-            <div className="animate-scale-in text-center">
-              <div className="text-5xl mb-2">⚡</div>
-              <p className="text-lg font-bold text-white mb-1">+1 Minute!</p>
-              <p className="text-sm" style={{ color: USER_COLOR.primary }}>The vibe continues...</p>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* ====== EMERGENCY CONFIRMATION MODAL ====== */}
+      {/* Emergency exit confirm modal */}
       {showEmergencyConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md animate-fade-in">
-          <div className="glass-tile rounded-3xl p-6 max-w-sm mx-4 w-full animate-scale-in" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-md" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
+          <div
+            className="rounded-3xl p-6 max-w-sm mx-4 w-full animate-scale-in border"
+            style={{ backgroundColor: dark.bgDeep, borderColor: dark.border, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}
+          >
             <div className="text-center mb-5">
-              <div className="w-14 h-14 rounded-full bg-[#FF3B30]/15 flex items-center justify-center mx-auto mb-3">
-                <svg className="w-7 h-7 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+              <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3" style={{ backgroundColor: 'rgba(255,59,48,0.15)' }}>
+                <svg className="w-7 h-7 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
               </div>
-              <h3 className="text-lg font-bold text-white mb-1">End this date immediately?</h3>
-              <p className="text-sm text-[#98989D] leading-relaxed">
-                This will disconnect the call instantly. The interaction will be flagged and reviewed by our safety team. This person will not be matched with you.
+              <h3 className="text-lg font-bold mb-1" style={{ color: dark.text }}>End this date immediately?</h3>
+              <p className="text-sm leading-relaxed" style={{ color: dark.textSoft }}>
+                This will disconnect instantly. The interaction will be flagged and reviewed by our safety team.
               </p>
             </div>
 
             <div className="space-y-2.5">
               <button
                 onClick={handleEmergencyExit}
-                className="w-full py-3.5 rounded-xl text-sm font-semibold bg-[#FF3B30] text-white active:scale-[0.98] transition-transform"
+                className="w-full py-3.5 rounded-xl text-sm font-semibold text-white active:scale-95 transition-transform"
+                style={{ backgroundColor: '#FF3B30' }}
               >
                 End Date Now
               </button>
               <button
                 onClick={() => setShowEmergencyConfirm(false)}
-                className="w-full py-3 rounded-xl text-sm font-semibold glass-button text-[#98989D] active:scale-[0.98] transition-transform"
+                className="w-full py-3 rounded-xl text-sm font-semibold active:scale-95 transition-transform border"
+                style={{ backgroundColor: dark.surface, borderColor: dark.border, color: dark.textSoft }}
               >
-                Cancel — Continue Date
+                Cancel
               </button>
             </div>
 
-            <p className="text-[0.65rem] text-[#7A7A80] text-center mt-4">
+            <p className="text-[0.65rem] text-center mt-4" style={{ color: dark.textFaint }}>
               Your safety is our priority. All reports are confidential.
             </p>
           </div>
         </div>
       )}
 
-      {/* Main content */}
-      <div className={`relative z-10 flex-1 flex flex-col transition-all duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Report modal */}
+      {showReport && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-md" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
+          <div
+            className="rounded-3xl p-6 max-w-sm mx-4 w-full animate-scale-in border"
+            style={{ backgroundColor: dark.bgDeep, borderColor: dark.border }}
+          >
+            <h3 className="text-lg font-bold mb-4" style={{ color: dark.text }}>Report this person</h3>
+            <div className="space-y-2 mb-6">
+              {['Inappropriate behavior', 'Harassment', 'Fake profile', 'Other'].map((reason) => (
+                <button
+                  key={reason}
+                  onClick={() => setReportReason(reason)}
+                  className="w-full p-3 rounded-lg text-left text-sm transition-all border"
+                  style={{
+                    backgroundColor: reportReason === reason ? dark.accentSoft : dark.surface,
+                    borderColor: reportReason === reason ? dark.accent : dark.border,
+                    color: dark.text,
+                  }}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
 
-        {/* Video panel */}
-        <div
-          className="flex-1 relative overflow-hidden transition-all duration-1000"
-          style={{
-            border: sparkRevealed
-              ? '3px solid #C83E88'
-              : '3px solid #C83E88',
-            boxShadow: sparkRevealed
-              ? `0 0 0 1.5px #C83E88, 0 0 ${sparkGlow ? '60' : '25'}px rgba(200, 62, 136, ${sparkGlow ? '0.50' : '0.20'})`
-              : '0 0 0 1px #C83E88, 0 0 20px rgba(200, 62, 136, 0.30)',
-          }}
-        >
-          <img
-            src={person.photo}
-            alt={`${person.name}, ${person.age}`}
-            className="object-cover w-full h-full absolute inset-0"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+            <div className="space-y-2.5">
+              <button
+                onClick={handleReport}
+                disabled={!reportReason}
+                className="w-full py-3.5 rounded-xl text-sm font-semibold text-white active:scale-95 transition-transform disabled:opacity-50"
+                style={{ backgroundColor: '#FF3B30' }}
+              >
+                Submit Report
+              </button>
+              <button
+                onClick={() => {
+                  setShowReport(false)
+                  setReportReason(null)
+                }}
+                className="w-full py-3 rounded-xl text-sm font-semibold active:scale-95 transition-transform border"
+                style={{ backgroundColor: dark.surface, borderColor: dark.border, color: dark.textSoft }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-          {/* Top bar: date counter + safety + extend */}
+      {/* Main video area */}
+      <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
+
+        {/* Remote video (full screen) */}
+        <div className="flex-1 relative">
+          {currentPartner ? (
+            <img
+              src={currentPartner.photo}
+              alt={currentPartner.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full" style={{ backgroundColor: dark.bgDeep }} />
+          )}
+
+          {/* Top bar: round info + extend + safety */}
           <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="glass-button rounded-full px-4 py-1.5 text-xs font-semibold text-[#E0E0E5]">
-                Date {dateIndex + 1} of 5
+              <div
+                className="rounded-full px-4 py-1.5 text-xs font-semibold border"
+                style={{ backgroundColor: dark.surface, borderColor: dark.border, color: dark.text }}
+              >
+                Round {currentRound} of {sessionData.rounds}
               </div>
               {isExtended && (
-                <div className="glass-button rounded-full px-3 py-1.5 text-xs font-semibold text-[#C83E88] animate-scale-in">
+                <div style={{ backgroundColor: dark.accentSoft, color: dark.accent }} className="rounded-full px-3 py-1.5 text-xs font-semibold animate-scale-in">
                   +2 min
                 </div>
               )}
             </div>
 
             <div className="flex items-center gap-2">
-              {/* EXTEND BUTTON — appears in last 30 seconds */}
               {showExtendButton && (
                 <button
                   onClick={handleExtend}
-                  disabled={userExtended}
-                  className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-300 active:scale-95 animate-scale-in glass-button ${
-                    userExtended
-                      ? 'opacity-50'
-                      : 'hover:scale-105'
-                  }`}
+                  disabled={userExtendRequested}
+                  className="group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all active:scale-95 border"
                   style={{
-                    backgroundColor: userExtended ? `rgba(${USER_COLOR.rgb},0.15)` : `rgba(${USER_COLOR.rgb},0.12)`,
+                    backgroundColor: userExtendRequested ? dark.accentSoft : dark.surface,
+                    borderColor: userExtendRequested ? dark.accent : dark.border,
+                    color: userExtendRequested ? dark.accent : dark.textSoft,
                   }}
                 >
                   <span className="text-base">⏳</span>
-                  <span className="text-[0.7rem] font-semibold" style={{ color: '#C83E88' }}>
-                    {userExtended ? 'Waiting...' : '+2 min'}
-                  </span>
+                  <span className="text-[0.7rem] font-semibold">{userExtendRequested ? 'Waiting...' : '+2 min'}</span>
                 </button>
               )}
 
-              {/* EMERGENCY EXIT — always visible */}
+              {/* Safety button */}
               <button
                 onClick={() => setShowEmergencyConfirm(true)}
-                className="group flex items-center gap-1.5 rounded-full px-3.5 py-2 transition-all duration-200 hover:scale-105 active:scale-95"
-                style={{ backgroundColor: 'rgba(255,59,48,0.12)', border: '1.5px solid rgba(255,59,48,0.35)', boxShadow: '0 0 12px rgba(255,59,48,0.15)' }}
-                title="Emergency exit — end this date immediately"
+                className="group flex items-center gap-1.5 rounded-full px-3.5 py-2 transition-all active:scale-95 border"
+                style={{
+                  backgroundColor: 'rgba(255,59,48,0.12)',
+                  borderColor: 'rgba(255,59,48,0.35)',
+                  boxShadow: '0 0 12px rgba(255,59,48,0.15)',
+                }}
+                title="Safety — emergency exit"
               >
                 <svg className="w-4 h-4 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span className="text-[0.7rem] font-semibold text-[#FF3B30]">Safety</span>
               </button>
             </div>
           </div>
 
-          {/* Compatibility score */}
-          {showCompat && (
-            <div className="absolute top-14 right-4 z-20 animate-scale-in">
-              <div className="glass-tile rounded-xl p-2.5 flex items-center gap-2">
-                <div className="w-11 h-11 relative">
-                  <svg className="w-11 h-11 -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(200,62,136,0.15)" strokeWidth="5" />
-                    <circle cx="50" cy="50" r="45" fill="none" stroke="#C83E88" strokeWidth="5" strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - compatArc} className="transition-all duration-300" />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-[11px] font-bold text-[#C83E88]">{compatScore}%</span>
+          {/* Intro phase message */}
+          {phase === 'intro' && currentPartner && (
+            <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+              <div className="text-center animate-fade-in">
+                <p className="text-sm mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Round {currentRound} of {sessionData.rounds}</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-white">
+                  Meeting {currentPartner.name}
+                </h2>
+              </div>
+            </div>
+          )}
+
+          {/* Partner info card (bottom left) */}
+          {phase === 'live' && currentPartner && (
+            <div className="absolute bottom-4 left-4 z-20 animate-slide-up">
+              <div
+                className="rounded-2xl px-4 py-3 max-w-[280px] backdrop-blur-xl border"
+                style={{ backgroundColor: `${dark.surface}90`, borderColor: dark.border }}
+              >
+                <div className="flex items-center gap-2.5 mb-1">
+                  <img
+                    src={currentPartner.photo}
+                    alt={currentPartner.name}
+                    className="w-9 h-9 rounded-full object-cover"
+                    style={{ boxShadow: 'inset 0 0 0 2px rgba(200,62,136,0.3)' }}
+                  />
+                  <div>
+                    <p className="font-semibold text-sm" style={{ color: dark.text }}>{currentPartner.name}</p>
+                    <p className="text-[0.7rem]" style={{ color: dark.textSoft }}>Connecting...</p>
+                  </div>
+                  <div className="ml-auto flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full animate-pulse bg-[#30D158]" />
+                    <span className="text-[0.65rem]" style={{ color: '#30D158' }}>Live</span>
                   </div>
                 </div>
-                <div>
-                  <p className="text-[0.65rem] uppercase tracking-wider font-semibold text-[#B0B0B8]">Chemistry</p>
-                  <p className="text-[0.7rem] font-medium text-[#E0E0E5]">
-                    {compatScore >= 85 ? 'Amazing!' : compatScore >= 75 ? 'Great vibe!' : 'Building...'}
-                  </p>
-                </div>
               </div>
             </div>
           )}
 
-          {/* Spark indicator — subtle, top-left below date counter */}
-          {userSparked && !sparkRevealed && (
-            <div className="absolute top-14 left-4 z-20 animate-fade-in">
-              <div className="glass-tile rounded-lg px-3 py-1.5 flex items-center gap-1.5">
-                <span className="text-sm" style={{ animation: 'spark-pulse 1.5s ease-in-out infinite' }}>✨</span>
-                <span className="text-[0.6rem]" style={{ color: `rgba(${USER_COLOR.rgb},0.6)` }}>Spark sent</span>
-              </div>
-            </div>
-          )}
-
-          {/* Partner info */}
-          <div className="absolute bottom-4 left-4 z-20 animate-slide-up">
-            <div className="glass-tile backdrop-blur-xl rounded-2xl px-4 py-3 max-w-[280px] md:max-w-[340px]">
-              <div className="flex items-center gap-2.5 mb-2">
-                <img src={person.photo} alt={person.name} className="w-9 h-9 rounded-full object-cover ring-2 ring-[rgba(200,62,136,0.3)]" />
-                <div>
-                  <p className="font-semibold text-sm text-white">{person.name}, {person.age}</p>
-                  <p className="text-[0.7rem] text-[#E0E0E5]">{person.location}</p>
-                </div>
-                <div className="ml-auto flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full animate-pulse bg-[#30D158]" />
-                  <span className="text-[0.65rem] text-[#30D158]/80">Live</span>
-                </div>
-              </div>
-              <p className="text-[0.75rem] text-[#98989D] mb-2 italic">{person.bio}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {person.tags.map(tag => (
-                  <span key={tag} className="text-[0.7rem] px-2.5 py-1 rounded-full font-medium text-[#C83E88] glass-button">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* User PiP */}
-          <div className="absolute bottom-4 right-4 z-20 w-[110px] h-[150px] md:w-[140px] md:h-[190px] overflow-hidden shadow-2xl" style={{ borderRadius: '20px', border: `3px solid rgba(${USER_COLOR.rgb}, 0.5)`, boxShadow: `0 0 15px rgba(${USER_COLOR.rgb}, 0.2), 0 8px 32px rgba(0,0,0,0.4)` }}>
-            <img src={photos.user} alt="You" className="object-cover w-full h-full" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-            <div className="absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[11px] font-medium glass-button" style={{ color: USER_COLOR.primary }}>You</div>
-          </div>
-
-          {/* Question display */}
-          {currentQuestion && (
+          {/* Conversation starter (center) */}
+          {phase === 'live' && currentQuestion && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[90%] max-w-xl animate-scale-in">
-              <div className="glass-tile backdrop-blur-xl rounded-2xl px-6 py-4 text-center">
-                <p className="text-[0.7rem] uppercase tracking-[0.2em] mb-1.5 font-medium text-[#E0E0E5]">Conversation Starter</p>
-                <p className="text-base md:text-lg font-medium leading-relaxed text-white">{currentQuestion}</p>
+              <div
+                className="rounded-2xl px-6 py-4 text-center backdrop-blur-xl border"
+                style={{ backgroundColor: `${dark.surface}90`, borderColor: dark.border }}
+              >
+                <p className="text-[0.7rem] uppercase tracking-[0.2em] mb-1.5 font-medium" style={{ color: dark.textFaint }}>
+                  Conversation starter
+                </p>
+                <p className="text-base md:text-lg font-medium leading-relaxed" style={{ color: dark.text }}>
+                  {currentQuestion}
+                </p>
               </div>
             </div>
           )}
+
+          {/* Local video PiP (bottom right) */}
+          <div
+            className="absolute bottom-4 right-4 z-20 w-[100px] h-[140px] md:w-[130px] md:h-[180px] overflow-hidden rounded-2xl shadow-2xl border-4"
+            style={{ borderColor: 'rgba(45,212,191,0.5)', boxShadow: '0 0 15px rgba(45,212,191,0.2), 0 8px 32px rgba(0,0,0,0.4)' }}
+          >
+            <video
+              ref={localVideoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ backgroundColor: 'rgba(45,212,191,0.15)', color: '#2DD4BF' }}>
+              You
+            </div>
+          </div>
         </div>
 
-        {/* Bottom control bar */}
-        <div className="relative z-20 glass-strong backdrop-blur-xl px-3 py-2 md:py-3 flex items-center gap-2 md:gap-3" style={{ borderTop: '1px solid rgba(200, 62, 136, 0.1)' }}>
+        {/* Control bar (bottom) */}
+        <div
+          className="relative z-20 px-3 py-2 md:py-3 flex items-center gap-2 md:gap-3 border-t"
+          style={{ backgroundColor: dark.surface, borderColor: dark.border }}
+        >
 
           {/* Timer */}
-          <div className={`shrink-0 flex items-center gap-1.5 glass-button rounded-full px-3 py-1.5 transition-colors duration-300 ${timer <= 30 && !isExtended ? 'animate-pulse' : ''}`}>
-            <div className={`w-2 h-2 rounded-full animate-pulse ${timer <= 30 && !isExtended ? 'bg-[#FF9F0A]' : 'bg-[#C83E88]'}`} />
-            <span className={`text-xs font-mono font-semibold ${timer <= 30 && !isExtended ? 'text-[#FF9F0A]' : 'text-[#C83E88]'}`}>
+          <div
+            className="shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 border"
+            style={{
+              backgroundColor: timer.seconds <= 30 && !isExtended ? 'rgba(255,159,10,0.15)' : dark.surface,
+              borderColor: timer.seconds <= 30 && !isExtended ? 'rgba(255,159,10,0.3)' : dark.border,
+            }}
+          >
+            <div
+              className={`w-2 h-2 rounded-full animate-pulse ${timer.seconds <= 30 && !isExtended ? 'bg-[#FF9F0A]' : ''}`}
+              style={{ backgroundColor: timer.seconds <= 30 && !isExtended ? '#FF9F0A' : dark.accent }}
+            />
+            <span
+              className="text-xs font-mono font-semibold"
+              style={{ color: timer.seconds <= 30 && !isExtended ? '#FF9F0A' : dark.accent }}
+            >
               {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
             </span>
           </div>
 
-          {/* ONE MORE THING — unilateral +1 min, always visible, once per session */}
-          {!usedOneMore && (
-            <button
-              onClick={handleOneMore}
-              className="shrink-0 group flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-all duration-300 active:scale-95 hover:scale-105"
-              style={{
-                background: `linear-gradient(135deg, rgba(${USER_COLOR.rgb},0.20), rgba(200,62,136,0.15))`,
-                border: `1.5px solid rgba(${USER_COLOR.rgb},0.35)`,
-                boxShadow: `0 0 10px rgba(${USER_COLOR.rgb},0.15)`,
-              }}
-              title="Add 1 minute — keep the vibe going"
-            >
-              <span className="text-base">⚡</span>
-              <span className="text-[0.65rem] font-bold text-white/90 whitespace-nowrap">One More Thing</span>
-            </button>
-          )}
-
-          {/* ── SPARK SIGNAL BUTTON ── */}
+          {/* Spark button */}
           <button
             onClick={handleSpark}
-            disabled={userSparked}
-            className={`shrink-0 relative transition-all duration-300 ${
-              userSparked
-                ? 'opacity-60 scale-95'
-                : 'hover:scale-110 active:scale-90'
-            }`}
-            title={userSparked ? 'Spark sent!' : 'Send a Spark — if they spark too, you\'ll both know'}
+            disabled={userSparkSent || phase !== 'live'}
+            className="shrink-0 relative transition-all duration-300 active:scale-90"
+            style={{
+              opacity: userSparkSent || phase !== 'live' ? 0.6 : 1,
+            }}
+            title="Send a spark"
           >
             <div
-              className={`w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 ${
-                sparkRevealed
-                  ? 'bg-[#C83E88]/30 ring-2 ring-[#C83E88]'
-                  : userSparked
-                    ? 'border'
-                    : 'glass-button'
-              }`}
-              style={sparkRevealed ? { boxShadow: '0 0 20px rgba(200,62,136,0.4)' } : userSparked ? { background: `rgba(${USER_COLOR.rgb},0.15)`, borderColor: `rgba(${USER_COLOR.rgb},0.30)` } : undefined}
-            >
-              <span className={`text-lg ${sparkRevealed ? '' : ''}`} style={sparkRevealed ? { animation: 'spark-pulse 0.8s ease-in-out infinite' } : undefined}>
-                {sparkRevealed ? '💖' : '✨'}
-              </span>
-            </div>
-            {!userSparked && (
-              <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[0.5rem] text-white/30 whitespace-nowrap">Spark</span>
-            )}
-          </button>
-
-          {/* Emoji reactions */}
-          <div className="flex-1 overflow-x-auto scrollbar-hide glass-button rounded-full px-1.5 py-0.5">
-            <div className="flex items-center gap-1 min-w-max">
-              {reactionEmojis.map(emoji => (
-                <button
-                  key={emoji}
-                  onClick={() => handleReaction(emoji)}
-                  className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center text-sm md:text-base hover:scale-125 active:scale-90 transition-transform shrink-0 glass-button"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Spin for question */}
-          <button
-            onClick={spinForQuestion}
-            disabled={isSpinning}
-            className="shrink-0 group relative"
-            title="Spin for a question"
-          >
-            <div
-              className={`relative w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all group-hover:scale-105 active:scale-95 bg-[#C83E88] ${isSpinning ? 'animate-spin' : ''}`}
+              className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-300 border"
               style={{
-                boxShadow: '0 4px 20px rgba(200, 62, 136, 0.4)',
-                animationDuration: isSpinning ? '0.5s' : undefined,
+                backgroundColor: sparks.mutual ? dark.accentSoft : dark.surface,
+                borderColor: sparks.mutual ? dark.accent : dark.border,
+                boxShadow: sparks.mutual ? `0 0 20px rgba(200,62,136,0.4)` : undefined,
               }}
             >
-              <svg className="w-6 h-6 md:w-7 md:h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+              <span className="text-lg" style={{ animation: sparks.mutual ? 'spark-pulse 0.8s ease-in-out infinite' : undefined }}>
+                {sparks.mutual ? '💖' : '✨'}
+              </span>
             </div>
           </button>
 
-          {/* End / Next */}
+          {/* Report button */}
           <button
-            onClick={onNavigate}
-            className="shrink-0 group relative"
-            title="End Date"
+            onClick={() => setShowReport(true)}
+            className="shrink-0 relative transition-all active:scale-90 ml-auto"
+            title="Report this person"
           >
-            <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all group-hover:scale-105 active:scale-95 glass-button">
-              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#C83E88]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center border"
+              style={{
+                backgroundColor: 'rgba(255,59,48,0.08)',
+                borderColor: 'rgba(255,59,48,0.25)',
+              }}
+            >
+              <svg className="w-4 h-4 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
             </div>
           </button>
         </div>
@@ -590,11 +544,21 @@ export default function LiveSession({ dateIndex, onNavigate }: Props) {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.3); }
         }
-        @keyframes extend-glow {
-          0% { opacity: 0; }
-          20% { opacity: 1; }
-          100% { opacity: 0; }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
+        @keyframes scale-in {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slide-up {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+        .animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
+        .animate-slide-up { animation: slide-up 0.4s ease-out forwards; }
       `}</style>
     </div>
   )

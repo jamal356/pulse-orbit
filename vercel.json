@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/api/telegram", "destination": "/api/telegram" }
+    { "source": "/api/telegram", "destination": "/api/telegram" },
+    { "source": "/api/session-create", "destination": "/api/session-create" },
+    { "source": "/api/compute-matches", "destination": "/api/compute-matches" }
   ]
 }

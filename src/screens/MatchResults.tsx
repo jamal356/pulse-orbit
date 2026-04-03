@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { candidates, conversationStarters, USER_COLOR } from '../data/people'
 import BackgroundOrbs from '../components/BackgroundOrbs'
-import MatchCard from '../components/MatchCard'
 import PulseLogo from '../components/PulseLogo'
-import type { Candidate } from '../data/people'
 
 /* ─── SOUND ENGINE — Web Audio API procedural sounds ─────────
    No external audio files. Pure synthesis.
@@ -148,54 +145,12 @@ function createSoundEngine() {
 }
 
 interface Props {
-  ratings: Record<string, 'like' | 'pass'>
-  onRestart: () => void
-  onContinue?: () => void
-  onSpeedDate?: (candidate: Candidate) => void
+  user: { id: string; display_name: string; photo_url: string }
+  sessionId: string
+  matches: Array<{ match_id: string; partner_name: string; partner_photo: string; partner_id: string }>
+  onNavigate: (screen: 'videodate' | 'home', data?: any) => void
 }
 
-// Simulate their ratings
-const theirRatings: Record<string, 'like' | 'pass'> = {
-  Sofia: 'like',
-  Layla: 'pass',
-  Amira: 'like',
-  Nour: 'like',
-  Yasmine: 'pass',
-}
-
-// Replay data
-const replayData: Record<string, { questions: string[]; highlights: string[]; duration: string; emojis: string[] }> = {
-  Sofia: {
-    questions: [conversationStarters[0], conversationStarters[3]],
-    highlights: ['Laughed about travel mishaps', 'Both love street food in Bangkok', 'She mentioned salsa dancing'],
-    duration: '5:00',
-    emojis: ['\u{1F60D}', '\u{1F525}', '\u{2764}\u{FE0F}', '\u{1F602}'],
-  },
-  Layla: {
-    questions: [conversationStarters[1], conversationStarters[5]],
-    highlights: ['Deep conversation about wellness', 'Different energy styles', 'She recommended a podcast'],
-    duration: '5:00',
-    emojis: ['\u{1F60A}', '\u{1F44F}'],
-  },
-  Amira: {
-    questions: [conversationStarters[2], conversationStarters[7]],
-    highlights: ['Instant chemistry — both art lovers', 'She collects vintage prints', 'Plans to visit Louvre Abu Dhabi'],
-    duration: '5:00',
-    emojis: ['\u{1F60D}', '\u{1F525}', '\u{1F44F}', '\u{1F4AF}'],
-  },
-  Nour: {
-    questions: [conversationStarters[4], conversationStarters[9]],
-    highlights: ['Both in tech — she gets the grind', 'Weekend hiking in Hatta', 'She laughed at your bad joke'],
-    duration: '5:00',
-    emojis: ['\u{1F525}', '\u{2764}\u{FE0F}', '\u{1F602}'],
-  },
-  Yasmine: {
-    questions: [conversationStarters[6], conversationStarters[8]],
-    highlights: ['Fashion world stories', 'Different sense of humor', 'Cool vintage camera collection'],
-    duration: '5:00',
-    emojis: ['\u{1F60E}'],
-  },
-}
 
 // Confetti
 interface ConfettiPiece { id: number; left: number; delay: number; duration: number; color: string; size: number; rotation: number }
@@ -209,50 +164,24 @@ function makeConfetti(count: number): ConfettiPiece[] {
 
 type Phase = 'intro' | 'cascade' | 'summary'
 
-export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDate }: Props) {
+export default function MatchResults({ matches, onNavigate }: Props) {
   const [phase, setPhase] = useState<Phase>('intro')
-  const [revealedCards, setRevealedCards] = useState<boolean[]>(candidates.map(() => false))
   const [showConfetti, setShowConfetti] = useState(false)
   const [confetti] = useState(() => makeConfetti(80))
-  const [replayOpen, setReplayOpen] = useState<string | null>(null)
   const [showSharecard, setShowSharecard] = useState(false)
-
-  // Second Chance state
-  const [secondChances, setSecondChances] = useState<Record<string, boolean>>({})
-  const [secondChanceNotif, setSecondChanceNotif] = useState<string | null>(null)
-
-  // Match Card state — shown when a mutual match is revealed
-  const [matchCardTarget, setMatchCardTarget] = useState<Candidate | null>(null)
 
   // Sound engine
   const soundRef = useRef(createSoundEngine())
   useEffect(() => () => soundRef.current.cleanup(), [])
 
-  // Speed Date handler — navigates to 1-to-1 speed date screen
-  const handleSpeedDate = useCallback((c: Candidate) => {
-    if (onSpeedDate) onSpeedDate(c)
-  }, [onSpeedDate])
-
-  // Derived
-  const getEffectiveRating = useCallback((name: string) => secondChances[name] ? 'like' as const : (ratings[name] || 'pass' as const), [secondChances, ratings])
-  const mutualMatches = candidates.filter(c => getEffectiveRating(c.name) === 'like' && theirRatings[c.name] === 'like')
-
-  // Second Chance handler
-  const handleSecondChance = useCallback((name: string) => {
-    setSecondChances(prev => ({ ...prev, [name]: true }))
-    setSecondChanceNotif(name)
-    setTimeout(() => setSecondChanceNotif(null), 3000)
-  }, [])
+  const hasMatches = matches && matches.length > 0
+  const [revealedCards, setRevealedCards] = useState<boolean[]>(new Array(Math.max(5, matches?.length || 0)).fill(false))
 
   // Track which match we're currently showcasing
-  const [matchQueue, setMatchQueue] = useState<Candidate[]>([])
+  const [matchQueue, setMatchQueue] = useState<Array<{ match_id: string; partner_name: string; partner_photo: string; partner_id: string }>>([])
   const [matchIndex, setMatchIndex] = useState(0)
+  const [matchCardTarget, setMatchCardTarget] = useState<{ match_id: string; partner_name: string; partner_photo: string; partner_id: string } | null>(null)
 
-  /* ─── CASCADE REVEAL ───
-     Intro (1.5s) → all 5 cards flip rapid-fire (300ms apart = 1.5s)
-     → pause (1s) → reveal each match one by one (2s each) → summary
-     Every match gets its own MatchCard moment.
-     ─────────────────────── */
   useEffect(() => {
     if (phase === 'intro') {
       const drumTimer = setTimeout(() => soundRef.current.drumroll(), 200)
@@ -260,46 +189,36 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
       return () => { clearTimeout(t); clearTimeout(drumTimer) }
     }
     if (phase === 'cascade') {
-      // Step 1: Flip ALL cards rapid-fire (no match reveals yet)
-      const flipTimers = candidates.map((_c, i) =>
+      const cardCount = Math.max(5, matches?.length || 0)
+      const flipTimers = Array.from({ length: cardCount }).map((_c, i) =>
         setTimeout(() => {
           setRevealedCards(prev => { const next = [...prev]; next[i] = true; return next })
           soundRef.current.tick()
         }, 300 * i)
       )
 
-      // Step 2: After all cards flipped, build match queue and start revealing
-      const allFlippedTime = 300 * candidates.length + 800
+      const allFlippedTime = 300 * cardCount + 800
       const matchRevealTimer = setTimeout(() => {
-        const matches = candidates.filter(c => {
-          const yours = secondChances[c.name] ? 'like' : (ratings[c.name] || 'pass')
-          const theirs = theirRatings[c.name] || 'pass'
-          return yours === 'like' && theirs === 'like'
-        })
-        if (matches.length > 0) {
+        if (hasMatches && matches) {
           setMatchQueue(matches)
           setMatchIndex(0)
-          // Show first match
           soundRef.current.matchChime()
           setShowConfetti(true)
           setTimeout(() => setShowConfetti(false), 4000)
           setMatchCardTarget(matches[0])
         } else {
-          // No matches — go straight to summary
           setTimeout(() => setPhase('summary'), 1500)
         }
       }, allFlippedTime)
 
       return () => { flipTimers.forEach(clearTimeout); clearTimeout(matchRevealTimer) }
     }
-  }, [phase, ratings, secondChances])
+  }, [phase, hasMatches, matches])
 
-  // When user closes a MatchCard, show the next match or move to summary
   const handleMatchCardClose = useCallback(() => {
     setMatchCardTarget(null)
     const nextIdx = matchIndex + 1
     if (nextIdx < matchQueue.length) {
-      // Show next match after a brief pause
       setTimeout(() => {
         setMatchIndex(nextIdx)
         soundRef.current.matchChime()
@@ -308,10 +227,13 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
         setMatchCardTarget(matchQueue[nextIdx])
       }, 600)
     } else {
-      // All matches shown — move to summary
       setTimeout(() => setPhase('summary'), 800)
     }
   }, [matchIndex, matchQueue])
+
+  const handleVideoDate = useCallback((match: { match_id: string; partner_name: string; partner_photo: string; partner_id: string }) => {
+    onNavigate('videodate', { match })
+  }, [onNavigate])
 
   return (
     <div className="fixed inset-0 bg-[#1E1B18] overflow-hidden">
@@ -332,26 +254,36 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
 
       {/* Match Card overlay */}
       {matchCardTarget && (
-        <MatchCard
-          match={matchCardTarget}
-          onClose={handleMatchCardClose}
-        />
-      )}
-
-      {/* Speed Date overlay removed — navigates to dedicated SpeedDate screen */}
-
-      {/* Second Chance notification toast */}
-      {secondChanceNotif && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
-          <div className="glass-tile rounded-2xl px-5 py-3 flex items-center gap-3" style={{ boxShadow: '0 8px 32px rgba(45,212,191,0.25)' }}>
-            <span className="text-lg">{'\u{1F504}'}</span>
-            <div>
-              <p className="text-sm font-semibold text-white">Second Chance sent!</p>
-              <p className="text-xs text-[#98989D]">{secondChanceNotif} will be notified you changed your mind</p>
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/80 backdrop-blur-md animate-fade-in">
+          <div className="max-w-md w-full mx-4 animate-scale-in">
+            <button
+              onClick={handleMatchCardClose}
+              className="absolute top-4 right-4 z-50 w-10 h-10 rounded-full glass-button flex items-center justify-center text-white/60 hover:text-white transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <div className="glass-tile rounded-3xl overflow-hidden">
+              <img src={matchCardTarget.partner_photo} alt={matchCardTarget.partner_name} className="w-full aspect-square object-cover" />
+              <div className="p-6 space-y-4">
+                <div>
+                  <p className="text-2xl font-bold text-white">{matchCardTarget.partner_name}</p>
+                  <p className="text-sm text-[#98989D]">You matched!</p>
+                </div>
+                <button
+                  onClick={() => handleVideoDate(matchCardTarget)}
+                  className="w-full py-4 rounded-full bg-[#C83E88] text-white font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  style={{ boxShadow: '0 4px 20px rgba(200,62,136,0.3)' }}
+                >
+                  Start Video Date
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* Speed Date overlay removed — navigates to dedicated SpeedDate screen */}
+
 
       {/* Sharecard Modal */}
       {showSharecard && (
@@ -377,7 +309,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                   <div className="grid grid-cols-3 gap-2 mb-4">
                     {[
                       { v: '5', l: 'People Met' },
-                      { v: String(mutualMatches.length), l: 'Matches' },
+                      { v: String(matches?.length || 0), l: 'Matches' },
                       { v: '25m', l: 'Total Time' },
                     ].map((s, i) => (
                       <div key={i} className="rounded-xl py-3 text-center" style={{ backgroundColor: 'rgba(0,0,0,0.25)' }}>
@@ -386,18 +318,18 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                       </div>
                     ))}
                   </div>
-                  {mutualMatches.length > 0 && (
+                  {hasMatches && matches && (
                     <div className="flex items-center justify-center gap-2 mb-3">
                       <span className="text-xs text-white/50">Matched with</span>
                       <div className="flex -space-x-2">
-                        {mutualMatches.map(m => (
-                          <img key={m.name} src={m.photo} alt={m.name} className="w-7 h-7 rounded-full object-cover border-2 border-[#C83E88]" />
+                        {matches.map(m => (
+                          <img key={m.match_id} src={m.partner_photo} alt={m.partner_name} className="w-7 h-7 rounded-full object-cover border-2 border-[#C83E88]" />
                         ))}
                       </div>
                     </div>
                   )}
                   <p className="text-center text-sm italic text-white/70" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                    {mutualMatches.length >= 2 ? '"Chemistry confirmed — twice."' : mutualMatches.length === 1 ? '"Found a spark in 25 minutes."' : '"5 real conversations. Zero time wasted."'}
+                    {hasMatches && matches && matches.length >= 2 ? '"Chemistry confirmed — twice."' : hasMatches && matches && matches.length === 1 ? '"Found a spark in 25 minutes."' : '"5 real conversations. Zero time wasted."'}
                   </p>
                 </div>
                 <div className="text-center">
@@ -450,13 +382,12 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
         <div className="absolute inset-0 top-12 z-10 flex items-center justify-center px-4 overflow-hidden">
           <div className="w-full max-w-4xl">
             <div className="grid grid-cols-5 gap-3 md:gap-4">
-              {candidates.map((c, i) => {
+              {Array.from({ length: Math.max(5, matches?.length || 0) }).map((_, i) => {
                 const revealed = revealedCards[i]
-                const effRating = getEffectiveRating(c.name)
-                const theirs = theirRatings[c.name] || 'pass'
-                const isMatch = effRating === 'like' && theirs === 'like'
+                const match = matches?.[i]
+                const isMatch = !!match && revealed
                 return (
-                  <div key={c.name} className="perspective-500">
+                  <div key={i} className="perspective-500">
                     <div
                       className="relative transition-all duration-700 ease-out"
                       style={{
@@ -466,37 +397,43 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
                     >
                       {/* Front — revealed result */}
                       <div
-                        className={`glass-tile rounded-2xl overflow-hidden transition-all duration-500 ${isMatch && revealed ? 'ring-2 ring-[#C83E88]' : ''}`}
+                        className={`glass-tile rounded-2xl overflow-hidden transition-all duration-500 ${isMatch ? 'ring-2 ring-[#C83E88]' : ''}`}
                         style={{
                           backfaceVisibility: 'hidden',
-                          boxShadow: isMatch && revealed ? '0 0 30px rgba(200,62,136,0.25)' : '0 4px 16px rgba(0,0,0,0.2)',
+                          boxShadow: isMatch ? '0 0 30px rgba(200,62,136,0.25)' : '0 4px 16px rgba(0,0,0,0.2)',
                         }}
                       >
                         <div className="relative aspect-[3/4] overflow-hidden">
-                          <img src={c.photo} alt={c.name} className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#1E1B18] via-transparent to-transparent" />
-                          <div className="absolute bottom-2 left-3 right-3">
-                            <p className="text-sm font-bold text-white font-display">{c.name}, {c.age}</p>
-                            <p className="text-[0.6rem] text-white/50">{c.location}</p>
-                          </div>
-                          {isMatch && revealed && (
-                            <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-[#C83E88] text-[0.55rem] font-bold text-white animate-scale-in">
-                              MATCH
-                            </div>
+                          {match ? (
+                            <>
+                              <img src={match.partner_photo} alt={match.partner_name} className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-[#1E1B18] via-transparent to-transparent" />
+                              <div className="absolute bottom-2 left-3 right-3">
+                                <p className="text-sm font-bold text-white font-display">{match.partner_name}</p>
+                              </div>
+                              {isMatch && (
+                                <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-[#C83E88] text-[0.55rem] font-bold text-white animate-scale-in">
+                                  MATCH
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2A2528]/20 to-[#1E1B18]" />
                           )}
                         </div>
                         <div className="p-2.5 space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[0.55rem] text-[#7A7A80] uppercase">You</span>
-                            <span className="text-sm">{effRating === 'like' ? '\u{1F525}' : '❄\u{FE0F}'}</span>
-                          </div>
-                          <div className="h-px" style={{ background: 'rgba(200,62,136,0.10)' }} />
-                          <div className="flex items-center justify-between">
-                            <span className="text-[0.55rem] text-[#7A7A80] uppercase">Them</span>
-                            <span className="text-sm">{theirs === 'like' ? '\u{1F525}' : '❄\u{FE0F}'}</span>
-                          </div>
-                          {isMatch && (
-                            <p className="text-center text-[0.6rem] font-bold text-[#C83E88] pt-1 animate-pulse">{'\u{1F4AB}'} Chemistry confirmed</p>
+                          {match ? (
+                            <>
+                              <div className="flex items-center justify-between">
+                                <span className="text-[0.55rem] text-[#7A7A80] uppercase">Match</span>
+                                <span className="text-sm">{'\u{1F525}'}</span>
+                              </div>
+                              <p className="text-center text-[0.6rem] font-bold text-[#C83E88] pt-1 animate-pulse">{'\u{1F4AB}'} Chemistry confirmed</p>
+                            </>
+                          ) : (
+                            <div className="flex items-center justify-center py-1">
+                              <span className="text-sm text-white/30">—</span>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -525,13 +462,17 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               })}
             </div>
 
-            {/* Countdown text */}
             {!revealedCards[0] && (
               <p className="text-center mt-6 text-sm text-[#C83E88] animate-pulse font-medium">Revealing results...</p>
             )}
-            {revealedCards.every(Boolean) && mutualMatches.length > 0 && (
+            {revealedCards.every(Boolean) && hasMatches && (
               <p className="text-center mt-6 text-lg font-display text-[#C83E88] animate-scale-in" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontStyle: 'italic' }}>
-                {mutualMatches.length} mutual {mutualMatches.length === 1 ? 'match' : 'matches'} tonight
+                {matches?.length || 0} mutual {matches?.length === 1 ? 'match' : 'matches'} tonight
+              </p>
+            )}
+            {revealedCards.every(Boolean) && !hasMatches && (
+              <p className="text-center mt-6 text-lg font-display text-[#7A7A80] animate-scale-in" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 400, fontStyle: 'italic' }}>
+                No matches tonight
               </p>
             )}
           </div>
@@ -550,7 +491,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
             <div className="text-center lg:text-left mb-8">
               <h2 className="text-2xl md:text-3xl font-bold font-display mb-2">Tonight's Results</h2>
               <p className="text-sm text-[#98989D]">
-                {mutualMatches.length > 0 ? `${mutualMatches.length} mutual ${mutualMatches.length === 1 ? 'match' : 'matches'} — real chemistry, confirmed.` : 'No mutual matches tonight — every session is different.'}
+                {hasMatches && matches ? `${matches.length} mutual ${matches.length === 1 ? 'match' : 'matches'} — real chemistry, confirmed.` : 'No mutual matches tonight — every session is different.'}
               </p>
             </div>
 
@@ -558,13 +499,13 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
             <div className="grid grid-cols-4 gap-3 mb-8">
               {[
                 { value: '5', label: 'People Met', icon: '\u{1F465}' },
-                { value: String(mutualMatches.length), label: 'Matches', icon: '\u{1F4AB}' },
+                { value: String(matches?.length || 0), label: 'Matches', icon: '\u{1F4AB}' },
                 { value: '25m', label: 'Total Time', icon: '⏱' },
-                { value: `${Object.values(ratings).filter(r => r === 'like').length + Object.keys(secondChances).length}`, label: 'You Liked', icon: '\u{1F525}' },
+                { value: '5', label: 'You Liked', icon: '\u{1F525}' },
               ].map((s, i) => (
                 <div key={i} className="glass-tile rounded-2xl p-4 text-center animate-slide-up" style={{ animationDelay: `${i * 0.1}s`, animationFillMode: 'backwards' }}>
                   <span className="text-lg">{s.icon}</span>
-                  <p className="text-2xl font-bold font-display mt-1" style={{ color: s.label === 'You Liked' ? USER_COLOR.primary : '#C83E88' }}>{s.value}</p>
+                  <p className="text-2xl font-bold font-display mt-1" style={{ color: s.label === 'You Liked' ? '#C83E88' : '#C83E88' }}>{s.value}</p>
                   <p className="text-[0.65rem] text-[#7A7A80] uppercase tracking-wider mt-0.5">{s.label}</p>
                 </div>
               ))}
@@ -584,138 +525,37 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
               <svg className="w-5 h-5 text-[#7A7A80] group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
             </button>
 
-            {/* All dates with replay + second chance */}
-            <h3 className="text-xs tracking-[0.2em] uppercase text-[#7A7A80] font-semibold mb-3">Your Dates</h3>
-            <div className="space-y-3 mb-8">
-              {candidates.map((c, i) => {
-                const effRating = getEffectiveRating(c.name)
-                const theirs = theirRatings[c.name] || 'pass'
-                const match = effRating === 'like' && theirs === 'like'
-                const originallyPassed = ratings[c.name] === 'pass'
-                const usedSecondChance = secondChances[c.name]
-                const canSecondChance = originallyPassed && !usedSecondChance
-                const replay = replayData[c.name]
-                const isReplayOpen = replayOpen === c.name
-
-                return (
-                  <div key={c.name} className={`glass-tile rounded-2xl overflow-hidden transition-all duration-300 animate-slide-up ${match ? 'ring-1 ring-[rgba(200,62,136,0.30)]' : ''}`} style={{ animationDelay: `${0.3 + i * 0.08}s`, animationFillMode: 'backwards', boxShadow: match ? '0 4px 16px rgba(200,62,136,0.10)' : undefined }}>
-                    <div className="p-4 flex items-center gap-3">
-                      <img src={c.photo} alt={c.name} className="w-12 h-12 rounded-full object-cover shrink-0" style={{ border: match ? '2px solid #C83E88' : '2px solid rgba(255,255,255,0.1)' }} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-white">{c.name}, {c.age}</p>
-                          {match && <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[rgba(200,62,136,0.12)] text-[#C83E88] font-bold">Match</span>}
-                          {usedSecondChance && <span className="text-[0.6rem] px-2 py-0.5 rounded-full bg-[rgba(45,212,191,0.12)] text-[#2DD4BF] font-bold">2nd Chance</span>}
+            {/* Matches list */}
+            {hasMatches && matches && (
+              <>
+                <h3 className="text-xs tracking-[0.2em] uppercase text-[#7A7A80] font-semibold mb-3">Your Matches</h3>
+                <div className="space-y-3 mb-8">
+                  {matches.map((m, i) => (
+                    <div key={m.match_id} className="glass-tile rounded-2xl overflow-hidden transition-all duration-300 animate-slide-up ring-1 ring-[rgba(200,62,136,0.30)]" style={{ animationDelay: `${0.3 + i * 0.08}s`, animationFillMode: 'backwards', boxShadow: '0 4px 16px rgba(200,62,136,0.10)' }}>
+                      <div className="p-4 flex items-center gap-3 justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <img src={m.partner_photo} alt={m.partner_name} className="w-12 h-12 rounded-full object-cover shrink-0" style={{ border: '2px solid #C83E88' }} />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-white">{m.partner_name}</p>
+                            <span className="text-[0.65rem] px-2 py-0.5 rounded-full bg-[rgba(200,62,136,0.12)] text-[#C83E88] font-bold inline-block mt-1">Match</span>
+                          </div>
                         </div>
-                        <p className="text-xs text-[#7A7A80]">{c.location}</p>
-                      </div>
-
-                      {/* ── PRIMARY ACTIONS — visible at card level, no expand needed ── */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        {match && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleSpeedDate(c) }}
-                            className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-white hover:scale-105 active:scale-95 transition-all"
-                            style={{ background: 'linear-gradient(135deg, #C83E88, #C030A0)', boxShadow: '0 2px 12px rgba(200,62,136,0.35)' }}
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            Speed Date
-                          </button>
-                        )}
-                        {match && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setMatchCardTarget(c) }}
-                            className="w-9 h-9 rounded-full flex items-center justify-center hover:scale-110 active:scale-90 transition-transform"
-                            style={{ background: 'rgba(200,62,136,0.12)', border: '1px solid rgba(200,62,136,0.20)' }}
-                            title="View Match Card"
-                          >
-                            <span className="text-sm">💖</span>
-                          </button>
-                        )}
-                        {canSecondChance && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleSecondChance(c.name) }}
-                            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold hover:scale-105 active:scale-95 transition-all"
-                            style={{ background: 'rgba(45,212,191,0.10)', border: '1px solid rgba(45,212,191,0.25)', color: '#2DD4BF' }}
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                            2nd Chance
-                          </button>
-                        )}
-                        <button onClick={() => setReplayOpen(isReplayOpen ? null : c.name)} className="shrink-0 w-9 h-9 rounded-full glass-button flex items-center justify-center hover:scale-110 active:scale-90 transition-transform">
-                          <svg className={`w-4 h-4 transition-transform ${isReplayOpen ? 'rotate-180' : ''} text-[#E0E0E5]`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                        <button
+                          onClick={() => handleVideoDate(m)}
+                          className="flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold text-white hover:scale-105 active:scale-95 transition-all shrink-0"
+                          style={{ background: 'linear-gradient(135deg, #C83E88, #C030A0)', boxShadow: '0 2px 12px rgba(200,62,136,0.35)' }}
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Start
                         </button>
                       </div>
                     </div>
-
-                    {isReplayOpen && replay && (
-                      <div className="px-4 pb-4 animate-slide-up" style={{ animationDuration: '0.3s', borderTop: '1px solid rgba(200,62,136,0.08)' }}>
-                        <div className="pt-3 space-y-4">
-                          {/* Replay video */}
-                          <div className="rounded-xl overflow-hidden glass-button">
-                            <div className="aspect-video relative flex items-center justify-center">
-                              <img src={c.photo} alt={c.name} className="absolute inset-0 w-full h-full object-cover opacity-30" style={{ filter: 'blur(8px)' }} />
-                              <div className="relative z-10 flex flex-col items-center gap-2">
-                                <button className="w-14 h-14 rounded-full bg-[#C83E88]/20 border border-[#C83E88]/30 flex items-center justify-center hover:scale-110 transition-transform">
-                                  <svg className="w-6 h-6 ml-0.5 text-[#C83E88]" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                                </button>
-                                <p className="text-xs text-white/50">Rewatch {replay.duration} conversation</p>
-                              </div>
-                              <div className="absolute bottom-2 right-2 glass-button rounded-full px-2 py-0.5 text-[0.6rem] text-white/50">Available 24hrs</div>
-                            </div>
-                          </div>
-
-                          {/* Emoji timeline */}
-                          <div>
-                            <p className="text-[0.65rem] uppercase tracking-wider text-[#7A7A80] font-semibold mb-2">Reactions During Date</p>
-                            <div className="flex gap-1.5">
-                              {replay.emojis.map((e, ei) => (
-                                <span key={ei} className="w-8 h-8 glass-button rounded-full flex items-center justify-center text-sm">{e}</span>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Highlights */}
-                          <div>
-                            <p className="text-[0.65rem] uppercase tracking-wider text-[#7A7A80] font-semibold mb-2">Conversation Highlights</p>
-                            <div className="space-y-1.5">
-                              {replay.highlights.map((h, hi) => (
-                                <div key={hi} className="flex items-start gap-2">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#C83E88] mt-1.5 shrink-0" />
-                                  <p className="text-sm text-[#E0E0E5]">{h}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Questions */}
-                          <div>
-                            <p className="text-[0.65rem] uppercase tracking-wider text-[#7A7A80] font-semibold mb-2">Questions Discussed</p>
-                            <div className="space-y-1.5">
-                              {replay.questions.map((q, qi) => (
-                                <div key={qi} className="glass-button rounded-lg px-3 py-2 text-xs text-[#E0E0E5] italic">&ldquo;{q}&rdquo;</div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Actions — secondary actions only (primary Say Hi + Match Card are at card level) */}
-                          <div className="space-y-2">
-                            {usedSecondChance && !match && (
-                              <div className="rounded-xl py-3 px-4 text-center" style={{ backgroundColor: 'rgba(45,212,191,0.06)', border: '1px solid rgba(45,212,191,0.12)' }}>
-                                <p className="text-xs text-[#2DD4BF]">{'\u{1F525}'} You used your Second Chance &mdash; {c.name} has been notified</p>
-                                <p className="text-[0.65rem] text-[#7A7A80] mt-0.5">They have 24 hours to rewatch and decide</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+                  ))}
+                </div>
+              </>
+            )}
 
             </div>{/* end left column */}
 
@@ -810,10 +650,7 @@ export default function MatchResults({ ratings, onRestart, onContinue, onSpeedDa
 
               {/* Bottom actions */}
               <div className="space-y-3">
-                {onContinue ? (
-                  <button onClick={onContinue} className="w-full py-4 rounded-full bg-[#C83E88] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all lg:hidden" style={{ boxShadow: '0 4px 20px rgba(200,62,136,0.3)' }}>Continue →</button>
-                ) : null}
-                <button onClick={onRestart} className="w-full py-3 rounded-full glass-button text-sm font-semibold text-[#98989D] hover:text-white transition-colors">&larr; Replay demo</button>
+                <button onClick={() => onNavigate('home')} className="w-full py-4 rounded-full bg-[#C83E88] text-white text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-all lg:hidden" style={{ boxShadow: '0 4px 20px rgba(200,62,136,0.3)' }}>Back to Lobby →</button>
               </div>
             </div>{/* end right column */}
 

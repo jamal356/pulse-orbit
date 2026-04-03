@@ -1,11 +1,22 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { candidates } from '../data/people'
 import { sponsors } from '../data/sponsors'
 import BackgroundOrbs from '../components/BackgroundOrbs'
+import { submitRating } from '../lib/session'
+
+interface Round {
+  id: string
+  round_number: number
+  user_a: string
+  user_b: string
+  user_a_profile?: { display_name: string; photo_url: string } | null
+  user_b_profile?: { display_name: string; photo_url: string } | null
+}
 
 interface Props {
-  dateIndex: number
-  onRate: (name: string, rating: 'like' | 'pass') => void
+  user: { id: string }
+  sessionId: string
+  rounds: Round[]
+  onNavigate: (screen: 'results', data?: any) => void
 }
 
 /* ─── Compatibility whispers ─── */
@@ -38,9 +49,8 @@ const dateIntentOptions = [
 type Phase = 'rating' | 'vibe' | 'intent' | 'done'
 const phaseOrder: Phase[] = ['rating', 'vibe', 'intent', 'done']
 
-export default function MatchSurvey({ dateIndex, onRate }: Props) {
-  const person = candidates[dateIndex] || candidates[0]
-  const sponsor = sponsors[dateIndex % sponsors.length]
+export default function MatchSurvey({ user, sessionId, rounds, onNavigate }: Props) {
+  const [currentRoundIndex, setCurrentRoundIndex] = useState(0)
   const [visible, setVisible] = useState(false)
   const [phase, setPhase] = useState<Phase>('rating')
   const [rating, setRating] = useState<'like' | 'pass' | null>(null)
@@ -48,9 +58,16 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
   const [selectedIntent, setSelectedIntent] = useState<string | null>(null)
   const [transitioning, setTransitioning] = useState(false)
   const [ripple, setRipple] = useState<{ x: number; y: number; color: string } | null>(null)
+  const [ratings, setRatings] = useState<Record<string, 'like' | 'pass'>>({})
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const whisper = compatibilityWhispers[person.name] || 'Trust what you felt in the moment.'
+  const currentRound = rounds[currentRoundIndex]
+  const partner = currentRound?.user_a === user.id
+    ? { id: currentRound.user_b, name: currentRound.user_b_profile?.display_name || 'Partner', photo: currentRound.user_b_profile?.photo_url || '' }
+    : { id: currentRound?.user_a, name: currentRound?.user_a_profile?.display_name || 'Partner', photo: currentRound?.user_a_profile?.photo_url || '' }
+
+  const sponsor = sponsors[currentRoundIndex % sponsors.length]
+  const whisper = compatibilityWhispers[partner.name] || 'Trust what you felt in the moment.'
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 80)
@@ -91,9 +108,51 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
     triggerRipple(e, '#C83E88')
     advancePhase('done')
     setTimeout(() => {
-      if (rating) onRate(person.name, rating)
+      if (rating) {
+        const newRatings = { ...ratings, [partner.id]: rating }
+        setRatings(newRatings)
+
+        const nextIndex = currentRoundIndex + 1
+        if (nextIndex < rounds.length) {
+          setTimeout(() => {
+            setCurrentRoundIndex(nextIndex)
+            setPhase('rating')
+            setRating(null)
+            setSelectedVibe(null)
+            setSelectedIntent(null)
+            setTransitioning(false)
+          }, 500)
+        } else {
+          handleSubmitAllRatings(newRatings)
+        }
+      }
     }, 700)
-  }, [rating, person.name, onRate, advancePhase, triggerRipple])
+  }, [rating, partner.id, currentRoundIndex, rounds.length, ratings, advancePhase, triggerRipple])
+
+  const handleSubmitAllRatings = useCallback(async (allRatings: Record<string, 'like' | 'pass'>) => {
+    try {
+      for (const round of rounds) {
+        const ratedId = round.user_a === user.id ? round.user_b : round.user_a
+        const ratingValue = allRatings[ratedId]
+        if (ratingValue) {
+          await submitRating(round.id, user.id, ratedId, sessionId, ratingValue)
+        }
+      }
+
+      const response = await fetch('/api/compute-matches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId })
+      })
+
+      if (!response.ok) throw new Error('Failed to compute matches')
+      const matchData = await response.json()
+
+      onNavigate('results', { matches: matchData.matches || [] })
+    } catch (error) {
+      console.error('Error submitting ratings:', error)
+    }
+  }, [rounds, user.id, sessionId, onNavigate])
 
   /* ── Progress calculation ── */
   const progress = phase === 'done' ? 1 : phaseOrder.indexOf(phase) / 3
@@ -163,8 +222,8 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
         <div className="glass-tile backdrop-blur-xl flex items-center gap-3 pl-1.5 pr-4 py-1.5 rounded-full">
           <div className="relative">
             <img
-              src={person.photo}
-              alt={person.name}
+              src={partner.photo}
+              alt={partner.name}
               className="w-9 h-9 rounded-full object-cover"
               style={{
                 border: '2px solid rgba(224,64,160,0.4)',
@@ -186,21 +245,20 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
           </div>
           <div>
             <p className="text-sm font-semibold text-white/90" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-              {person.name}, {person.age}
+              {partner.name}
             </p>
-            <p className="text-[0.6rem] text-white/40">{person.location}</p>
           </div>
         </div>
 
         {/* Date counter */}
         <div className="flex items-center gap-1.5">
-          {[...Array(5)].map((_, i) => (
+          {[...Array(Math.max(5, rounds.length))].map((_, i) => (
             <div
               key={i}
               className="w-1.5 h-1.5 rounded-full transition-all duration-300"
               style={{
-                backgroundColor: i <= dateIndex ? '#C83E88' : 'rgba(224,64,160,0.15)',
-                boxShadow: i === dateIndex ? '0 0 6px rgba(224,64,160,0.4)' : 'none',
+                backgroundColor: i <= currentRoundIndex ? '#C83E88' : 'rgba(224,64,160,0.15)',
+                boxShadow: i === currentRoundIndex ? '0 0 6px rgba(224,64,160,0.4)' : 'none',
               }}
             />
           ))}
@@ -250,9 +308,6 @@ export default function MatchSurvey({ dateIndex, onRate }: Props) {
                 >
                   Did you feel<br />the chemistry?
                 </h2>
-                <p className="text-xs text-white/30" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  {person.bio}
-                </p>
               </div>
 
               {/* Two buttons — glass */}
