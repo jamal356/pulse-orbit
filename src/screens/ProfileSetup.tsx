@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } frm 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { dark } from '../theme'
 import PulseLogo from '../components/PulseLogo'
