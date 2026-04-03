@@ -87,7 +87,7 @@ export default function ProfileSetup({ onNavigate: _onNavigate }: Props) {
 
   const handleGenderSelect = (selected: string) => {
     setFormData({ ...formData, gender: selected })
-    setTimeout(() => goNext(), 300)
+    setTimeout(() => setStep(3), 300)
   }
 
   const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
