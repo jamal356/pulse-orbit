@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect } frm 'react'
 import { supabase } from '../lib/supabase'
 import { dark } from '../theme'
 import PulseLogo from '../components/PulseLogo'
@@ -23,7 +23,7 @@ interface FormData {
   photo: File | null
 }
 
-export default function ProfileSetup({ onNavigate }: Props) {
+export default function ProfileSetup({ onNavigate: _onNavigate }: Props) {
   const [step, setStep] = useState(0)
   const [formData, setFormData] = useState<FormData>({
     name: '',
