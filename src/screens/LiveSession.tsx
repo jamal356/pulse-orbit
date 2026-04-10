@@ -5,6 +5,7 @@ import { useTimer } from '../hooks/useTimer'
 import { dark } from '../theme'
 import BackgroundOrbs from '../components/BackgroundOrbs'
 import { conversationStarters } from '../data/people'
+import { reportUser, blockUser, type Report } from '../lib/safety'
 
 type SessionPhase = 'intro' | 'live' | 'transition' | 'rating'
 
@@ -30,7 +31,9 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
 
   const [phase, setPhase] = useState<SessionPhase>('intro')
   const [currentRound, setCurrentRound] = useState(1)
-  const [currentPartner, setCurrentPartner] = useState<{ name: string; photo: string } | null>(null)
+  const [currentPartner, setCurrentPartner] = useState<{ id: string | null; name: string; photo: string } | null>(null)
+  const [reportError, setReportError] = useState<string | null>(null)
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false)
   const [userSparkSent, setUserSparkSent] = useState(false)
   const [userExtendRequested, setUserExtendRequested] = useState(false)
   const [isExtended, setIsExtended] = useState(false)
@@ -38,7 +41,7 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
   const [emergencyTriggered, setEmergencyTriggered] = useState(false)
   const [currentQuestion, setCurrentQuestion] = useState<string | null>(conversationStarters[0])
   const [showReport, setShowReport] = useState(false)
-  const [reportReason, setReportReason] = useState<string | null>(null)
+  const [reportReason, setReportReason] = useState<Report['reason'] | null>(null)
 
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
@@ -73,8 +76,17 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
     }
   }, [remoteStream])
 
-  // Simulate partner data
+  // Partner data — prefer real session participants; fall back to demo stub when empty
   useEffect(() => {
+    const real = sessionData.participants?.[currentRound - 1]
+    if (real) {
+      setCurrentPartner({
+        id: real.userId,
+        name: real.displayName,
+        photo: real.photoUrl || '',
+      })
+      return
+    }
     const partners = ['Sofia', 'Layla', 'Amira', 'Nour', 'Yasmine']
     const photos = [
       'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1280&q=90',
@@ -84,10 +96,11 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1280&q=90',
     ]
     setCurrentPartner({
+      id: null,
       name: partners[currentRound - 1] || 'Partner',
       photo: photos[currentRound - 1] || photos[0],
     })
-  }, [currentRound])
+  }, [currentRound, sessionData.participants])
 
   // Round state machine
   useEffect(() => {
@@ -150,16 +163,39 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
     requestExtend()
   }, [userExtendRequested, phase, timer.seconds, requestExtend])
 
-  const handleReport = useCallback(() => {
-    if (!reportReason || !currentPartner) return
-    // Submit report via API
-    console.log('Report submitted:', { partnerId: currentPartner.name, reason: reportReason })
-    setShowReport(false)
-    setReportReason(null)
-    // End current round and skip future rounds with this person
-    disconnect()
-    setPhase('transition')
-  }, [reportReason, currentPartner, disconnect])
+  const handleReport = useCallback(async () => {
+    if (!reportReason || !currentPartner || isSubmittingReport) return
+    setIsSubmittingReport(true)
+    setReportError(null)
+    try {
+      if (currentPartner.id) {
+        await reportUser(
+          user.id,
+          currentPartner.id,
+          reportReason as Report['reason'],
+          sessionData.sessionId,
+        )
+        // Block so round-robin pairing never rejoins this partner
+        await blockUser(user.id, currentPartner.id).catch(() => {})
+      } else {
+        // Demo / no-backend mode — no real user id to report against
+        console.warn('Report skipped: partner id unavailable (demo mode)', {
+          partner: currentPartner.name,
+          reason: reportReason,
+        })
+      }
+      setShowReport(false)
+      setReportReason(null)
+      // Separate reporter from reported: end round immediately
+      disconnect()
+      setPhase('transition')
+    } catch (err) {
+      console.error('Report submit failed:', err)
+      setReportError('Could not submit report. Please try again.')
+    } finally {
+      setIsSubmittingReport(false)
+    }
+  }, [reportReason, currentPartner, isSubmittingReport, user.id, sessionData.sessionId, disconnect])
 
   const handleEmergencyExit = useCallback(() => {
     setEmergencyTriggered(true)
@@ -288,35 +324,49 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
           >
             <h3 className="text-lg font-bold mb-4" style={{ color: dark.text }}>Report this person</h3>
             <div className="space-y-2 mb-6">
-              {['Inappropriate behavior', 'Harassment', 'Fake profile', 'Other'].map((reason) => (
+              {([
+                { value: 'inappropriate', label: 'Inappropriate behavior' },
+                { value: 'harassment', label: 'Harassment' },
+                { value: 'fake_profile', label: 'Fake profile' },
+                { value: 'underage', label: 'Appears underage' },
+                { value: 'spam', label: 'Spam' },
+                { value: 'other', label: 'Other' },
+              ] as const).map(({ value, label }) => (
                 <button
-                  key={reason}
-                  onClick={() => setReportReason(reason)}
+                  key={value}
+                  onClick={() => setReportReason(value)}
                   className="w-full p-3 rounded-lg text-left text-sm transition-all border"
                   style={{
-                    backgroundColor: reportReason === reason ? dark.accentSoft : dark.surface,
-                    borderColor: reportReason === reason ? dark.accent : dark.border,
+                    backgroundColor: reportReason === value ? dark.accentSoft : dark.surface,
+                    borderColor: reportReason === value ? dark.accent : dark.border,
                     color: dark.text,
                   }}
                 >
-                  {reason}
+                  {label}
                 </button>
               ))}
             </div>
 
+            {reportError && (
+              <p className="text-xs mb-3 text-center" style={{ color: '#FF3B30' }}>
+                {reportError}
+              </p>
+            )}
+
             <div className="space-y-2.5">
               <button
                 onClick={handleReport}
-                disabled={!reportReason}
+                disabled={!reportReason || isSubmittingReport}
                 className="w-full py-3.5 rounded-xl text-sm font-semibold text-white active:scale-95 transition-transform disabled:opacity-50"
                 style={{ backgroundColor: '#FF3B30' }}
               >
-                Submit Report
+                {isSubmittingReport ? 'Submitting…' : 'Submit Report'}
               </button>
               <button
                 onClick={() => {
                   setShowReport(false)
                   setReportReason(null)
+                  setReportError(null)
                 }}
                 className="w-full py-3 rounded-xl text-sm font-semibold active:scale-95 transition-transform border"
                 style={{ backgroundColor: dark.surface, borderColor: dark.border, color: dark.textSoft }}

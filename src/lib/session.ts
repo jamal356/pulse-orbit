@@ -158,6 +158,33 @@ export async function fetchMyMatches(userId: string) {
   return data as Match[]
 }
 
+export interface SessionTick {
+  round_id: string
+  round_number: number
+  started_at: string | null
+  ended_at: string | null
+  seconds_remaining: number
+  extended: boolean
+  ended: boolean
+  server_time: string
+}
+
+export async function tickRound(
+  sessionId: string,
+  roundId: string,
+  action?: 'start' | 'extend' | 'end',
+): Promise<SessionTick> {
+  const res = await fetch('/api/session-tick', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session_id: sessionId, round_id: roundId, action }),
+  })
+  if (!res.ok) {
+    throw new Error(`session-tick failed: ${res.status}`)
+  }
+  return (await res.json()) as SessionTick
+}
+
 export async function fetchSessionResults(sessionId: string, userId: string) {
   if (!supabase) throw new Error('Supabase not configured')
 
