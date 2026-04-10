@@ -130,6 +130,12 @@ export default function MatchSurvey({ user, sessionId, rounds, onNavigate }: Pro
   }, [rating, partner.id, currentRoundIndex, rounds.length, ratings, advancePhase, triggerRipple])
 
   const handleSubmitAllRatings = useCallback(async (allRatings: Record<string, 'like' | 'pass'>) => {
+    // No rounds to submit — route forward with empty matches
+    if (rounds.length === 0) {
+      onNavigate('results', { matches: [] })
+      return
+    }
+
     try {
       for (const round of rounds) {
         const ratedId = round.user_a === user.id ? round.user_b : round.user_a
@@ -151,6 +157,8 @@ export default function MatchSurvey({ user, sessionId, rounds, onNavigate }: Pro
       onNavigate('results', { matches: matchData.matches || [] })
     } catch (error) {
       console.error('Error submitting ratings:', error)
+      // Never dead-end — always forward
+      onNavigate('results', { matches: [] })
     }
   }, [rounds, user.id, sessionId, onNavigate])
 
