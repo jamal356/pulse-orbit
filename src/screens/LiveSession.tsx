@@ -167,7 +167,7 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
       stopCamera()
       disconnect()
       onNavigate('home')
-    }, 1500)
+    }, 1200)
   }, [stopCamera, disconnect, onNavigate])
 
   const minutes = Math.floor(timer.seconds / 60)
@@ -332,13 +332,24 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
 
         {/* Remote video (full screen) */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative" style={{ backgroundColor: dark.bgDeep }}>
           {currentPartner ? (
-            <img
-              src={currentPartner.photo}
-              alt={currentPartner.name}
-              className="w-full h-full object-cover"
-            />
+            <>
+              {/* Blurred backdrop to fill wide/tall viewports without awkward crop */}
+              <img
+                src={currentPartner.photo}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ filter: 'blur(40px) brightness(0.5) saturate(0.8)', transform: 'scale(1.15)' }}
+              />
+              {/* Foreground photo — always fully visible */}
+              <img
+                src={currentPartner.photo}
+                alt={currentPartner.name}
+                className="relative w-full h-full object-contain"
+              />
+            </>
           ) : (
             <div className="w-full h-full" style={{ backgroundColor: dark.bgDeep }} />
           )}
