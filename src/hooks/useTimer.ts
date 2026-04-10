@@ -62,10 +62,14 @@ export function useTimer(serverSync?: ServerSyncOptions) {
     }
   }, [])
 
-  // Server-authoritative sync
+  // Server-authoritative sync.
+  // Deps intentionally use primitives only — the `serverSync` object is
+  // often reconstructed per render. `onEnded` is read through a ref.
+  const syncSessionId = serverSync?.sessionId
+  const syncRoundId = serverSync?.roundId
+  const syncPollMs = serverSync?.pollMs ?? 5000
   useEffect(() => {
-    if (!serverSync) return
-    const { sessionId, roundId, pollMs = 5000 } = serverSync
+    if (!syncSessionId || !syncRoundId) return
 
     let cancelled = false
     endedRef.current = false
@@ -84,21 +88,21 @@ export function useTimer(serverSync?: ServerSyncOptions) {
     }
 
     // Kick off round + first sync
-    tickRound(sessionId, roundId, 'start').then(applyTick).catch((err) => {
+    tickRound(syncSessionId, syncRoundId, 'start').then(applyTick).catch((err) => {
       console.error('session-tick start failed:', err)
     })
 
     const poll = setInterval(() => {
-      tickRound(sessionId, roundId).then(applyTick).catch((err) => {
+      tickRound(syncSessionId, syncRoundId).then(applyTick).catch((err) => {
         console.error('session-tick poll failed:', err)
       })
-    }, pollMs)
+    }, syncPollMs)
 
     return () => {
       cancelled = true
       clearInterval(poll)
     }
-  }, [serverSync?.sessionId, serverSync?.roundId, serverSync?.pollMs, serverSync])
+  }, [syncSessionId, syncRoundId, syncPollMs])
 
   const start = useCallback((duration: number) => {
     setSeconds(duration)

@@ -22,8 +22,11 @@ export default function Lobby({ user, onNavigate }: Props) {
   const [countdown, setCountdown] = useState<number | null>(null)
   const [ready, setReady_local] = useState(false)
   const [currentStarter, setCurrentStarter] = useState(conversationStarters[0])
+  const [startError, setStartError] = useState<string | null>(null)
+  const [isStarting, setIsStarting] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const startingRef = useRef(false)
 
   // Request camera on mount
   useEffect(() => {
@@ -59,6 +62,41 @@ export default function Lobby({ user, onNavigate }: Props) {
     }
   }, [count, countdown])
 
+  // Create the real session via the API, then navigate. Guarded by a ref
+  // so the state updater at the end of the countdown can't fire this twice.
+  const startRealSession = useCallback(async (participantIds: string[]) => {
+    if (startingRef.current) return
+    startingRef.current = true
+    setIsStarting(true)
+    setStartError(null)
+    try {
+      const res = await fetch('/api/session-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ participant_ids: participantIds }),
+      })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok || !json?.session_id) {
+        throw new Error(json?.error || `session-create failed (${res.status})`)
+      }
+      onNavigate('live-session', { sessionId: json.session_id })
+    } catch (err) {
+      console.error('startRealSession failed:', err)
+      setStartError(err instanceof Error ? err.message : 'Could not start session')
+      // Dev/demo fallback so the screen isn't a dead end when the backend
+      // is unreachable. LiveSession degrades to stub partner data.
+      if (import.meta.env.DEV) {
+        onNavigate('live-session', { sessionId: null })
+      } else {
+        // In production, let them retry: reopen the countdown
+        startingRef.current = false
+        setCountdown(COUNTDOWN_START)
+      }
+    } finally {
+      setIsStarting(false)
+    }
+  }, [onNavigate])
+
   // Countdown timer
   useEffect(() => {
     if (countdown === null || countdown <= 0) return
@@ -69,12 +107,8 @@ export default function Lobby({ user, onNavigate }: Props) {
           // Check if enough people ready
           const readyCount = participants.filter((p) => p.joinedAt).length
           if (readyCount >= 4) {
-            // Transition to session
-            onNavigate('live-session', {
-              sessionId: `session-${Date.now()}`,
-              participants,
-              rounds: 5,
-            })
+            // Fire the async session create (don't await inside a state updater)
+            void startRealSession(participants.map((p) => p.userId))
             return null
           } else {
             // Reset countdown
@@ -88,7 +122,7 @@ export default function Lobby({ user, onNavigate }: Props) {
     return () => {
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current)
     }
-  }, [countdown, participants, onNavigate])
+  }, [countdown, participants, startRealSession])
 
   // Rotate conversation starters
   useEffect(() => {
@@ -266,21 +300,29 @@ export default function Lobby({ user, onNavigate }: Props) {
       <div className="relative z-10 px-6 py-6 border-t" style={{ borderColor: dark.border }}>
         <button
           onClick={handleReady}
-          disabled={ready || count < 5}
+          disabled={ready || count < 5 || isStarting}
           className="w-full py-3.5 rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50"
           style={{
             backgroundColor: ready || count < 5 ? dark.accentSoft : dark.accent,
             color: 'white',
           }}
         >
-          {ready ? "You're Ready ✓" : "I'm Ready to Connect"}
+          {isStarting
+            ? 'Starting session…'
+            : ready
+              ? "You're Ready ✓"
+              : "I'm Ready to Connect"}
         </button>
-        <p className="text-xs mt-3 text-center" style={{ color: dark.textFaint }}>
-          {count < 5
-            ? `${5 - count} more people needed to start`
-            : countdown !== null
-              ? 'Confirm participation in the countdown'
-              : 'Waiting for countdown...'}
+        <p className="text-xs mt-3 text-center" style={{ color: startError ? '#FF3B30' : dark.textFaint }}>
+          {startError
+            ? startError
+            : count < 5
+              ? `${5 - count} more people needed to start`
+              : isStarting
+                ? 'Creating session…'
+                : countdown !== null
+                  ? 'Confirm participation in the countdown'
+                  : 'Waiting for countdown...'}
         </p>
       </div>
     </div>

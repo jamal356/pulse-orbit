@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useSession } from '../hooks/useSession'
 import { useVideo } from '../hooks/useVideo'
 import { useTimer } from '../hooks/useTimer'
@@ -6,16 +6,14 @@ import { dark } from '../theme'
 import BackgroundOrbs from '../components/BackgroundOrbs'
 import { conversationStarters } from '../data/people'
 import { reportUser, blockUser, type Report } from '../lib/safety'
+import { loadLiveSessionBundle, type LiveSessionBundle } from '../lib/session'
 
 type SessionPhase = 'intro' | 'live' | 'transition' | 'rating'
 
 interface Props {
   user: { id: string; display_name: string; photo_url: string | null }
-  sessionData: {
-    sessionId: string
-    participants: Array<{ userId: string; displayName: string; photoUrl: string | null }>
-    rounds: number
-  }
+  /** Real session id from /api/session-create, or null for demo/dev mode. */
+  sessionId: string | null
   onNavigate: (screen: string, data?: unknown) => void
 }
 
@@ -23,11 +21,48 @@ const INTRO_DURATION = 5
 const LIVE_DURATION = 300
 const TRANSITION_DURATION = 15
 const EXTEND_WINDOW = 30
+const DEMO_ROUND_COUNT = 5
 
-export default function LiveSession({ user, sessionData, onNavigate }: Props) {
-  const { sendSpark, requestExtend, sparks } = useSession(sessionData.sessionId, user.id)
+export default function LiveSession({ user, sessionId, onNavigate }: Props) {
+  // Load the real session bundle (session row + rounds + partner profiles)
+  // when we have a real sessionId. Null = demo mode — we fall through to
+  // the hardcoded stub below.
+  const [bundle, setBundle] = useState<LiveSessionBundle | null>(null)
+  const [bundleError, setBundleError] = useState<string | null>(null)
+  const [bundleLoading, setBundleLoading] = useState<boolean>(!!sessionId)
+
+  useEffect(() => {
+    if (!sessionId) {
+      setBundle(null)
+      setBundleError(null)
+      setBundleLoading(false)
+      return
+    }
+    let cancelled = false
+    setBundleLoading(true)
+    setBundleError(null)
+    loadLiveSessionBundle(sessionId, user.id)
+      .then((b) => {
+        if (cancelled) return
+        setBundle(b)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        console.error('loadLiveSessionBundle failed:', err)
+        setBundleError(err instanceof Error ? err.message : 'Could not load session')
+      })
+      .finally(() => {
+        if (!cancelled) setBundleLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [sessionId, user.id])
+
+  const totalRounds = bundle ? Math.max(bundle.myRounds.length, 1) : DEMO_ROUND_COUNT
+  // useSession still drives spark/extend broadcasts — pass a stable id even in demo.
+  const { sendSpark, requestExtend, sparks } = useSession(sessionId ?? 'demo-session', user.id)
   const { localStream, remoteStream, startCamera, stopCamera, disconnect } = useVideo()
-  const timer = useTimer()
 
   const [phase, setPhase] = useState<SessionPhase>('intro')
   const [currentRound, setCurrentRound] = useState(1)
@@ -45,6 +80,33 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
 
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
+
+  // The current round row from the DB (null in demo mode)
+  const currentRoundData = bundle ? bundle.myRounds[currentRound - 1] ?? null : null
+
+  // Drive the timer off the real round id when we have one. In the intro
+  // and transition phases we leave serverSync undefined so the hook doesn't
+  // POST `start` and burn clock time before the user is actually seeing
+  // their partner.
+  const handleRoundEnded = useCallback(() => {
+    disconnect()
+    setPhase('transition')
+    setUserSparkSent(false)
+    setUserExtendRequested(false)
+    setIsExtended(false)
+  }, [disconnect])
+
+  const timerServerSync = useMemo(() => {
+    if (phase !== 'live') return undefined
+    if (!sessionId || !currentRoundData) return undefined
+    return {
+      sessionId,
+      roundId: currentRoundData.id,
+      onEnded: handleRoundEnded,
+    }
+  }, [phase, sessionId, currentRoundData, handleRoundEnded])
+
+  const timer = useTimer(timerServerSync)
 
   // Initialize camera
   useEffect(() => {
@@ -76,17 +138,19 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
     }
   }, [remoteStream])
 
-  // Partner data — prefer real session participants; fall back to demo stub when empty
+  // Partner data — prefer the real round row from the loaded bundle; fall
+  // back to the hardcoded stub when we're in demo mode (no sessionId) or
+  // the bundle fetch failed.
   useEffect(() => {
-    const real = sessionData.participants?.[currentRound - 1]
-    if (real) {
+    if (currentRoundData) {
       setCurrentPartner({
-        id: real.userId,
-        name: real.displayName,
-        photo: real.photoUrl || '',
+        id: currentRoundData.partner.id,
+        name: currentRoundData.partner.name,
+        photo: currentRoundData.partner.photo || 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1280&q=90',
       })
       return
     }
+    if (bundleLoading) return
     const partners = ['Sofia', 'Layla', 'Amira', 'Nour', 'Yasmine']
     const photos = [
       'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1280&q=90',
@@ -100,33 +164,47 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
       name: partners[currentRound - 1] || 'Partner',
       photo: photos[currentRound - 1] || photos[0],
     })
-  }, [currentRound, sessionData.participants])
+  }, [currentRound, currentRoundData, bundleLoading])
 
-  // Round state machine
+  // Round state machine.
+  //
+  // Real mode (bundle loaded): when phase flips to 'live' the useTimer
+  // serverSync effect POSTs session-tick:start, the server stamps
+  // rounds.started_at, and onEnded fires when the server declares it over.
+  // We also guard `timer.seconds === 0` in case the poll catches up first.
+  //
+  // Demo mode (no bundle): call timer.start(LIVE_DURATION) locally because
+  // serverSync is disabled and nothing else will start the clock.
   useEffect(() => {
     if (phase === 'intro') {
       const timeout = setTimeout(() => {
         setPhase('live')
-        timer.start(LIVE_DURATION)
+        if (!bundle) {
+          timer.start(LIVE_DURATION)
+        }
       }, INTRO_DURATION * 1000)
       return () => clearTimeout(timeout)
     }
 
-    if (phase === 'live' && timer.seconds === 0) {
+    if (phase === 'live' && timer.seconds === 0 && timer.isRunning === false && !bundle) {
+      // Demo-mode fallback exit — in real mode onEnded already fired.
       disconnect()
       setPhase('transition')
       setUserSparkSent(false)
       setUserExtendRequested(false)
       setIsExtended(false)
     }
-  }, [phase, timer.seconds, disconnect, timer])
+  }, [phase, timer.seconds, timer.isRunning, timer, disconnect, bundle])
 
   useEffect(() => {
     if (phase === 'transition') {
       const timeout = setTimeout(() => {
-        if (currentRound >= sessionData.rounds) {
+        if (currentRound >= totalRounds) {
           setPhase('rating')
-          onNavigate('match-survey', { sessionId: sessionData.sessionId })
+          onNavigate('survey', {
+            sessionId,
+            rounds: bundle?.allRounds ?? [],
+          })
         } else {
           setCurrentRound(currentRound + 1)
           setPhase('intro')
@@ -134,7 +212,7 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
       }, TRANSITION_DURATION * 1000)
       return () => clearTimeout(timeout)
     }
-  }, [phase, currentRound, sessionData, onNavigate])
+  }, [phase, currentRound, totalRounds, sessionId, bundle, onNavigate])
 
   // Rotate conversation starters
   useEffect(() => {
@@ -160,20 +238,27 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
   const handleExtend = useCallback(() => {
     if (userExtendRequested || phase !== 'live' || timer.seconds > EXTEND_WINDOW) return
     setUserExtendRequested(true)
+    setIsExtended(true)
+    // Real-mode: round-trip the extend through the server so both clients
+    // get the updated deadline on their next poll. Demo-mode: just flip
+    // the local flag via the broadcast path.
+    if (sessionId && currentRoundData) {
+      timer.extend().catch((err) => console.error('extend failed:', err))
+    }
     requestExtend()
-  }, [userExtendRequested, phase, timer.seconds, requestExtend])
+  }, [userExtendRequested, phase, timer, requestExtend, sessionId, currentRoundData])
 
   const handleReport = useCallback(async () => {
     if (!reportReason || !currentPartner || isSubmittingReport) return
     setIsSubmittingReport(true)
     setReportError(null)
     try {
-      if (currentPartner.id) {
+      if (currentPartner.id && sessionId) {
         await reportUser(
           user.id,
           currentPartner.id,
           reportReason as Report['reason'],
-          sessionData.sessionId,
+          sessionId,
         )
         // Block so round-robin pairing never rejoins this partner
         await blockUser(user.id, currentPartner.id).catch(() => {})
@@ -195,7 +280,7 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
     } finally {
       setIsSubmittingReport(false)
     }
-  }, [reportReason, currentPartner, isSubmittingReport, user.id, sessionData.sessionId, disconnect])
+  }, [reportReason, currentPartner, isSubmittingReport, user.id, sessionId, disconnect])
 
   const handleEmergencyExit = useCallback(() => {
     setEmergencyTriggered(true)
@@ -226,6 +311,42 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
     )
   }
 
+  if (bundleLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: dark.bg }}>
+        <BackgroundOrbs />
+        <div className="relative z-10 text-center px-6">
+          <div className="w-14 h-14 rounded-full mx-auto mb-4 animate-pulse" style={{ backgroundColor: dark.accentSoft }} />
+          <p className="text-sm" style={{ color: dark.textSoft }}>Loading session…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (bundleError) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: dark.bg }}>
+        <BackgroundOrbs />
+        <div className="relative z-10 text-center px-6 max-w-sm">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'rgba(255,59,48,0.12)' }}>
+            <svg className="w-7 h-7 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <p className="text-base font-semibold mb-2" style={{ color: dark.text }}>Couldn't start the session</p>
+          <p className="text-sm mb-5" style={{ color: dark.textSoft }}>{bundleError}</p>
+          <button
+            onClick={() => onNavigate('home')}
+            className="px-5 py-2.5 rounded-xl text-sm font-semibold border"
+            style={{ backgroundColor: dark.surface, borderColor: dark.border, color: dark.text }}
+          >
+            Back to home
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (phase === 'transition') {
     return (
       <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: dark.bg }}>
@@ -233,7 +354,7 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
         <div className="relative z-10 text-center px-6">
           <div className="text-sm mb-4" style={{ color: dark.textSoft }}>Next up</div>
           <h1 className="text-3xl md:text-4xl font-semibold mb-6" style={{ color: dark.text }}>
-            {currentRound < sessionData.rounds
+            {currentRound < totalRounds
               ? `Match ${currentRound + 1}`
               : 'Session Complete'}
           </h1>
@@ -411,7 +532,7 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
                 className="rounded-full px-4 py-1.5 text-xs font-semibold border"
                 style={{ backgroundColor: dark.surface, borderColor: dark.border, color: dark.text }}
               >
-                Round {currentRound} of {sessionData.rounds}
+                Round {currentRound} of {totalRounds}
               </div>
               {isExtended && (
                 <div style={{ backgroundColor: dark.accentSoft, color: dark.accent }} className="rounded-full px-3 py-1.5 text-xs font-semibold animate-scale-in">
@@ -459,7 +580,7 @@ export default function LiveSession({ user, sessionData, onNavigate }: Props) {
           {phase === 'intro' && currentPartner && (
             <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
               <div className="text-center animate-fade-in">
-                <p className="text-sm mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Round {currentRound} of {sessionData.rounds}</p>
+                <p className="text-sm mb-2" style={{ color: 'rgba(255,255,255,0.7)' }}>Round {currentRound} of {totalRounds}</p>
                 <h2 className="text-3xl md:text-4xl font-bold text-white">
                   Meeting {currentPartner.name}
                 </h2>

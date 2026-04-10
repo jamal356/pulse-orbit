@@ -107,6 +107,11 @@ export async function leaveSession(sessionId: string, userId: string) {
   return data as SessionParticipant
 }
 
+export type RoundWithProfiles = Round & {
+  user_a_profile: { display_name: string; photo_url: string } | null
+  user_b_profile: { display_name: string; photo_url: string } | null
+}
+
 export async function fetchRoundsForSession(sessionId: string) {
   if (!supabase) throw new Error('Supabase not configured')
   const { data, error } = await supabase
@@ -116,10 +121,72 @@ export async function fetchRoundsForSession(sessionId: string) {
     .order('round_number', { ascending: true })
 
   if (error) throw error
-  return data as (Round & {
-    user_a_profile: { display_name: string; photo_url: string } | null
-    user_b_profile: { display_name: string; photo_url: string } | null
-  })[]
+  return data as RoundWithProfiles[]
+}
+
+/** Data needed to drive the LiveSession screen. */
+export interface LiveSessionPartner {
+  id: string
+  name: string
+  photo: string
+}
+
+export interface LiveSessionRound {
+  id: string
+  roundNumber: number
+  partner: LiveSessionPartner
+  raw: RoundWithProfiles
+}
+
+export interface LiveSessionBundle {
+  session: Session
+  /** Rounds the current user participates in, in order. Excludes byes. */
+  myRounds: LiveSessionRound[]
+  /** All rounds in the session (pass-through to MatchSurvey). */
+  allRounds: RoundWithProfiles[]
+}
+
+/**
+ * Loads everything LiveSession needs in one shot: the session row, its
+ * rounds (with participant profiles), and a filtered/sorted view of the
+ * rounds the current user actually participates in. Filters out byes so
+ * the round counter maps 1:1 to dates for this user.
+ */
+export async function loadLiveSessionBundle(
+  sessionId: string,
+  userId: string,
+): Promise<LiveSessionBundle> {
+  if (!supabase) throw new Error('Supabase not configured')
+
+  const [session, allRounds] = await Promise.all([
+    fetchSession(sessionId),
+    fetchRoundsForSession(sessionId),
+  ])
+
+  const myRounds: LiveSessionRound[] = allRounds
+    .filter((r) => r.user_a === userId || r.user_b === userId)
+    .sort((a, b) => a.round_number - b.round_number)
+    .map((r) => {
+      const iAmA = r.user_a === userId
+      const partnerId = iAmA ? r.user_b : r.user_a
+      const profile = iAmA ? r.user_b_profile : r.user_a_profile
+      return {
+        id: r.id,
+        roundNumber: r.round_number,
+        partner: {
+          id: partnerId,
+          name: profile?.display_name || 'Partner',
+          photo: profile?.photo_url || '',
+        },
+        raw: r,
+      }
+    })
+
+  return {
+    session: session as Session,
+    myRounds,
+    allRounds,
+  }
 }
 
 export async function submitRating(

@@ -16,6 +16,7 @@ import VideoDate from './screens/VideoDate'
 import ProfileScreen from './screens/ProfileScreen'
 import WaitlistPage from './screens/WaitlistPage'
 import type { Candidate } from './data/people'
+import type { RoundWithProfiles } from './lib/session'
 
 type ScreenType = 'marketing' | 'login' | 'profile-setup' | 'home' | 'lobby' | 'live-session' | 'discover' | 'speeddate' | 'transition' | 'survey' | 'results' | 'videodate' | 'profile' | 'waitlist'
 
@@ -43,11 +44,22 @@ export default function App() {
   const [speedDateTarget, setSpeedDateTarget] = useState<Candidate | null>(null)
   const [showAura, setShowAura] = useState(false)
   const [matchesData, setMatchesData] = useState<any>(null)
+  const [liveSessionId, setLiveSessionId] = useState<string | null>(null)
+  const [surveyRounds, setSurveyRounds] = useState<RoundWithProfiles[]>([])
 
   const navigateTo = useCallback((next: ScreenType, data?: any) => {
     setTransitioning(true)
     if (next === 'results' && data?.matches) {
       setMatchesData(data.matches)
+    }
+    if (next === 'live-session') {
+      // Lobby → live: carry real session_id forward. null = demo mode.
+      setLiveSessionId(data?.sessionId ?? null)
+    }
+    if (next === 'survey') {
+      // LiveSession → survey: preserve session id + hand off loaded rounds.
+      if (data?.sessionId !== undefined) setLiveSessionId(data.sessionId)
+      if (Array.isArray(data?.rounds)) setSurveyRounds(data.rounds)
     }
     setTimeout(() => {
       setScreen(next)
@@ -201,20 +213,23 @@ export default function App() {
         />
       )}
       {currentScreen === 'lobby' && user && profile && (
-        <Lobby user={{ id: user.id, display_name: profile.display_name, photo_url: profile.photo_url }} onNavigate={() => navigateTo('live-session')} />
+        <Lobby
+          user={{ id: user.id, display_name: profile.display_name, photo_url: profile.photo_url }}
+          onNavigate={(next, data) => navigateTo(next as ScreenType, data)}
+        />
       )}
       {currentScreen === 'live-session' && user && profile && (
         <LiveSession
           user={{ id: user.id, display_name: profile.display_name, photo_url: profile.photo_url }}
-          sessionData={{ sessionId: 'session-default', participants: [], rounds: 5 }}
-          onNavigate={(next) => navigateTo((next === 'home' ? 'home' : 'survey') as ScreenType)}
+          sessionId={liveSessionId}
+          onNavigate={(next, data) => navigateTo((next === 'home' ? 'home' : 'survey') as ScreenType, data)}
         />
       )}
       {currentScreen === 'survey' && user && profile && (
         <MatchSurvey
           user={{ id: user.id }}
-          sessionId="session-default"
-          rounds={[]}
+          sessionId={liveSessionId || 'session-default'}
+          rounds={surveyRounds}
           onNavigate={(screen, data) => navigateTo(screen, data)}
         />
       )}
