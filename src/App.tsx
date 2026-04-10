@@ -57,11 +57,6 @@ export default function App() {
     }, 400)
   }, [])
 
-  const handleDateComplete = useCallback(() => {
-    navigateTo('survey')
-  }, [navigateTo])
-
-
   const handleVideoDate = useCallback(() => {
     navigateTo('videodate')
   }, [navigateTo])
@@ -212,7 +207,7 @@ export default function App() {
         <LiveSession
           user={{ id: user.id, display_name: profile.display_name, photo_url: profile.photo_url }}
           sessionData={{ sessionId: 'session-default', participants: [], rounds: 5 }}
-          onNavigate={handleDateComplete}
+          onNavigate={(next) => navigateTo((next === 'home' ? 'home' : 'survey') as ScreenType)}
         />
       )}
       {currentScreen === 'survey' && user && profile && (
