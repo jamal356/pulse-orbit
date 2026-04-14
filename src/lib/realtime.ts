@@ -77,28 +77,61 @@ export function onSessionEvent<T = unknown>(event: string, callback: EventCallba
   }
 }
 
+// Tracks which session the videoChannel is currently bound to so repeat
+// calls to joinVideoChannel(sessionId) are a no-op when already correct,
+// and cleanly switch when the session changes.
+let videoChannelSessionId: string | null = null
+
 export async function joinVideoChannel(sessionId: string) {
   if (!supabase) throw new Error('Supabase not configured')
 
+  if (videoChannel && videoChannelSessionId === sessionId) {
+    return videoChannel
+  }
+  if (videoChannel) {
+    await videoChannel.unsubscribe().catch(() => {})
+    videoChannel = null
+  }
+
   videoChannel = supabase.channel(`pulse:video:${sessionId}`)
   await videoChannel.subscribe()
+  videoChannelSessionId = sessionId
 
   return videoChannel
 }
 
-export function broadcastPeerId(roundId: string, peerId: string) {
+export async function leaveVideoChannel() {
+  if (!videoChannel) return
+  await videoChannel.unsubscribe().catch(() => {})
+  videoChannel = null
+  videoChannelSessionId = null
+}
+
+export interface PeerIdBroadcast {
+  roundId: string
+  peerId: string
+  senderUserId: string
+  sentAt: string
+}
+
+export function broadcastPeerId(roundId: string, peerId: string, senderUserId: string) {
   if (!videoChannel) throw new Error('Video channel not initialized')
   return videoChannel.send({
     type: 'broadcast',
     event: 'peer_id',
-    payload: { roundId, peerId, sentAt: new Date().toISOString() },
+    payload: {
+      roundId,
+      peerId,
+      senderUserId,
+      sentAt: new Date().toISOString(),
+    } satisfies PeerIdBroadcast,
   })
 }
 
-export function onPeerIdReceived(callback: EventCallback<{ roundId: string; peerId: string }>) {
+export function onPeerIdReceived(callback: EventCallback<PeerIdBroadcast>) {
   if (!videoChannel) throw new Error('Video channel not initialized')
   const sub = videoChannel.on('broadcast', { event: 'peer_id' }, (msg) => {
-    callback(msg.payload as { roundId: string; peerId: string })
+    callback(msg.payload as PeerIdBroadcast)
   })
   return () => {
     sub.unsubscribe()

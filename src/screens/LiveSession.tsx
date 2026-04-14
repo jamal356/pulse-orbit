@@ -7,6 +7,14 @@ import BackgroundOrbs from '../components/BackgroundOrbs'
 import { conversationStarters } from '../data/people'
 import { reportUser, blockUser, type Report } from '../lib/safety'
 import { loadLiveSessionBundle, type LiveSessionBundle } from '../lib/session'
+import {
+  joinVideoChannel,
+  leaveVideoChannel,
+  broadcastPeerId,
+  onPeerIdReceived,
+  onSessionEvent,
+  type PeerIdBroadcast,
+} from '../lib/realtime'
 
 type SessionPhase = 'intro' | 'live' | 'transition' | 'rating'
 
@@ -62,7 +70,15 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
   const totalRounds = bundle ? Math.max(bundle.myRounds.length, 1) : DEMO_ROUND_COUNT
   // useSession still drives spark/extend broadcasts — pass a stable id even in demo.
   const { sendSpark, requestExtend, sparks } = useSession(sessionId ?? 'demo-session', user.id)
-  const { localStream, remoteStream, startCamera, stopCamera, disconnect } = useVideo()
+  const {
+    localStream,
+    remoteStream,
+    myPeerId,
+    startCamera,
+    stopCamera,
+    connectToPeer,
+    disconnect,
+  } = useVideo()
 
   const [phase, setPhase] = useState<SessionPhase>('intro')
   const [currentRound, setCurrentRound] = useState(1)
@@ -213,6 +229,107 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
       return () => clearTimeout(timeout)
     }
   }, [phase, currentRound, totalRounds, sessionId, bundle, onNavigate])
+
+  // ── Video peer exchange ──────────────────────────────────────────────────
+  //
+  // Without this effect, useVideo creates a peer and never tells anyone its
+  // id, so the partner's video tile stays empty and "live video dating" is
+  // a static photo. This wires the two halves together via Supabase
+  // Realtime broadcast on `pulse:video:{sessionId}`.
+  //
+  // - Once per session: subscribe to the video channel.
+  // - Per live round: subscribe to inbound peer-id broadcasts (filtered to
+  //   this round + this partner), broadcast our own peer id three times
+  //   (at 0, 1.5s, 3s) so we don't lose to the race where one side
+  //   subscribes after the other broadcasts. When we receive the partner's
+  //   peer id, the side with the lexicographically lower user_id initiates
+  //   `connectToPeer` — the other side answers automatically through
+  //   useVideo's `peer.on('call', …)` handler (glare avoidance).
+
+  // Channel lifecycle: join when we first have a real session, leave on unmount.
+  useEffect(() => {
+    if (!sessionId) return
+    let cancelled = false
+    joinVideoChannel(sessionId).catch((err) => {
+      if (!cancelled) console.error('joinVideoChannel failed:', err)
+    })
+    return () => {
+      cancelled = true
+      leaveVideoChannel().catch(() => {})
+    }
+  }, [sessionId])
+
+  // Server-pushed round_end: api/session-tick broadcasts this on the
+  // session channel when it auto-stamps ended_at, so all clients
+  // transition in lockstep instead of waiting up to 5s for their next
+  // poll to catch up. Polling stays as the safety net.
+  useEffect(() => {
+    if (phase !== 'live' || !sessionId || !currentRoundData) return
+    let unsub: (() => void) | undefined
+    try {
+      unsub = onSessionEvent('round_end', (evt: unknown) => {
+        const e = evt as { round_id?: string } | null
+        if (e?.round_id !== currentRoundData.id) return
+        handleRoundEnded()
+      })
+    } catch (err) {
+      console.error('round_end subscribe failed:', err)
+    }
+    return () => unsub?.()
+  }, [phase, sessionId, currentRoundData, handleRoundEnded])
+
+  // Per-round peer exchange.
+  useEffect(() => {
+    if (
+      phase !== 'live' ||
+      !sessionId ||
+      !currentRoundData ||
+      !myPeerId
+    ) {
+      return
+    }
+
+    const partnerUserId = currentRoundData.partner.id
+    const roundId = currentRoundData.id
+    const initiator = user.id < partnerUserId
+    let cancelled = false
+    const broadcastTimers: ReturnType<typeof setTimeout>[] = []
+    let unsub: (() => void) | undefined
+
+    try {
+      unsub = onPeerIdReceived((evt: PeerIdBroadcast) => {
+        if (cancelled) return
+        if (evt.roundId !== roundId) return
+        if (evt.peerId === myPeerId) return       // self echo
+        if (evt.senderUserId === user.id) return  // self echo (different tab)
+        if (evt.senderUserId !== partnerUserId) return
+        if (!initiator) return  // we're the answerer; useVideo handles incoming
+        try {
+          connectToPeer(evt.peerId)
+        } catch (err) {
+          console.error('connectToPeer failed:', err)
+        }
+      })
+    } catch (err) {
+      console.error('onPeerIdReceived setup failed:', err)
+    }
+
+    const fire = () => {
+      if (cancelled) return
+      broadcastPeerId(roundId, myPeerId, user.id).catch((err) => {
+        if (!cancelled) console.error('broadcastPeerId failed:', err)
+      })
+    }
+    fire()
+    broadcastTimers.push(setTimeout(fire, 1500))
+    broadcastTimers.push(setTimeout(fire, 3000))
+
+    return () => {
+      cancelled = true
+      broadcastTimers.forEach(clearTimeout)
+      unsub?.()
+    }
+  }, [phase, sessionId, currentRoundData, myPeerId, user.id, connectToPeer])
 
   // Rotate conversation starters
   useEffect(() => {
@@ -502,11 +619,13 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
       {/* Main video area */}
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
 
-        {/* Remote video (full screen) */}
+        {/* Remote video (full screen) — once the WebRTC stream is up we
+            swap the partner photo for the live feed. The photo stays as a
+            blurred backdrop so wide/tall viewports don't show black bars. */}
         <div className="flex-1 relative" style={{ backgroundColor: dark.bgDeep }}>
           {currentPartner ? (
             <>
-              {/* Blurred backdrop to fill wide/tall viewports without awkward crop */}
+              {/* Blurred backdrop — always the photo, even mid-call */}
               <img
                 src={currentPartner.photo}
                 alt=""
@@ -514,12 +633,20 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ filter: 'blur(40px) brightness(0.5) saturate(0.8)', transform: 'scale(1.15)' }}
               />
-              {/* Foreground photo — always fully visible */}
-              <img
-                src={currentPartner.photo}
-                alt={currentPartner.name}
-                className="relative w-full h-full object-contain"
-              />
+              {remoteStream ? (
+                <video
+                  ref={remoteVideoRef}
+                  autoPlay
+                  playsInline
+                  className="relative w-full h-full object-contain bg-black"
+                />
+              ) : (
+                <img
+                  src={currentPartner.photo}
+                  alt={currentPartner.name}
+                  className="relative w-full h-full object-contain"
+                />
+              )}
             </>
           ) : (
             <div className="w-full h-full" style={{ backgroundColor: dark.bgDeep }} />

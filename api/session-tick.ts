@@ -69,6 +69,44 @@ async function supabaseRequest<T = unknown>(
   return res.json() as Promise<T>
 }
 
+/**
+ * Fire-and-forget broadcast on the session channel via Supabase Realtime's
+ * REST broadcast endpoint. Used so all clients in a session transition in
+ * lockstep when the server declares a round over, instead of each client
+ * waiting up to `pollMs` for its next session-tick poll to catch up.
+ *
+ * Errors are swallowed — a failed broadcast must not fail the parent
+ * request; the poll-based fallback still works.
+ */
+async function broadcastSessionEvent(
+  sessionId: string,
+  event: string,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const url = `${SUPABASE_URL}/realtime/v1/api/broadcast`
+    await fetch(url, {
+      method: 'POST',
+      headers: {
+        apikey: SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages: [
+          {
+            topic: `pulse:session:${sessionId}`,
+            event,
+            payload,
+          },
+        ],
+      }),
+    })
+  } catch (err) {
+    console.warn('broadcastSessionEvent failed (non-fatal):', err)
+  }
+}
+
 function computeSecondsRemaining(round: RoundRow, now: number): number {
   if (!round.started_at) return BASE_DURATION_SEC + (round.extended ? EXTEND_DURATION_SEC : 0)
   if (round.ended_at) return 0
@@ -132,6 +170,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse<Re
 
     const now = Date.now()
     let secondsRemaining = computeSecondsRemaining(round, now)
+    let endedJustNow = false
 
     // Auto-end if past deadline
     if (!round.ended_at && round.started_at && secondsRemaining <= 0) {
@@ -143,6 +182,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse<Re
       )
       round = updated[0] ?? { ...round, ended_at: nowIso }
       secondsRemaining = 0
+      endedJustNow = true
     }
 
     if (action === 'end' && !round.ended_at) {
@@ -154,6 +194,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse<Re
       )
       round = updated[0] ?? { ...round, ended_at: nowIso }
       secondsRemaining = 0
+      endedJustNow = true
+    }
+
+    // When the server is the one that just stamped ended_at, broadcast
+    // round_end so all clients in this session transition in lockstep
+    // instead of waiting for their next individual poll. Best-effort.
+    if (endedJustNow) {
+      await broadcastSessionEvent(session_id, 'round_end', {
+        round_id: round.id,
+        round_number: round.round_number,
+        ended_at: round.ended_at,
+        reason: action === 'end' ? 'explicit' : 'auto',
+      })
     }
 
     return res.status(200).json({

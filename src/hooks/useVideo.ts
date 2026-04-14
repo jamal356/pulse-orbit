@@ -8,17 +8,21 @@ export function useVideo() {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null)
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('idle')
+  // Real PeerJS-assigned id, surfaced once the peer's `open` event fires.
+  // LiveSession needs this to broadcast it to its partner.
+  const [myPeerId, setMyPeerId] = useState<string | null>(null)
 
   const peerRef = useRef<Peer | null>(null)
   const callRef = useRef<MediaConnection | null>(null)
   const localStreamRef = useRef<MediaStream | null>(null)
 
   useEffect(() => {
-    const peerId = `peer-${Date.now()}-${Math.random().toString(36).slice(2)}`
-    const peer = new Peer(peerId)
+    const seedId = `peer-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const peer = new Peer(seedId)
 
-    peer.on('open', () => {
+    peer.on('open', (openId) => {
       peerRef.current = peer
+      setMyPeerId(openId)
     })
 
     peer.on('call', (call) => {
@@ -37,6 +41,7 @@ export function useVideo() {
       if (peer) {
         peer.destroy()
       }
+      setMyPeerId(null)
     }
   }, [])
 
@@ -139,6 +144,7 @@ export function useVideo() {
     localStream,
     remoteStream,
     connectionStatus,
+    myPeerId,
     startCamera,
     stopCamera,
     connectToPeer,
