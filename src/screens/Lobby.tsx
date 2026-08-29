@@ -15,11 +15,18 @@ const COUNTDOWN_START = 30
 const DEMO_COUNTDOWN = 5
 const STARTERS_ROTATION = 10000
 
+const ROOM_SIZE = 10
+
 const DEMO_PROFILES = [
   { userId: 'demo-aisha', displayName: 'Aisha', photoUrl: null, joinedAt: '' },
   { userId: 'demo-omar', displayName: 'Omar', photoUrl: null, joinedAt: '' },
   { userId: 'demo-layla', displayName: 'Layla', photoUrl: null, joinedAt: '' },
   { userId: 'demo-rami', displayName: 'Rami', photoUrl: null, joinedAt: '' },
+  { userId: 'demo-fatima', displayName: 'Fatima', photoUrl: null, joinedAt: '' },
+  { userId: 'demo-khalid', displayName: 'Khalid', photoUrl: null, joinedAt: '' },
+  { userId: 'demo-sara', displayName: 'Sara', photoUrl: null, joinedAt: '' },
+  { userId: 'demo-hassan', displayName: 'Hassan', photoUrl: null, joinedAt: '' },
+  { userId: 'demo-noor', displayName: 'Noor', photoUrl: null, joinedAt: '' },
 ]
 
 export default function Lobby({ user, onNavigate }: Props) {
@@ -41,14 +48,14 @@ export default function Lobby({ user, onNavigate }: Props) {
   // Combined count: at least 1 (user) + demo fills
   const totalCount = Math.max(count, 1) + demoParticipants.length
 
-  // Build display slots: user first, then real others, then demo, pad to 5
+  // Build display slots: user first, then real others, then demo, pad to ROOM_SIZE
   const otherReal = participants.filter((p) => p.userId !== user.id)
   const displaySlots: { name: string; photo: string | null; filled: boolean }[] = [
     { name: user.display_name, photo: user.photo_url, filled: true },
     ...otherReal.map((p) => ({ name: p.displayName, photo: p.photoUrl, filled: true })),
     ...demoParticipants.map((p) => ({ name: p.displayName, photo: p.photoUrl, filled: true })),
   ]
-  while (displaySlots.length < 5) displaySlots.push({ name: '', photo: null, filled: false })
+  while (displaySlots.length < ROOM_SIZE) displaySlots.push({ name: '', photo: null, filled: false })
 
   // Request camera on mount
   useEffect(() => {
@@ -92,9 +99,9 @@ export default function Lobby({ user, onNavigate }: Props) {
 
   // Start countdown when 5+ people present and user is ready
   useEffect(() => {
-    if (totalCount >= 5 && countdown === null && ready) {
+    if (totalCount >= ROOM_SIZE && countdown === null && ready) {
       setCountdown(demoMode ? DEMO_COUNTDOWN : COUNTDOWN_START)
-    } else if (totalCount < 5 && countdown !== null) {
+    } else if (totalCount < ROOM_SIZE && countdown !== null) {
       setCountdown(null)
     }
   }, [totalCount, countdown, demoMode, ready])
@@ -163,7 +170,7 @@ export default function Lobby({ user, onNavigate }: Props) {
   const handleReady = useCallback(() => {
     setReady_local(true)
     // If fewer than 5 real users, start demo auto-fill
-    if (count < 5) setDemoMode(true)
+    if (count < ROOM_SIZE) setDemoMode(true)
   }, [count])
 
   const handleRetryCamera = useCallback(async () => {
@@ -268,7 +275,7 @@ export default function Lobby({ user, onNavigate }: Props) {
         <div className="mb-6 text-center">
           <div className="text-3xl md:text-4xl font-bold mb-1" style={{ color: dark.text }}>
             {totalCount}
-            <span style={{ color: dark.textSoft, fontSize: '0.6em' }}> of 5</span>
+            <span style={{ color: dark.textSoft, fontSize: '0.6em' }}> of {ROOM_SIZE}</span>
           </div>
           <p style={{ color: dark.textSoft }}>people ready to connect</p>
         </div>
@@ -276,7 +283,7 @@ export default function Lobby({ user, onNavigate }: Props) {
         {/* Participant avatars grid */}
         <div className="mb-8 w-full max-w-xs">
           <div className="grid grid-cols-5 gap-2">
-            {displaySlots.slice(0, 5).map((slot, i) => (
+            {displaySlots.slice(0, ROOM_SIZE).map((slot, i) => (
               <div
                 key={i}
                 className={`aspect-square rounded-full border-2 overflow-hidden flex items-center justify-center transition-all duration-500 ${slot.filled ? 'scale-100 opacity-100' : 'scale-90 opacity-40'}`}
@@ -349,7 +356,7 @@ export default function Lobby({ user, onNavigate }: Props) {
         <p className="text-xs mt-3 text-center" style={{ color: startError ? '#FF3B30' : dark.textFaint }}>
           {startError
             ? startError
-            : ready && totalCount < 5
+            : ready && totalCount < ROOM_SIZE
               ? 'Finding people to connect withâ¦'
               : isStarting
                 ? 'Creating sessionâ¦'
