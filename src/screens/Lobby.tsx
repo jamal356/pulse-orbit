@@ -12,7 +12,15 @@ interface Props {
 }
 
 const COUNTDOWN_START = 30
+const DEMO_COUNTDOWN = 5
 const STARTERS_ROTATION = 10000
+
+const DEMO_PROFILES = [
+  { userId: 'demo-aisha', displayName: 'Aisha', photoUrl: null, joinedAt: '' },
+  { userId: 'demo-omar', displayName: 'Omar', photoUrl: null, joinedAt: '' },
+  { userId: 'demo-layla', displayName: 'Layla', photoUrl: null, joinedAt: '' },
+  { userId: 'demo-rami', displayName: 'Rami', photoUrl: null, joinedAt: '' },
+]
 
 export default function Lobby({ user, onNavigate }: Props) {
   const { participants, count } = useLobby(user.id)
@@ -24,9 +32,23 @@ export default function Lobby({ user, onNavigate }: Props) {
   const [currentStarter, setCurrentStarter] = useState(conversationStarters[0])
   const [startError, setStartError] = useState<string | null>(null)
   const [isStarting, setIsStarting] = useState(false)
+  const [demoMode, setDemoMode] = useState(false)
+  const [demoParticipants, setDemoParticipants] = useState<{ userId: string; displayName: string; photoUrl: string | null; joinedAt: string }[]>([])
   const videoRef = useRef<HTMLVideoElement>(null)
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const startingRef = useRef(false)
+
+  // Combined count: at least 1 (user) + demo fills
+  const totalCount = Math.max(count, 1) + demoParticipants.length
+
+  // Build display slots: user first, then real others, then demo, pad to 5
+  const otherReal = participants.filter((p) => p.userId !== user.id)
+  const displaySlots: { name: string; photo: string | null; filled: boolean }[] = [
+    { name: user.display_name, photo: user.photo_url, filled: true },
+    ...otherReal.map((p) => ({ name: p.displayName, photo: p.photoUrl, filled: true })),
+    ...demoParticipants.map((p) => ({ name: p.displayName, photo: p.photoUrl, filled: true })),
+  ]
+  while (displaySlots.length < 5) displaySlots.push({ name: '', photo: null, filled: false })
 
   // Request camera on mount
   useEffect(() => {
@@ -40,7 +62,6 @@ export default function Lobby({ user, onNavigate }: Props) {
       }
     }
     init()
-
     return () => {
       stopCamera()
     }
@@ -53,27 +74,49 @@ export default function Lobby({ user, onNavigate }: Props) {
     }
   }, [localStream])
 
-  // Start countdown when 5+ people present
+  // Demo mode: add demo participants gradually after Ready
   useEffect(() => {
-    if (count >= 5 && countdown === null) {
-      setCountdown(COUNTDOWN_START)
-    } else if (count < 5 && countdown !== null) {
+    if (!demoMode) return
+    let idx = 0
+    const timer = setInterval(() => {
+      if (idx >= DEMO_PROFILES.length) {
+        clearInterval(timer)
+        return
+      }
+      const p = DEMO_PROFILES[idx]
+      setDemoParticipants((prev) => [...prev, { ...p, joinedAt: new Date().toISOString() }])
+      idx++
+    }, 1200)
+    return () => clearInterval(timer)
+  }, [demoMode])
+
+  // Start countdown when 5+ people present and user is ready
+  useEffect(() => {
+    if (totalCount >= 5 && countdown === null && ready) {
+      setCountdown(demoMode ? DEMO_COUNTDOWN : COUNTDOWN_START)
+    } else if (totalCount < 5 && countdown !== null) {
       setCountdown(null)
     }
-  }, [count, countdown])
+  }, [totalCount, countdown, demoMode, ready])
 
-  // Create the real session via the API, then navigate. Guarded by a ref
-  // so the state updater at the end of the countdown can't fire this twice.
-  const startRealSession = useCallback(async (participantIds: string[]) => {
+  // Navigate to LiveSession (demo or real)
+  const startSession = useCallback(async () => {
     if (startingRef.current) return
     startingRef.current = true
     setIsStarting(true)
     setStartError(null)
+
+    // Demo mode: skip API, go straight to live-session
+    if (demoMode) {
+      onNavigate('live-session', { sessionId: null })
+      return
+    }
+
     try {
       const res = await fetch('/api/session-create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ participant_ids: participantIds }),
+        body: JSON.stringify({ participant_ids: participants.map((p) => p.userId) }),
       })
       const json = await res.json().catch(() => ({}))
       if (!res.ok || !json?.session_id) {
@@ -81,21 +124,14 @@ export default function Lobby({ user, onNavigate }: Props) {
       }
       onNavigate('live-session', { sessionId: json.session_id })
     } catch (err) {
-      console.error('startRealSession failed:', err)
+      console.error('startSession failed:', err)
       setStartError(err instanceof Error ? err.message : 'Could not start session')
-      // Dev/demo fallback so the screen isn't a dead end when the backend
-      // is unreachable. LiveSession degrades to stub partner data.
-      if (import.meta.env.DEV) {
-        onNavigate('live-session', { sessionId: null })
-      } else {
-        // In production, let them retry: reopen the countdown
-        startingRef.current = false
-        setCountdown(COUNTDOWN_START)
-      }
+      // Fallback: go to live-session in demo mode
+      onNavigate('live-session', { sessionId: null })
     } finally {
       setIsStarting(false)
     }
-  }, [onNavigate])
+  }, [onNavigate, demoMode, participants])
 
   // Countdown timer
   useEffect(() => {
@@ -104,16 +140,8 @@ export default function Lobby({ user, onNavigate }: Props) {
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
-          // Check if enough people ready
-          const readyCount = participants.filter((p) => p.joinedAt).length
-          if (readyCount >= 4) {
-            // Fire the async session create (don't await inside a state updater)
-            void startRealSession(participants.map((p) => p.userId))
-            return null
-          } else {
-            // Reset countdown
-            return COUNTDOWN_START
-          }
+          void startSession()
+          return null
         }
         return prev - 1
       })
@@ -122,7 +150,7 @@ export default function Lobby({ user, onNavigate }: Props) {
     return () => {
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current)
     }
-  }, [countdown, participants, startRealSession])
+  }, [countdown, startSession])
 
   // Rotate conversation starters
   useEffect(() => {
@@ -134,7 +162,9 @@ export default function Lobby({ user, onNavigate }: Props) {
 
   const handleReady = useCallback(() => {
     setReady_local(true)
-  }, [setReady_local])
+    // If fewer than 5 real users, start demo auto-fill
+    if (count < 5) setDemoMode(true)
+  }, [count])
 
   const handleRetryCamera = useCallback(async () => {
     try {
@@ -193,15 +223,18 @@ export default function Lobby({ user, onNavigate }: Props) {
       <div className="relative z-10 flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: dark.border }}>
         <button
           onClick={handleLeaveLobby}
-          className="text-sm font-medium transition-opacity hover:opacity-70 active:scale-95"
-          style={{ color: dark.textSoft }}
+          className="flex items-center gap-1.5 px-3 py-2 -ml-1 rounded-xl font-medium transition-all hover:opacity-80 active:scale-95"
+          style={{ color: dark.text, backgroundColor: dark.surface }}
         >
-          ← Back
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
         </button>
         <div>
           <PulseLogo variant="symbol" color="white" size="sm" />
         </div>
-        <div />
+        <div className="w-16" />
       </div>
 
       {/* Main content */}
@@ -234,7 +267,7 @@ export default function Lobby({ user, onNavigate }: Props) {
         {/* Participant count */}
         <div className="mb-6 text-center">
           <div className="text-3xl md:text-4xl font-bold mb-1" style={{ color: dark.text }}>
-            {count}
+            {totalCount}
             <span style={{ color: dark.textSoft, fontSize: '0.6em' }}> of 5</span>
           </div>
           <p style={{ color: dark.textSoft }}>people ready to connect</p>
@@ -243,24 +276,24 @@ export default function Lobby({ user, onNavigate }: Props) {
         {/* Participant avatars grid */}
         <div className="mb-8 w-full max-w-xs">
           <div className="grid grid-cols-5 gap-2">
-            {Array.from({ length: 5 }).map((_, i) => (
+            {displaySlots.slice(0, 5).map((slot, i) => (
               <div
                 key={i}
-                className="aspect-square rounded-full border-2 overflow-hidden flex items-center justify-center"
+                className={`aspect-square rounded-full border-2 overflow-hidden flex items-center justify-center transition-all duration-500 ${slot.filled ? 'scale-100 opacity-100' : 'scale-90 opacity-40'}`}
                 style={{
-                  borderColor: i < count ? dark.accent : dark.border,
-                  backgroundColor: i < count ? dark.accentSoft : dark.surface,
+                  borderColor: slot.filled ? dark.accent : dark.border,
+                  backgroundColor: slot.filled ? dark.accentSoft : dark.surface,
                 }}
               >
-                {i < count && participants[i]?.photoUrl ? (
+                {slot.filled && slot.photo ? (
                   <img
-                    src={participants[i].photoUrl}
-                    alt={participants[i].displayName}
+                    src={slot.photo}
+                    alt={slot.name}
                     className="w-full h-full object-cover"
                   />
-                ) : i < count ? (
-                  <span className="text-xs font-medium text-center px-1" style={{ color: dark.textFaint }}>
-                    {participants[i]?.displayName.split(' ')[0]}
+                ) : slot.filled ? (
+                  <span className="text-xs font-medium text-center px-1" style={{ color: dark.text }}>
+                    {slot.name.split(' ')[0]}
                   </span>
                 ) : (
                   <svg className="w-5 h-5" style={{ color: dark.textFaint }} fill="currentColor" viewBox="0 0 20 20">
@@ -300,29 +333,31 @@ export default function Lobby({ user, onNavigate }: Props) {
       <div className="relative z-10 px-6 py-6 border-t" style={{ borderColor: dark.border }}>
         <button
           onClick={handleReady}
-          disabled={ready || count < 5 || isStarting}
+          disabled={ready || isStarting}
           className="w-full py-3.5 rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50"
           style={{
-            backgroundColor: ready || count < 5 ? dark.accentSoft : dark.accent,
+            backgroundColor: ready ? dark.accentSoft : dark.accent,
             color: 'white',
           }}
         >
           {isStarting
-            ? 'Starting session…'
+            ? 'Starting sessionâ¦'
             : ready
-              ? "You're Ready ✓"
+              ? "You're Ready â"
               : "I'm Ready to Connect"}
         </button>
         <p className="text-xs mt-3 text-center" style={{ color: startError ? '#FF3B30' : dark.textFaint }}>
           {startError
             ? startError
-            : count < 5
-              ? `${5 - count} more people needed to start`
+            : ready && totalCount < 5
+              ? 'Finding people to connect withâ¦'
               : isStarting
-                ? 'Creating session…'
+                ? 'Creating sessionâ¦'
                 : countdown !== null
-                  ? 'Confirm participation in the countdown'
-                  : 'Waiting for countdown...'}
+                  ? 'Session starting soonâ¦'
+                  : ready
+                    ? 'All set! Starting countdownâ¦'
+                    : 'Tap to join the next round'}
         </p>
       </div>
     </div>
