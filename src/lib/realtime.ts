@@ -7,74 +7,101 @@ type PresenceChangeCallback = (state: unknown) => void
 let lobbyChannel: RealtimeChannel | null = null
 let sessionChannel: RealtimeChannel | null = null
 let videoChannel: RealtimeChannel | null = null
+let lobbySyncCallbacks: PresenceChangeCallback[] = []
 
 export async function joinLobby(userId: string) {
-  if (!supabase) throw new Error('Supabase not configured')
+    if (!supabase) throw new Error('Supabase not configured')
 
-  lobbyChannel = supabase.channel('pulse:lobby', { config: { broadcast: { self: true } } })
+  if (lobbyChannel) {
+        await lobbyChannel.unsubscribe().catch(() => {})
+        lobbyChannel = null
+  }
 
-  await lobbyChannel.subscribe(async (status) => {
-    if (status === 'SUBSCRIBED') {
-      await lobbyChannel!.track({ userId, joinedAt: new Date().toISOString() })
-    }
+  const channel = supabase.channel('pulse:lobby', { config: { broadcast: { self: true } } })
+
+  // CRITICAL: presence listener must be registered BEFORE subscribe().
+  channel.on(
+        'presence' as unknown as 'system',
+    { event: 'sync' },
+        (() => {
+                const state = channel.presenceState()
+                lobbySyncCallbacks.forEach((cb) => {
+                          try {
+                                      cb(state)
+                          } catch {
+                                      /* keep other listeners alive */
+                          }
+                })
+        }) as unknown as () => void,
+      )
+
+  lobbyChannel = channel
+
+  await channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+                await channel.track({ userId, joinedAt: new Date().toISOString() })
+        }
   })
 
-  return lobbyChannel
+  return channel
 }
 
 export async function leaveLobby() {
-  if (!lobbyChannel) return
-  await lobbyChannel.unsubscribe()
-  lobbyChannel = null
+    if (!lobbyChannel) return
+    await lobbyChannel.unsubscribe()
+    lobbyChannel = null
+    lobbySyncCallbacks = []
 }
 
 export function onLobbyChange(callback: PresenceChangeCallback) {
-  if (!lobbyChannel) throw new Error('Lobby channel not initialized')
-  const sub = lobbyChannel.on(
-    'presence' as unknown as 'system',
-    { event: 'sync' },
-    callback as unknown as () => void,
-  )
-  return () => {
-    sub.unsubscribe()
-  }
+    lobbySyncCallbacks.push(callback)
+    if (lobbyChannel) {
+          try {
+                  callback(lobbyChannel.presenceState())
+          } catch {
+                  /* ignore */
+          }
+    }
+    return () => {
+          lobbySyncCallbacks = lobbySyncCallbacks.filter((cb) => cb !== callback)
+    }
 }
 
 export async function joinSession(sessionId: string) {
-  if (!supabase) throw new Error('Supabase not configured')
+    if (!supabase) throw new Error('Supabase not configured')
 
   sessionChannel = supabase.channel(`pulse:session:${sessionId}`)
-  await sessionChannel.subscribe()
+    await sessionChannel.subscribe()
 
   return sessionChannel
 }
 
 export async function leaveSession() {
-  if (!sessionChannel) return
-  await sessionChannel.unsubscribe()
-  sessionChannel = null
+    if (!sessionChannel) return
+    await sessionChannel.unsubscribe()
+    sessionChannel = null
 }
 
 export function broadcastEvent<T extends Record<string, unknown>>(
-  event: string,
-  payload: T,
-) {
-  if (!sessionChannel) throw new Error('Session channel not initialized')
-  return sessionChannel.send({
-    type: 'broadcast',
-    event,
-    payload,
-  })
+    event: string,
+    payload: T,
+  ) {
+    if (!sessionChannel) throw new Error('Session channel not initialized')
+    return sessionChannel.send({
+          type: 'broadcast',
+          event,
+          payload,
+    })
 }
 
 export function onSessionEvent<T = unknown>(event: string, callback: EventCallback<T>) {
-  if (!sessionChannel) throw new Error('Session channel not initialized')
-  const sub = sessionChannel.on('broadcast', { event }, (msg) => {
-    callback(msg.payload as T)
-  })
-  return () => {
-    sub.unsubscribe()
-  }
+    if (!sessionChannel) throw new Error('Session channel not initialized')
+    const sub = sessionChannel.on('broadcast', { event }, (msg) => {
+          callback(msg.payload as T)
+    })
+    return () => {
+          sub.unsubscribe()
+    }
 }
 
 // Tracks which session the videoChannel is currently bound to so repeat
@@ -83,57 +110,57 @@ export function onSessionEvent<T = unknown>(event: string, callback: EventCallba
 let videoChannelSessionId: string | null = null
 
 export async function joinVideoChannel(sessionId: string) {
-  if (!supabase) throw new Error('Supabase not configured')
+    if (!supabase) throw new Error('Supabase not configured')
 
   if (videoChannel && videoChannelSessionId === sessionId) {
-    return videoChannel
+        return videoChannel
   }
-  if (videoChannel) {
-    await videoChannel.unsubscribe().catch(() => {})
-    videoChannel = null
-  }
+    if (videoChannel) {
+          await videoChannel.unsubscribe().catch(() => {})
+          videoChannel = null
+    }
 
   videoChannel = supabase.channel(`pulse:video:${sessionId}`)
-  await videoChannel.subscribe()
-  videoChannelSessionId = sessionId
+    await videoChannel.subscribe()
+    videoChannelSessionId = sessionId
 
   return videoChannel
 }
 
 export async function leaveVideoChannel() {
-  if (!videoChannel) return
-  await videoChannel.unsubscribe().catch(() => {})
-  videoChannel = null
-  videoChannelSessionId = null
+    if (!videoChannel) return
+    await videoChannel.unsubscribe().catch(() => {})
+    videoChannel = null
+    videoChannelSessionId = null
 }
 
 export interface PeerIdBroadcast {
-  roundId: string
-  peerId: string
-  senderUserId: string
-  sentAt: string
+    roundId: string
+    peerId: string
+    senderUserId: string
+    sentAt: string
 }
 
 export function broadcastPeerId(roundId: string, peerId: string, senderUserId: string) {
-  if (!videoChannel) throw new Error('Video channel not initialized')
-  return videoChannel.send({
-    type: 'broadcast',
-    event: 'peer_id',
-    payload: {
-      roundId,
-      peerId,
-      senderUserId,
-      sentAt: new Date().toISOString(),
-    } satisfies PeerIdBroadcast,
-  })
+    if (!videoChannel) throw new Error('Video channel not initialized')
+    return videoChannel.send({
+          type: 'broadcast',
+          event: 'peer_id',
+          payload: {
+                  roundId,
+                  peerId,
+                  senderUserId,
+                  sentAt: new Date().toISOString(),
+          } satisfies PeerIdBroadcast,
+    })
 }
 
 export function onPeerIdReceived(callback: EventCallback<PeerIdBroadcast>) {
-  if (!videoChannel) throw new Error('Video channel not initialized')
-  const sub = videoChannel.on('broadcast', { event: 'peer_id' }, (msg) => {
-    callback(msg.payload as PeerIdBroadcast)
-  })
-  return () => {
-    sub.unsubscribe()
-  }
+    if (!videoChannel) throw new Error('Video channel not initialized')
+    const sub = videoChannel.on('broadcast', { event: 'peer_id' }, (msg) => {
+          callback(msg.payload as PeerIdBroadcast)
+    })
+    return () => {
+          sub.unsubscribe()
+    }
 }
