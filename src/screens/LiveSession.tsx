@@ -29,7 +29,22 @@ const INTRO_DURATION = 5
 const LIVE_DURATION = 300
 const TRANSITION_DURATION = 15
 const EXTEND_WINDOW = 30
-const DEMO_ROUND_COUNT = 5
+const DEMO_ROUND_COUNT = 9
+
+const AD_SKIP_DELAY = 5
+
+/* Demo interstitial ads (UAE brands) */
+const DEMO_ADS = [
+  { brand: 'Emirates NBD', tagline: 'Banking on your future', cta: 'Open an Account', gradient: 'linear-gradient(135deg, #0066b3 0%, #004080 100%)', icon: '\u{1F3E6}' },
+  { brand: 'Careem', tagline: 'Your ride, your way', cta: 'Book a Ride', gradient: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)', icon: '\u{1F697}' },
+  { brand: 'noon', tagline: 'Shop what you love', cta: 'Shop Now', gradient: 'linear-gradient(135deg, #FEEE00 0%, #E6D500 100%)', icon: '\u{1F6CD}\uFE0F' },
+  { brand: 'Talabat', tagline: 'Everything you crave, delivered', cta: 'Order Now', gradient: 'linear-gradient(135deg, #FF5A00 0%, #CC4800 100%)', icon: '\u{1F355}' },
+  { brand: 'du', tagline: 'Let\u2019s connect', cta: 'Explore Plans', gradient: 'linear-gradient(135deg, #00B5E2 0%, #0088AA 100%)', icon: '\u{1F4F1}' },
+  { brand: 'Namshi', tagline: 'Fashion for everyone', cta: 'Shop Collection', gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', icon: '\u{1F457}' },
+  { brand: 'The Entertainer', tagline: 'Buy one get one free', cta: 'Get the App', gradient: 'linear-gradient(135deg, #e63946 0%, #c1121f 100%)', icon: '\u{1F389}' },
+  { brand: 'Etisalat by e&', tagline: 'Together matters', cta: 'Learn More', gradient: 'linear-gradient(135deg, #469B3D 0%, #2E6B28 100%)', icon: '\u{1F4F6}' },
+  { brand: 'Mumzworld', tagline: 'Everything for moms & babies', cta: 'Shop Deals', gradient: 'linear-gradient(135deg, #FF69B4 0%, #CC5590 100%)', icon: '\u{1F476}' },
+]
 
 export default function LiveSession({ user, sessionId, onNavigate }: Props) {
   // Load the real session bundle (session row + rounds + partner profiles)
@@ -93,6 +108,11 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
   const [currentQuestion, setCurrentQuestion] = useState<string | null>(conversationStarters[0])
   const [showReport, setShowReport] = useState(false)
   const [reportReason, setReportReason] = useState<Report['reason'] | null>(null)
+
+  /* New state for ads & questions */
+  const [adCountdown, setAdCountdown] = useState(AD_SKIP_DELAY)
+  const [adSkippable, setAdSkippable] = useState(false)
+  const [questionVisible, setQuestionVisible] = useState(true)
 
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
@@ -167,18 +187,22 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
       return
     }
     if (bundleLoading) return
-    const partners = ['Sofia', 'Layla', 'Amira', 'Nour', 'Yasmine']
+    const partners = ['Sofia', 'Layla', 'Amira', 'Nour', 'Yasmine', 'Dana', 'Hana', 'Mariam', 'Reem']
     const photos = [
       'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1280&q=90',
       'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1280&q=90',
       'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1280&q=90',
       'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=1280&q=90',
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1280&q=90',
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1280&q=90',
+      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=1280&q=90',
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=1280&q=90',
+      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1280&q=90',
     ]
     setCurrentPartner({
       id: null,
-      name: partners[currentRound - 1] || 'Partner',
-      photo: photos[currentRound - 1] || photos[0],
+      name: partners[(currentRound - 1) % partners.length] || 'Partner',
+      photo: photos[(currentRound - 1) % photos.length] || photos[0],
     })
   }, [currentRound, currentRoundData, bundleLoading])
 
@@ -408,6 +432,23 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
     }, 1200)
   }, [stopCamera, disconnect, onNavigate])
 
+
+  /* New handlers */
+  const handleNextQuestion = useCallback(() => {
+    const idx = Math.floor(Math.random() * conversationStarters.length)
+    setCurrentQuestion(conversationStarters[idx])
+  }, [])
+
+  const handleSkipAd = useCallback(() => {
+    if (currentRound >= totalRounds) {
+      setPhase('rating')
+      onNavigate('survey', { sessionId, rounds: bundle?.allRounds ?? [] })
+    } else {
+      setCurrentRound((prev) => prev + 1)
+      setPhase('intro')
+    }
+  }, [currentRound, totalRounds, onNavigate, sessionId, bundle])
+
   const minutes = Math.floor(timer.seconds / 60)
   const seconds = timer.seconds % 60
   const showExtendButton = timer.seconds <= EXTEND_WINDOW && timer.seconds > 0 && !isExtended && phase === 'live'
@@ -465,20 +506,54 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
   }
 
   if (phase === 'transition') {
+    const ad = DEMO_ADS[(currentRound - 1) % DEMO_ADS.length]
     return (
-      <div className="fixed inset-0 flex items-center justify-center" style={{ backgroundColor: dark.bg }}>
-        <BackgroundOrbs />
-        <div className="relative z-10 text-center px-6">
-          <div className="text-sm mb-4" style={{ color: dark.textSoft }}>Next up</div>
-          <h1 className="text-3xl md:text-4xl font-semibold mb-6" style={{ color: dark.text }}>
-            {currentRound < totalRounds
-              ? `Match ${currentRound + 1}`
-              : 'Session Complete'}
-          </h1>
-          <div className="inline-flex items-center gap-2" style={{ color: dark.textFaint }}>
-            <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: dark.accent }} />
-            <span className="text-sm">{TRANSITION_DURATION}s</span>
+      <div className="fixed inset-0 flex flex-col" style={{ background: ad.gradient }}>
+        {/* Ad badge */}
+        <div className="absolute top-5 left-5 z-10">
+          <div className="rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.15em] uppercase"
+            style={{ backgroundColor: 'rgba(0,0,0,0.3)', color: 'rgba(255,255,255,0.7)' }}>
+            Sponsored
           </div>
+        </div>
+        {/* Skip / countdown */}
+        <div className="absolute top-5 right-5 z-10">
+          {adSkippable ? (
+            <button onClick={handleSkipAd}
+              className="flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all active:scale-95"
+              style={{ backgroundColor: 'rgba(0,0,0,0.5)', color: 'white', backdropFilter: 'blur(8px)' }}>
+              Skip Ad
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          ) : (
+            <div className="rounded-full px-4 py-2 text-xs font-semibold"
+              style={{ backgroundColor: 'rgba(0,0,0,0.3)', color: 'rgba(255,255,255,0.6)' }}>
+              Skip in {adCountdown}s
+            </div>
+          )}
+        </div>
+        {/* Ad content */}
+        <div className="flex-1 flex flex-col items-center justify-center px-8">
+          <div className="text-7xl mb-6" style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' }}>{ad.icon}</div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3 text-center" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{ad.brand}</h2>
+          <p className="text-lg text-white/80 mb-10 text-center max-w-sm">{ad.tagline}</p>
+          <button className="px-8 py-3.5 rounded-full font-bold text-sm tracking-wide transition-all active:scale-95 shadow-xl"
+            style={{ backgroundColor: 'white', color: '#1a1a1a' }}>{ad.cta}</button>
+        </div>
+        {/* Progress dots */}
+        <div className="px-6 py-5 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            {Array.from({ length: totalRounds }).map((_, i) => (
+              <div key={i} className="h-1 rounded-full transition-all"
+                style={{ width: i === currentRound ? '20px' : '8px',
+                  backgroundColor: i < currentRound ? 'rgba(255,255,255,0.8)' : i === currentRound ? 'white' : 'rgba(255,255,255,0.25)' }} />
+            ))}
+          </div>
+          <p className="text-xs text-white/50">
+            {currentRound < totalRounds ? `Match ${currentRound + 1} of ${totalRounds} coming up` : 'Session complete'}
+          </p>
         </div>
       </div>
     )
@@ -742,35 +817,61 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
             </div>
           )}
 
-          {/* Conversation starter (center) */}
-          {phase === 'live' && currentQuestion && (
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[90%] max-w-xl animate-scale-in">
-              <div
-                className="rounded-2xl px-6 py-4 text-center backdrop-blur-xl border"
-                style={{ backgroundColor: `${dark.surface}90`, borderColor: dark.border }}
-              >
-                <p className="text-[0.7rem] uppercase tracking-[0.2em] mb-1.5 font-medium" style={{ color: dark.textFaint }}>
-                  Conversation starter
-                </p>
-                <p className="text-base md:text-lg font-medium leading-relaxed" style={{ color: dark.text }}>
-                  {currentQuestion}
-                </p>
+          {/* Icebreaker card (bottom, interactive) */}
+          {phase === 'live' && questionVisible && currentQuestion && (
+            <div className="absolute bottom-20 left-4 right-24 z-20 animate-slide-up">
+              <div className="rounded-2xl px-4 py-3 backdrop-blur-xl border"
+                style={{ backgroundColor: `${dark.surface}E6`, borderColor: dark.accentBorder }}>
+                <div className="flex items-start gap-2">
+                  <div className="flex-1">
+                    <p className="text-[0.65rem] uppercase tracking-[0.15em] mb-1 font-medium" style={{ color: dark.accent }}>Icebreaker</p>
+                    <p className="text-sm leading-relaxed" style={{ color: dark.text }}>{currentQuestion}</p>
+                  </div>
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    <button onClick={handleNextQuestion}
+                      className="rounded-full w-8 h-8 flex items-center justify-center transition-all active:scale-90 border"
+                      style={{ backgroundColor: dark.accentSoft, borderColor: dark.accent }}
+                      title="Next question">
+                      <svg className="w-4 h-4" style={{ color: dark.accent }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                    <button onClick={() => setQuestionVisible(false)}
+                      className="rounded-full w-8 h-8 flex items-center justify-center transition-all active:scale-90"
+                      style={{ backgroundColor: `${dark.surface}80` }}
+                      title="Hide">
+                      <svg className="w-3.5 h-3.5" style={{ color: dark.textFaint }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Local video PiP (bottom right) */}
+          {/* Local video PiP (bottom right) — mirrored for natural self-view */}
           <div
-            className="absolute bottom-4 right-4 z-20 w-[100px] h-[140px] md:w-[130px] md:h-[180px] overflow-hidden rounded-2xl shadow-2xl border-4"
+            className="absolute bottom-4 right-4 z-20 w-[110px] h-[150px] md:w-[140px] md:h-[190px] overflow-hidden rounded-2xl shadow-2xl border-4"
             style={{ borderColor: 'rgba(45,212,191,0.5)', boxShadow: '0 0 15px rgba(45,212,191,0.2), 0 8px 32px rgba(0,0,0,0.4)' }}
           >
-            <video
-              ref={localVideoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-            />
+            {localStream ? (
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover"
+                style={{ transform: 'scaleX(-1)' }}
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center" style={{ backgroundColor: dark.bgDeep }}>
+                <svg className="w-8 h-8 mb-1.5 animate-pulse" style={{ color: dark.textFaint }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span className="text-[9px]" style={{ color: dark.textFaint }}>Starting...</span>
+              </div>
+            )}
             <div className="absolute bottom-2 left-2 rounded-full px-2.5 py-1 text-[11px] font-medium" style={{ backgroundColor: 'rgba(45,212,191,0.15)', color: '#2DD4BF' }}>
               You
             </div>
@@ -824,6 +925,25 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
               <span className="text-lg" style={{ animation: sparks.mutual ? 'spark-pulse 0.8s ease-in-out infinite' : undefined }}>
                 {sparks.mutual ? '💖' : '✨'}
               </span>
+            </div>
+          </button>
+
+          {/* Question toggle */}
+          <button
+            onClick={() => setQuestionVisible(!questionVisible)}
+            className="shrink-0 transition-all active:scale-90"
+            title={questionVisible ? 'Hide icebreaker' : 'Show icebreaker'}
+          >
+            <div
+              className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center border"
+              style={{
+                backgroundColor: questionVisible ? dark.accentSoft : dark.surface,
+                borderColor: questionVisible ? dark.accent : dark.border,
+              }}
+            >
+              <svg className="w-5 h-5" style={{ color: questionVisible ? dark.accent : dark.textSoft }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
           </button>
 
