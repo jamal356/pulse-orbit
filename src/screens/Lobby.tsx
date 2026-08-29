@@ -97,7 +97,7 @@ export default function Lobby({ user, onNavigate }: Props) {
     return () => clearInterval(timer)
   }, [demoMode])
 
-  // Start countdown when 5+ people present and user is ready
+  // Start countdown when room is full and user is ready
   useEffect(() => {
     if (totalCount >= ROOM_SIZE && countdown === null && ready) {
       setCountdown(demoMode ? DEMO_COUNTDOWN : COUNTDOWN_START)
@@ -169,7 +169,7 @@ export default function Lobby({ user, onNavigate }: Props) {
 
   const handleReady = useCallback(() => {
     setReady_local(true)
-    // If fewer than 5 real users, start demo auto-fill
+    // If fewer than ROOM_SIZE real users, start demo auto-fill
     if (count < ROOM_SIZE) setDemoMode(true)
   }, [count])
 
@@ -189,9 +189,9 @@ export default function Lobby({ user, onNavigate }: Props) {
 
   if (cameraPermission === 'denied') {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: dark.bg }}>
+      <div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden" style={{ backgroundColor: dark.bg, touchAction: 'manipulation' }}>
         <BackgroundOrbs />
-        <div className="relative z-10 flex flex-col items-center gap-6 px-6 max-w-sm">
+        <div className="relative z-10 flex flex-col items-center gap-5 px-6 max-w-sm">
           <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: dark.accentSoft }}>
             <svg className="w-8 h-8" style={{ color: dark.accent }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -205,15 +205,15 @@ export default function Lobby({ user, onNavigate }: Props) {
           </div>
           <button
             onClick={handleRetryCamera}
-            className="w-full py-3 rounded-xl font-semibold transition-all active:scale-95"
-            style={{ backgroundColor: dark.accent, color: 'white' }}
+            className="w-full py-3.5 rounded-xl font-semibold transition-all active:scale-95"
+            style={{ backgroundColor: dark.accent, color: 'white', WebkitTapHighlightColor: 'transparent' }}
           >
             Grant Camera Access
           </button>
           <button
             onClick={handleLeaveLobby}
-            className="w-full py-2.5 rounded-xl font-medium transition-all active:scale-95"
-            style={{ backgroundColor: dark.surface, color: dark.textSoft }}
+            className="w-full py-3 rounded-xl font-medium transition-all active:scale-95"
+            style={{ backgroundColor: dark.surface, color: dark.textSoft, WebkitTapHighlightColor: 'transparent' }}
           >
             Go Back
           </button>
@@ -223,15 +223,15 @@ export default function Lobby({ user, onNavigate }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: dark.bg }}>
+    <div className="fixed inset-0 flex flex-col overflow-hidden" style={{ backgroundColor: dark.bg, touchAction: 'manipulation' }}>
       <BackgroundOrbs />
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between px-4 py-4 border-b" style={{ borderColor: dark.border }}>
+      <div className="relative z-10 flex items-center justify-between px-4 py-3 sm:py-4 border-b shrink-0" style={{ borderColor: dark.border }}>
         <button
           onClick={handleLeaveLobby}
           className="flex items-center gap-1.5 px-3 py-2 -ml-1 rounded-xl font-medium transition-all hover:opacity-80 active:scale-95"
-          style={{ color: dark.text, backgroundColor: dark.surface }}
+          style={{ color: dark.text, backgroundColor: dark.surface, WebkitTapHighlightColor: 'transparent' }}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -244,14 +244,14 @@ export default function Lobby({ user, onNavigate }: Props) {
         <div className="w-16" />
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 pb-20">
+      {/* Main content â scrollable on mobile */}
+      <div className="relative z-10 flex-1 flex flex-col items-center px-6 py-4 sm:py-6 overflow-y-auto min-h-0">
 
-        {/* Camera preview circle */}
-        <div className="mb-8">
+        {/* Camera preview circle â smaller on mobile */}
+        <div className="mb-4 sm:mb-6 shrink-0">
           <div
-            className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 shadow-2xl"
-            style={{ borderColor: dark.accent, boxShadow: `0 0 30px rgba(200,62,136,0.3)` }}
+            className="w-32 h-32 sm:w-44 sm:h-44 md:w-56 md:h-56 rounded-full overflow-hidden border-4 shadow-2xl"
+            style={{ borderColor: dark.accent, boxShadow: '0 0 30px rgba(200,62,136,0.3)' }}
           >
             {localStream ? (
               <video
@@ -259,11 +259,11 @@ export default function Lobby({ user, onNavigate }: Props) {
                 autoPlay
                 playsInline
                 muted
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover pointer-events-none"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: dark.bgDeep }}>
-                <svg className="w-12 h-12" style={{ color: dark.textFaint }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-10 h-10 sm:w-12 sm:h-12" style={{ color: dark.textFaint }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -272,17 +272,17 @@ export default function Lobby({ user, onNavigate }: Props) {
         </div>
 
         {/* Participant count */}
-        <div className="mb-6 text-center">
-          <div className="text-3xl md:text-4xl font-bold mb-1" style={{ color: dark.text }}>
+        <div className="mb-3 sm:mb-5 text-center shrink-0">
+          <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-0.5 sm:mb-1" style={{ color: dark.text }}>
             {totalCount}
             <span style={{ color: dark.textSoft, fontSize: '0.6em' }}> of {ROOM_SIZE}</span>
           </div>
-          <p style={{ color: dark.textSoft }}>people ready to connect</p>
+          <p className="text-sm" style={{ color: dark.textSoft }}>people ready to connect</p>
         </div>
 
         {/* Participant avatars grid */}
-        <div className="mb-8 w-full max-w-xs">
-          <div className="grid grid-cols-5 gap-2">
+        <div className="mb-4 sm:mb-6 w-full max-w-xs shrink-0">
+          <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
             {displaySlots.slice(0, ROOM_SIZE).map((slot, i) => (
               <div
                 key={i}
@@ -299,11 +299,11 @@ export default function Lobby({ user, onNavigate }: Props) {
                     className="w-full h-full object-cover"
                   />
                 ) : slot.filled ? (
-                  <span className="text-xs font-medium text-center px-1" style={{ color: dark.text }}>
+                  <span className="text-[10px] sm:text-xs font-medium text-center px-0.5" style={{ color: dark.text }}>
                     {slot.name.split(' ')[0]}
                   </span>
                 ) : (
-                  <svg className="w-5 h-5" style={{ color: dark.textFaint }} fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: dark.textFaint }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                   </svg>
                 )}
@@ -314,30 +314,30 @@ export default function Lobby({ user, onNavigate }: Props) {
 
         {/* Countdown */}
         {countdown !== null && (
-          <div className="mb-8 text-center animate-pulse">
-            <p className="text-sm mb-2" style={{ color: dark.textSoft }}>Session starts in</p>
-            <div className="text-5xl font-bold" style={{ color: dark.accent }}>
+          <div className="mb-4 sm:mb-6 text-center animate-pulse shrink-0">
+            <p className="text-sm mb-1.5 sm:mb-2" style={{ color: dark.textSoft }}>Session starts in</p>
+            <div className="text-4xl sm:text-5xl font-bold" style={{ color: dark.accent }}>
               {countdown}
             </div>
           </div>
         )}
 
         {/* Conversation starter */}
-        <div className="mb-8 w-full max-w-sm">
+        <div className="mb-4 w-full max-w-sm shrink-0">
           <div
-            className="rounded-2xl p-5 text-center border transition-all duration-700"
+            className="rounded-2xl p-4 sm:p-5 text-center border transition-all duration-700"
             style={{ borderColor: dark.accentBorder, backgroundColor: dark.surface }}
           >
-            <p className="text-xs uppercase tracking-wider mb-2" style={{ color: dark.textFaint }}>Conversation starter</p>
-            <p className="text-sm leading-relaxed" style={{ color: dark.text }}>
+            <p className="text-[10px] sm:text-xs uppercase tracking-wider mb-1.5 sm:mb-2" style={{ color: dark.textFaint }}>Conversation starter</p>
+            <p className="text-xs sm:text-sm leading-relaxed" style={{ color: dark.text }}>
               {currentStarter}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Bottom button */}
-      <div className="relative z-10 px-6 py-6 border-t" style={{ borderColor: dark.border }}>
+      {/* Bottom button â always visible, sticky */}
+      <div className="relative z-10 px-6 py-4 sm:py-6 border-t shrink-0" style={{ borderColor: dark.border, backgroundColor: dark.bg, paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
         <button
           onClick={handleReady}
           disabled={ready || isStarting}
@@ -345,6 +345,7 @@ export default function Lobby({ user, onNavigate }: Props) {
           style={{
             backgroundColor: ready ? dark.accentSoft : dark.accent,
             color: 'white',
+            WebkitTapHighlightColor: 'transparent',
           }}
         >
           {isStarting
@@ -353,7 +354,7 @@ export default function Lobby({ user, onNavigate }: Props) {
               ? "You're Ready â"
               : "I'm Ready to Connect"}
         </button>
-        <p className="text-xs mt-3 text-center" style={{ color: startError ? '#FF3B30' : dark.textFaint }}>
+        <p className="text-xs mt-2.5 sm:mt-3 text-center" style={{ color: startError ? '#FF3B30' : dark.textFaint }}>
           {startError
             ? startError
             : ready && totalCount < ROOM_SIZE
