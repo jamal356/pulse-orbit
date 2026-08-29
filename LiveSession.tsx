@@ -495,7 +495,7 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
     return (
       <div className="fixed inset-0 flex flex-col" style={{ background: ad.gradient, touchAction: 'manipulation' }}>
         {/* Ad badge */}
-        <div className="absolute top-4 left-4 z-10">
+        <div className="absolute left-4 z-10" style={{ top: 'max(env(safe-area-inset-top, 0px), 1rem)' }}>
           <div
             className="rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.15em] uppercase"
             style={{ backgroundColor: 'rgba(0,0,0,0.3)', color: 'rgba(255,255,255,0.7)' }}
@@ -505,7 +505,7 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
         </div>
 
         {/* Skip / countdown + visible ad timer */}
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+        <div className="absolute right-4 z-10 flex items-center gap-2" style={{ top: 'max(env(safe-area-inset-top, 0px), 1rem)' }}>
           {/* Visible countdown timer */}
           <div
             className="rounded-full px-3 py-1.5 text-xs font-mono font-bold"
@@ -743,8 +743,20 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
           )}
 
           {/* Top bar: round info + extend + safety */}
-          <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4 z-20 flex items-center justify-between">
+          <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 sm:px-4"
+            style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 0.75rem)' }}>
             <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Exit */}
+              <button
+                onClick={() => onNavigate('home')}
+                className="rounded-full w-8 h-8 flex items-center justify-center border transition-all active:scale-95"
+                style={{ backgroundColor: dark.surface + 'CC', borderColor: dark.border, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+                title="Exit"
+              >
+                <svg className="w-3.5 h-3.5" style={{ color: dark.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
               <div
                 className="rounded-full px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs font-semibold border"
                 style={{ backgroundColor: dark.surface, borderColor: dark.border, color: dark.text }}
