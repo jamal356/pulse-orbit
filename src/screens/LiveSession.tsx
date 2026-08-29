@@ -449,6 +449,24 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
     }
   }, [currentRound, totalRounds, onNavigate, sessionId, bundle])
 
+  // Ad countdown effect: count down when in transition phase
+  useEffect(() => {
+    if (phase !== 'transition') return
+    setAdCountdown(AD_SKIP_DELAY)
+    setAdSkippable(false)
+    const timer = setInterval(() => {
+      setAdCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          setAdSkippable(true)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [phase])
+
   const minutes = Math.floor(timer.seconds / 60)
   const seconds = timer.seconds % 60
   const showExtendButton = timer.seconds <= EXTEND_WINDOW && timer.seconds > 0 && !isExtended && phase === 'live'
