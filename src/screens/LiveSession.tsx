@@ -622,7 +622,7 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
         {/* Remote video (full screen) — once the WebRTC stream is up we
             swap the partner photo for the live feed. The photo stays as a
             blurred backdrop so wide/tall viewports don't show black bars. */}
-        <div className="flex-1 relative" style={{ backgroundColor: dark.bgDeep }}>
+        <div className="flex-1 relative overflow-hidden min-h-0" style={{ backgroundColor: dark.bgDeep }}>
           {currentPartner ? (
             <>
               {/* Blurred backdrop — always the photo, even mid-call */}
