@@ -77,10 +77,6 @@ export default function App() {
     }, 400)
   }, [])
 
-  const handleVideoDate = useCallback(() => {
-    navigateTo('videodate')
-  }, [navigateTo])
-
   const handleQuickMatch = useCallback(() => {
     navigateTo('discover')
   }, [navigateTo])
