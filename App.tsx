@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useAuth } from './hooks/useAuth'
 import MarketingPage from './screens/MarketingPage'
+import LandingPage from './screens/LandingPage'
 import LoginScreen from './screens/LoginScreen'
 import ProfileSetup from './screens/ProfileSetup'
 import HomeScreen from './screens/HomeScreen'
@@ -18,7 +19,7 @@ import WaitlistPage from './screens/WaitlistPage'
 import type { Candidate } from './data/people'
 import type { RoundWithProfiles } from './lib/session'
 
-type ScreenType = 'marketing' | 'login' | 'profile-setup' | 'home' | 'lobby' | 'live-session' | 'discover' | 'speeddate' | 'transition' | 'survey' | 'results' | 'videodate' | 'profile' | 'waitlist'
+type ScreenType = 'landing' | 'marketing' | 'login' | 'profile-setup' | 'home' | 'lobby' | 'live-session' | 'discover' | 'speeddate' | 'transition' | 'survey' | 'results' | 'videodate' | 'profile' | 'waitlist'
 
 const DEMO_SCREENS: ScreenType[] = ['marketing', 'login', 'profile-setup', 'home', 'discover', 'speeddate', 'lobby', 'live-session', 'survey', 'results']
 
@@ -33,7 +34,7 @@ function getInitialScreen(): ScreenType {
   if (['login', 'profile-setup', 'home', 'discover', 'lobby', 'live-session', 'survey', 'results', 'videodate', 'profile', 'waitlist'].includes(hash)) {
     return hash as ScreenType
   }
-  return 'marketing'
+  return 'landing'
 }
 
 export default function App() {
@@ -119,6 +120,10 @@ export default function App() {
         setScreen('marketing')
         return
       }
+      if (hash === '' || hash === 'landing') {
+        setScreen('landing')
+        return
+      }
       if (hash === 'waitlist') {
         setScreen('waitlist')
         return
@@ -172,8 +177,8 @@ export default function App() {
 
   // Unauthenticated users: only marketing, login, pitch, waitlist
   if (!user) {
-    if (!['marketing', 'login', 'waitlist'].includes(screen)) {
-      currentScreen = 'marketing'
+    if (!['landing', 'marketing', 'login', 'waitlist'].includes(screen)) {
+      currentScreen = 'landing'
     }
   }
   // Authenticated users without profile: only profile-setup or login
@@ -187,6 +192,9 @@ export default function App() {
 
   return (
     <div className={`transition-opacity duration-400 ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
+      {currentScreen === 'landing' && (
+        <LandingPage onEnter={() => navigateTo('login')} onDemo={() => navigateTo('marketing')} />
+      )}
       {currentScreen === 'marketing' && (
         <MarketingPage onStartDemo={() => navigateTo('login')} />
       )}
@@ -258,7 +266,7 @@ export default function App() {
         <AiSupport onClose={() => setShowAura(false)} />
       )}
 
-      {!['marketing', 'login', 'profile-setup', 'waitlist'].includes(screen) && !showAura && (
+      {!['landing', 'marketing', 'login', 'profile-setup', 'waitlist'].includes(screen) && !showAura && (
         <button
           onClick={() => setShowAura(true)}
           className="fixed z-[90] left-1/2 -translate-x-1/2 group"
