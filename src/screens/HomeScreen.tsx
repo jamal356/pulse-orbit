@@ -307,8 +307,6 @@ export default function HomeScreen({ onQuickMatch, onGroupSession }: Props) {
             BELOW THE FOLD — Only two sections. Restrained.
            ══════════════════════════════════════════════════════════ */}
 
-        )}
-
         {/* ── "New near you" — single horizontal carousel ── */}
         <section className="pt-8 pb-4">
           <div className="px-6 mb-4 flex items-baseline justify-between">
