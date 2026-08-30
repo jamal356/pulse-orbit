@@ -37,6 +37,10 @@ function getInitialScreen(): ScreenType {
   return 'landing'
 }
 
+/* Demo user/profile for jam/123 login bypass */
+const DEMO_USER = { id: 'demo-user-001', email: 'jam' } as any
+const DEMO_PROFILE = { display_name: 'Jamal', photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=90' } as any
+
 export default function App() {
   const { user, profile, loading } = useAuth()
   const [route, setRoute] = useState<'pitch' | 'product'>(getRoute)
@@ -47,6 +51,11 @@ export default function App() {
   const [matchesData, setMatchesData] = useState<any>(null)
   const [liveSessionId, setLiveSessionId] = useState<string | null>(null)
   const [surveyRounds, setSurveyRounds] = useState<RoundWithProfiles[]>([])
+  const [demoMode, setDemoMode] = useState(false)
+
+  /* Effective user & profile â real auth or demo fallback */
+  const effectiveUser = user || (demoMode ? DEMO_USER : null)
+  const effectiveProfile = profile || (demoMode ? DEMO_PROFILE : null)
 
   const navigateTo = useCallback((next: ScreenType, data?: any) => {
     setTransitioning(true)
@@ -54,11 +63,9 @@ export default function App() {
       setMatchesData(data.matches)
     }
     if (next === 'live-session') {
-      // Lobby → live: carry real session_id forward. null = demo mode.
       setLiveSessionId(data?.sessionId ?? null)
     }
     if (next === 'survey') {
-      // LiveSession → survey: preserve session id + hand off loaded rounds.
       if (data?.sessionId !== undefined) setLiveSessionId(data.sessionId)
       if (Array.isArray(data?.rounds)) setSurveyRounds(data.rounds)
     }
@@ -96,11 +103,21 @@ export default function App() {
     navigateTo('lobby')
   }, [navigateTo])
 
-  const handleLoginComplete = useCallback(() => {
-    if (profile) {
+  /* Login handler â supports both real auth and demo bypass */
+  const handleLoginComplete = useCallback((screenArg?: string) => {
+    if (screenArg === 'home') {
+      // Demo mode â jam/123 bypass sent us straight to home
+      setDemoMode(true)
       navigateTo('home')
-    } else {
+    } else if (screenArg === 'profile-setup') {
       navigateTo('profile-setup')
+    } else {
+      // Real auth flow
+      if (profile) {
+        navigateTo('home')
+      } else {
+        navigateTo('profile-setup')
+      }
     }
   }, [profile, navigateTo])
 
@@ -175,20 +192,16 @@ export default function App() {
   // Determine which screen to show based on auth state
   let currentScreen = screen
 
-  // Unauthenticated users: only marketing, login, pitch, waitlist
-  if (!user) {
+  // Use effective user/profile (real or demo)
+  if (!effectiveUser) {
     if (!['landing', 'marketing', 'login', 'waitlist'].includes(screen)) {
       currentScreen = 'landing'
     }
-  }
-  // Authenticated users without profile: only profile-setup or login
-  else if (!profile) {
+  } else if (!effectiveProfile) {
     if (!['profile-setup', 'login'].includes(screen)) {
       currentScreen = 'profile-setup'
     }
   }
-  // Authenticated users with profile: full app access
-  // (any screen is allowed)
 
   return (
     <div className={`transition-opacity duration-400 ${transitioning ? 'opacity-0' : 'opacity-100'}`}>
@@ -207,11 +220,10 @@ export default function App() {
       {currentScreen === 'waitlist' && (
         <WaitlistPage />
       )}
-      {currentScreen === 'home' && user && profile && (
+      {currentScreen === 'home' && effectiveUser && effectiveProfile && (
         <HomeScreen
           onQuickMatch={handleQuickMatch}
           onGroupSession={handleGroupSession}
-          onVideoDate={handleVideoDate}
         />
       )}
       {currentScreen === 'discover' && (
@@ -220,30 +232,30 @@ export default function App() {
           onGroupSession={handleDiscoverToGroup}
         />
       )}
-      {currentScreen === 'lobby' && user && profile && (
+      {currentScreen === 'lobby' && effectiveUser && effectiveProfile && (
         <Lobby
-          user={{ id: user.id, display_name: profile.display_name, photo_url: profile.photo_url }}
+          user={{ id: effectiveUser.id, display_name: effectiveProfile.display_name, photo_url: effectiveProfile.photo_url }}
           onNavigate={(next, data) => navigateTo(next as ScreenType, data)}
         />
       )}
-      {currentScreen === 'live-session' && user && profile && (
+      {currentScreen === 'live-session' && effectiveUser && effectiveProfile && (
         <LiveSession
-          user={{ id: user.id, display_name: profile.display_name, photo_url: profile.photo_url }}
+          user={{ id: effectiveUser.id, display_name: effectiveProfile.display_name, photo_url: effectiveProfile.photo_url }}
           sessionId={liveSessionId}
           onNavigate={(next, data) => navigateTo((next === 'home' ? 'home' : 'survey') as ScreenType, data)}
         />
       )}
-      {currentScreen === 'survey' && user && profile && (
+      {currentScreen === 'survey' && effectiveUser && effectiveProfile && (
         <MatchSurvey
-          user={{ id: user.id }}
+          user={{ id: effectiveUser.id }}
           sessionId={liveSessionId || 'session-default'}
           rounds={surveyRounds}
           onNavigate={(screen, data) => navigateTo(screen, data)}
         />
       )}
-      {currentScreen === 'results' && user && profile && (
+      {currentScreen === 'results' && effectiveUser && effectiveProfile && (
         <MatchResults
-          user={{ id: user.id, display_name: profile.display_name || '', photo_url: profile.photo_url || '' }}
+          user={{ id: effectiveUser.id, display_name: effectiveProfile.display_name || '', photo_url: effectiveProfile.photo_url || '' }}
           sessionId="session-default"
           matches={matchesData || []}
           onNavigate={(screen, data) => navigateTo(screen as ScreenType, data)}
@@ -258,8 +270,8 @@ export default function App() {
       {currentScreen === 'videodate' && (
         <VideoDate onBack={() => navigateTo('home')} />
       )}
-      {currentScreen === 'profile' && user && profile && (
-        <ProfileScreen user={user} profile={profile} />
+      {currentScreen === 'profile' && effectiveUser && effectiveProfile && (
+        <ProfileScreen user={effectiveUser} profile={effectiveProfile} />
       )}
 
       {showAura && (
