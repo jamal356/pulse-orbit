@@ -96,6 +96,7 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
   const [reportError, setReportError] = useState<string | null>(null)
   const [isSubmittingReport, setIsSubmittingReport] = useState(false)
   const [userSparkSent, setUserSparkSent] = useState(false)
+  const [sparkFlash, setSparkFlash] = useState(false)
   const [userExtendRequested, setUserExtendRequested] = useState(false)
   const [isExtended, setIsExtended] = useState(false)
   const [showEmergencyConfirm, setShowEmergencyConfirm] = useState(false)
@@ -362,6 +363,8 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
   const handleSpark = useCallback(() => {
     if (userSparkSent || phase !== 'live') return
     setUserSparkSent(true)
+    setSparkFlash(true)
+    setTimeout(() => setSparkFlash(false), 1200)
     sendSpark()
   }, [userSparkSent, phase, sendSpark])
 
@@ -958,11 +961,11 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
               style={{
                 backgroundColor: sparks.mutual ? dark.accentSoft : dark.surface,
                 borderColor: sparks.mutual ? dark.accent : dark.border,
-                boxShadow: sparks.mutual ? '0 0 20px rgba(200,62,136,0.4)' : undefined,
+                boxShadow: sparks.mutual ? '0 0 20px rgba(200,62,136,0.4)' : sparkFlash ? '0 0 25px rgba(200,62,136,0.5), 0 0 50px rgba(200,62,136,0.2)' : undefined,
               }}
             >
               <span className="text-lg" style={{ animation: sparks.mutual ? 'spark-pulse 0.8s ease-in-out infinite' : undefined }}>
-                {sparks.mutual ? '\u{1F496}' : 'â¨'}
+                {sparks.mutual ? '\u{1F496}' : userSparkSent ? '\u{1F49C}' : 'â¨'}
               </span>
             </div>
           </button>
@@ -981,9 +984,7 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
                 borderColor: questionVisible ? dark.accent : dark.border,
               }}
             >
-              <svg className="w-5 h-5" style={{ color: questionVisible ? dark.accent : dark.textSoft }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <span className="text-lg">{questionVisible ? '\u2744\uFE0F' : '\u2744\uFE0F'}</span>
             </div>
           </button>
 
