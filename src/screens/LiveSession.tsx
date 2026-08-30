@@ -849,44 +849,23 @@ export default function LiveSession({ user, sessionId, onNavigate }: Props) {
             </div>
           )}
 
-          {/* Conversation starter (icebreaker, interactive) */}
+          {/* Conversation starter — liquid glass (consistent with SpeedDate) */}
           {phase === 'live' && questionVisible && currentQuestion && (
-            <div className="absolute bottom-14 sm:bottom-20 left-3 right-[100px] sm:left-4 sm:right-[170px] z-20 animate-slide-up">
-              <div
-                className="rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 backdrop-blur-xl border"
-                style={{ backgroundColor: `${dark.surface}E6`, borderColor: dark.accentBorder }}
-              >
-                <div className="flex items-start gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[0.6rem] sm:text-[0.65rem] uppercase tracking-[0.15em] mb-0.5 sm:mb-1 font-medium" style={{ color: dark.accent }}>
-                      Icebreaker
-                    </p>
-                    <p className="text-xs sm:text-sm leading-relaxed" style={{ color: dark.text }}>
-                      {currentQuestion}
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-1 sm:gap-1.5 shrink-0">
-                    <button
-                      onClick={handleNextQuestion}
-                      className="rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center transition-all active:scale-90 border"
-                      style={{ backgroundColor: dark.accentSoft, borderColor: dark.accent, WebkitTapHighlightColor: 'transparent' }}
-                      title="Next question"
-                    >
-                      <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{ color: dark.accent }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setQuestionVisible(false)}
-                      className="rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center transition-all active:scale-90"
-                      style={{ backgroundColor: `${dark.surface}80`, WebkitTapHighlightColor: 'transparent' }}
-                      title="Hide questions"
-                    >
-                      <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" style={{ color: dark.textFaint }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[90%] max-w-xl animate-scale-in">
+              <div className="glass-tile backdrop-blur-xl rounded-2xl px-6 py-4 text-center">
+                <p className="text-[0.7rem] uppercase tracking-[0.2em] mb-1.5 font-medium text-[#E0E0E5]">Conversation Starter</p>
+                <p className="text-base md:text-lg font-medium leading-relaxed text-white">{currentQuestion}</p>
+                <div className="flex items-center justify-center gap-3 mt-3">
+                  <button onClick={handleNextQuestion} className="glass-button rounded-full w-8 h-8 flex items-center justify-center transition-all active:scale-90" style={{ WebkitTapHighlightColor: 'transparent' }} title="Next question">
+                    <svg className="w-4 h-4 text-[#C83E88]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
+                  <button onClick={() => setQuestionVisible(false)} className="glass-button rounded-full w-8 h-8 flex items-center justify-center transition-all active:scale-90" style={{ WebkitTapHighlightColor: 'transparent' }} title="Hide questions">
+                    <svg className="w-3.5 h-3.5 text-[#98989D]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
