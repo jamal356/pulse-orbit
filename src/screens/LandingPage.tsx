@@ -150,8 +150,8 @@ export default function LandingPage({ onEnter, onDemo }: Props) {
       >
         <defs>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b1" />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="16" result="b2" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="b1" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b2" />
             <feMerge>
               <feMergeNode in="b2" />
               <feMergeNode in="b1" />
@@ -164,8 +164,8 @@ export default function LandingPage({ onEnter, onDemo }: Props) {
           cy="150"
           r={RING_R}
           fill="none"
-          stroke="rgba(200,62,136,0.22)"
-          strokeWidth="0.7"
+          stroke="rgba(200,62,136,0.15)"
+          strokeWidth="0.5"
           filter="url(#glow)"
           style={{
             strokeDasharray: RING_C,
@@ -275,7 +275,8 @@ export default function LandingPage({ onEnter, onDemo }: Props) {
             marginTop: '48px',
             padding: '15px 56px',
             background: 'transparent',
-            border: '1px solid rgba(200,62,136,0.3)',
+            border: 'none',
+            boxShadow: 'inset 0 0 0 1px rgba(200,62,136,0.3)',
             borderRadius: '100px',
             color: 'rgba(255,255,255,0.75)',
             fontSize: '11.5px',
@@ -289,17 +290,15 @@ export default function LandingPage({ onEnter, onDemo }: Props) {
           onMouseEnter={(e) => {
             Object.assign(e.currentTarget.style, {
               background: 'rgba(200,62,136,0.08)',
-              borderColor: 'rgba(200,62,136,0.5)',
               color: 'rgba(255,255,255,0.95)',
-              boxShadow: '0 0 40px rgba(200,62,136,0.08)',
+              boxShadow: 'inset 0 0 0 1px rgba(200,62,136,0.5), 0 0 40px rgba(200,62,136,0.08)',
             })
           }}
           onMouseLeave={(e) => {
             Object.assign(e.currentTarget.style, {
               background: 'transparent',
-              borderColor: 'rgba(200,62,136,0.3)',
               color: 'rgba(255,255,255,0.75)',
-              boxShadow: 'none',
+              boxShadow: 'inset 0 0 0 1px rgba(200,62,136,0.3)',
             })
           }}
         >
@@ -362,14 +361,14 @@ export default function LandingPage({ onEnter, onDemo }: Props) {
       <style>{`
         @keyframes ringBreathe {
           0%, 100% {
-            filter: drop-shadow(0 0 30px rgba(200,62,136,0.06))
-                    drop-shadow(0 0 60px rgba(200,62,136,0.03));
+            filter: drop-shadow(0 0 18px rgba(200,62,136,0.04))
+                    drop-shadow(0 0 40px rgba(200,62,136,0.02));
             transform: scale(1);
           }
           50% {
-            filter: drop-shadow(0 0 50px rgba(200,62,136,0.1))
-                    drop-shadow(0 0 90px rgba(200,62,136,0.05));
-            transform: scale(1.006);
+            filter: drop-shadow(0 0 28px rgba(200,62,136,0.07))
+                    drop-shadow(0 0 55px rgba(200,62,136,0.03));
+            transform: scale(1.004);
           }
         }
       `}</style>
